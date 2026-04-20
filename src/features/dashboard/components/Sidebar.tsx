@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { Menu, LogOut, LayoutDashboard, Settings, Users, Database } from 'lucide-react';
-import { SidebarItem } from './SidebarItem';
+import { NavLink, useLocation } from 'react-router-dom';
+import {
+  Menu, LogOut, LayoutDashboard, Users, ShieldCheck,
+  CalendarDays, Puzzle, MonitorDot, ChevronRight,
+} from 'lucide-react';
 import { NavItemType } from '../types/sidebar.types';
 import { useLogout } from '../../auth/hooks/useLogout';
 
-// Mock/Template para simular dinamismo
-// En el futuro esto podría cargarse por API
 const NAV_MENU: NavItemType[] = [
   {
     id: 'dashboard',
@@ -14,30 +15,108 @@ const NAV_MENU: NavItemType[] = [
     path: '/dashboard',
   },
   {
-    id: 'users',
-    title: 'Gestión Usuarios',
+    id: 'usuarios',
+    title: 'Usuarios',
     icon: Users,
-    subModules: [
-      { id: 'users-list', title: 'Listado Módulo', path: '/dashboard/users', icon: Database },
-      { id: 'users-roles', title: 'Roles Submódulo', path: '/dashboard/users/roles', icon: Settings },
-    ]
+    path: '/dashboard/usuarios',
   },
   {
-    id: 'settings',
-    title: 'Configuración',
-    icon: Settings,
-    path: '/dashboard/options',
-  }
+    id: 'accesos',
+    title: 'Accesos',
+    icon: ShieldCheck,
+    path: '/dashboard/accesos',
+  },
+  {
+    id: 'eventos',
+    title: 'Eventos',
+    icon: CalendarDays,
+    subModules: [
+      { id: 'eventos-list', title: 'Listado', path: '/dashboard/eventos', icon: CalendarDays },
+      { id: 'eventos-historial', title: 'Historial', path: '/dashboard/eventos/historial', icon: MonitorDot },
+    ],
+  },
+  {
+    id: 'funcionalidades',
+    title: 'Funcionalidades',
+    icon: Puzzle,
+    path: '/dashboard/funcionalidades',
+  },
+  {
+    id: 'sesiones',
+    title: 'Sesiones',
+    icon: MonitorDot,
+    path: '/dashboard/sesiones',
+  },
 ];
 
-export const Sidebar = () => {
+interface SidebarItemProps {
+  item: NavItemType;
+  isExpanded: boolean;
+}
+
+const SidebarNavItem: React.FC<SidebarItemProps> = ({ item, isExpanded }) => {
+  const { pathname } = useLocation();
+  const hasSubModules = item.subModules && item.subModules.length > 0;
+  const isActive = item.path === pathname || (hasSubModules && item.subModules?.some(s => s.path === pathname));
+  const [isOpen, setIsOpen] = useState(false);
+  const Icon = item.icon;
+
+  const baseClasses = `relative flex items-center justify-between py-3 px-4 mx-2 rounded-xl cursor-pointer transition-all duration-200 group
+    ${isActive ? 'bg-indigo-600/10 text-indigo-400 font-medium' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`;
+
+  const content = (
+    <div onClick={() => hasSubModules && isExpanded && setIsOpen(!isOpen)} className={baseClasses}>
+      <div className="flex items-center gap-3 w-full">
+        <Icon size={20} className={`${isActive ? 'text-indigo-500' : 'text-gray-500 group-hover:text-indigo-400'} transition-colors shrink-0`} />
+        {isExpanded && <span className="text-sm truncate whitespace-nowrap">{item.title}</span>}
+      </div>
+      {isExpanded && hasSubModules && (
+        <ChevronRight size={16} className={`${isOpen ? 'rotate-90' : ''} transition-transform text-gray-500 shrink-0`} />
+      )}
+      {!isExpanded && (
+        <div className="absolute left-14 opacity-0 group-hover:opacity-100 bg-gray-800 text-white text-xs px-2 py-1 rounded shadow-xl whitespace-nowrap z-50 pointer-events-none transition-opacity">
+          {item.title}
+        </div>
+      )}
+    </div>
+  );
+
+  if (!hasSubModules && item.path) {
+    return <NavLink to={item.path} className="block mt-1">{content}</NavLink>;
+  }
+
+  return (
+    <div className="mt-1">
+      {content}
+      {isExpanded && isOpen && hasSubModules && (
+        <div className="flex flex-col gap-1 mt-1 pl-4 mx-2 border-l border-white/5 animate-in slide-in-from-top-2 fade-in duration-200">
+          {item.subModules!.map((sub) => {
+            const SubIcon = sub.icon;
+            const subActive = pathname === sub.path;
+            return (
+              <NavLink
+                key={sub.id}
+                to={sub.path!}
+                className={`flex items-center gap-3 py-2.5 px-4 rounded-lg text-sm transition-colors ${subActive ? 'bg-indigo-600/10 text-indigo-400 font-medium' : 'text-gray-400 hover:bg-white/5 hover:text-gray-200'}`}
+              >
+                <SubIcon size={16} className="shrink-0" />
+                <span className="truncate">{sub.title}</span>
+              </NavLink>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export const Sidebar: React.FC = () => {
   const [isExpanded, setIsExpanded] = useState(true);
   const { logout } = useLogout();
 
   return (
-    <aside className={`${isExpanded ? 'w-64' : 'w-[84px]'} h-screen bg-gray-900/50 backdrop-blur-3xl border-r border-white/10 flex flex-col transition-all duration-300 relative z-30`}>
-      {/* Logos & Header Toggle */}
-      <div className="h-20 flex items-center justify-between px-6 border-b border-white/5 shrink-0 overflow-hidden">
+    <aside className={`${isExpanded ? 'w-64' : 'w-[84px]'} h-screen bg-gray-900/50 backdrop-blur-3xl border-r border-white/10 flex flex-col transition-all duration-300 relative z-30 shrink-0`}>
+      <div className="h-20 flex items-center justify-between px-6 border-b border-white/5 overflow-hidden shrink-0">
         <div className={`font-bold text-xl tracking-widest text-white truncate transition-opacity duration-300 ${!isExpanded && 'opacity-0 w-0'}`}>
           DevOps<span className="text-indigo-500">App</span>
         </div>
@@ -45,26 +124,24 @@ export const Sidebar = () => {
           <Menu size={22} />
         </button>
       </div>
-      
-      {/* Scrollable Nav Item Container */}
-      <nav className="flex-1 overflow-y-auto overflow-x-hidden py-6 space-y-1 custom-scrollbar">
+
+      <nav className="flex-1 overflow-y-auto overflow-x-hidden py-6 space-y-0.5 custom-scrollbar">
         <div className={`px-5 mb-4 text-xs font-semibold text-gray-500 uppercase tracking-wider transition-opacity duration-300 ${!isExpanded && 'opacity-0'}`}>
           Menú Principal
         </div>
         {NAV_MENU.map((item) => (
-          <SidebarItem key={item.id} item={item} isExpanded={isExpanded} />
+          <SidebarNavItem key={item.id} item={item} isExpanded={isExpanded} />
         ))}
       </nav>
 
-      {/* Footer / User Profile & Logout */}
       <div className="p-4 border-t border-white/5 shrink-0">
-         <button 
-           onClick={logout}
-           className={`w-full flex items-center justify-center gap-3 py-3 rounded-xl bg-red-500/10 text-red-400 hover:bg-red-500/20 hover:shadow-lg hover:shadow-red-500/10 transition-all font-medium border border-transparent hover:border-red-500/30 group ${!isExpanded && 'px-0'}`}
-         >
-           <LogOut size={20} className="group-hover:-translate-x-1 transition-transform shrink-0" />
-           {isExpanded && <span className="truncate">Cerrar Sesión</span>}
-         </button>
+        <button
+          onClick={logout}
+          className={`w-full flex items-center justify-center gap-3 py-3 rounded-xl bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-all font-medium border border-transparent hover:border-red-500/30 group`}
+        >
+          <LogOut size={20} className="group-hover:-translate-x-1 transition-transform shrink-0" />
+          {isExpanded && <span className="truncate">Cerrar Sesión</span>}
+        </button>
       </div>
     </aside>
   );
