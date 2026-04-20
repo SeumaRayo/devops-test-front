@@ -16,8 +16,9 @@ export default defineConfig({
     proxy: {
       '/api': {
         target: 'http://localhost:3020',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, '')
+        changeOrigin: true
+        // NO rewrite: the backend has spring.mvc.servlet.path=/api
+        // so it expects /api/v1/auth/... paths as-is
       }
     }
   }

@@ -1,9 +1,56 @@
-export const API_BASE_URL: string = import.meta.env.VITE_API_URL || '/api';
+export const API_BASE_URL: string = import.meta.env.VITE_API_URL || '';
 
 export const API_ENDPOINTS = {
   AUTH: {
-    LOGIN: '/auth/login',
-    REGISTER: '/auth/signup',
-    LOGOUT: '/auth/logout',
+    LOGIN: '/api/v1/auth/login',
+    REGISTER: '/api/v1/auth/signup',
+    LOGOUT: '/api/v1/auth/logout',
+    FORGOT_PASSWORD: '/api/v1/auth/forgot-password',
+    RESET_PASSWORD: '/api/v1/auth/reset-password',
+    REQUEST_UNLOCK: '/api/v1/auth/request-account-unlock',
+    UNLOCK_ACCOUNT: '/api/v1/auth/unlock-account',
+  },
+  USUARIOS: {
+    BASE: '/api/v1/usuarios',
+    ALL: '/api/v1/usuarios/all',
+    BY_ID: (id: number) => `/api/v1/usuarios/${id}`,
+    BY_DOCUMENT: (doc: string) => `/api/v1/usuarios/document/${doc}`,
+    ACTIVAR: (id: number) => `/api/v1/usuarios/${id}/activar`,
+    DESACTIVAR: (id: number) => `/api/v1/usuarios/${id}/desactivar`,
+    BLOQUEAR: (id: number) => `/api/v1/usuarios/${id}/bloquear`,
+  },
+  ACCESOS: {
+    BASE: '/api/v1/accesos',
+    BY_USER: (id: number) => `/api/v1/accesos/${id}`,
+    ACTIVAR: (id: number) => `/api/v1/accesos/${id}/activar`,
+    DESACTIVAR: (id: number) => `/api/v1/accesos/${id}/desactivar`,
+    BLOQUEAR: (id: number) => `/api/v1/accesos/${id}/bloquear`,
+    CHANGE_PASSWORD: '/api/v1/accesos/cambiar-password',
+    ADMIN_CHANGE_PASSWORD: (id: number) => `/api/v1/accesos/${id}/cambiar-password-admin`,
+  },
+  EVENTOS: {
+    BASE: '/api/v1/eventos',
+    BY_ID: (id: number) => `/api/v1/eventos/${id}`,
+    BY_USER: (userId: number) => `/api/v1/eventos/usuarios/${userId}/eventos`,
+    HISTORIAL: (id: number) => `/api/v1/eventos/${id}/historial`,
+    PUBLICAR: (id: number) => `/api/v1/eventos/${id}/publicar`,
+    CANCELAR: (id: number) => `/api/v1/eventos/${id}/cancelar`,
+    CERRAR: (id: number) => `/api/v1/eventos/${id}/cerrar`,
+    ACTIVAR: (id: number) => `/api/v1/eventos/${id}/activar`,
+    DESACTIVAR: (id: number) => `/api/v1/eventos/${id}/desactivar`,
+  },
+  FUNCIONALIDADES: {
+    BASE: '/api/v1/funcionalidad',
+    BY_ID: (id: number) => `/api/v1/funcionalidad/${id}`,
+    ACTIVAR: (id: number) => `/api/v1/funcionalidad/${id}/activar`,
+    DESACTIVAR: (id: number) => `/api/v1/funcionalidad/${id}/desactivar`,
+  },
+  SESIONES: {
+    BASE: '/api/v1/sesiones',
+    ACTIVAS: '/api/v1/sesiones/activas',
+    ULTIMA: '/api/v1/sesiones/ultima',
+    BY_ID: (id: number) => `/api/v1/sesiones/${id}`,
+    BY_USER: (userId: number) => `/api/v1/usuarios/${userId}/sesiones`,
+    ULTIMA_BY_USER: (userId: number) => `/api/v1/usuarios/${userId}/sesiones/ultima`,
   },
 } as const;
