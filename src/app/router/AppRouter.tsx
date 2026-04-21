@@ -6,6 +6,7 @@ import { DashboardLayout } from '../../features/dashboard/layout/DashboardLayout
 import GeneralDashboardPage from '../../features/dashboard/pages/GeneralDashboardPage';
 import UsuariosListPage from '../../features/usuarios/pages/UsuariosListPage';
 import UsuarioDetailPage from '../../features/usuarios/pages/UsuarioDetailPage';
+import AccesosListPage from '../../features/accesos/pages/AccesosListPage';
 import { useAuthStore } from '../store/auth.store';
 
 // Placeholder component for modules not yet developed
@@ -40,7 +41,7 @@ const AppRouter = () => {
           <Route path="usuarios/:id" element={<UsuarioDetailPage />} />
 
           {/* Accesos */}
-          <Route path="accesos" element={<ComingSoon module="Gestión de Accesos" />} />
+          <Route path="accesos" element={<AccesosListPage />} />
 
           {/* Eventos */}
           <Route path="eventos" element={<ComingSoon module="Gestión de Eventos" />} />
