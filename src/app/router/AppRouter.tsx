@@ -7,6 +7,9 @@ import GeneralDashboardPage from '../../features/dashboard/pages/GeneralDashboar
 import UsuariosListPage from '../../features/usuarios/pages/UsuariosListPage';
 import UsuarioDetailPage from '../../features/usuarios/pages/UsuarioDetailPage';
 import AccesosListPage from '../../features/accesos/pages/AccesosListPage';
+import EventosListPage from '../../features/eventos/pages/EventosListPage';
+import EventoDetailPage from '../../features/eventos/pages/EventoDetailPage';
+import EventosHistorialPage from '../../features/eventos/pages/EventosHistorialPage';
 import { useAuthStore } from '../store/auth.store';
 
 // Placeholder component for modules not yet developed
@@ -44,9 +47,9 @@ const AppRouter = () => {
           <Route path="accesos" element={<AccesosListPage />} />
 
           {/* Eventos */}
-          <Route path="eventos" element={<ComingSoon module="Gestión de Eventos" />} />
-          <Route path="eventos/historial" element={<ComingSoon module="Historial de Eventos" />} />
-          <Route path="eventos/:id" element={<ComingSoon module="Detalle de Evento" />} />
+          <Route path="eventos" element={<EventosListPage />} />
+          <Route path="eventos/historial" element={<EventosHistorialPage />} />
+          <Route path="eventos/:id" element={<EventoDetailPage />} />
 
           {/* Funcionalidades */}
           <Route path="funcionalidades" element={<ComingSoon module="Gestión de Funcionalidades" />} />
