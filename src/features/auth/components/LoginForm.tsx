@@ -2,6 +2,7 @@ import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Mail, Lock, Loader2, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { loginSchema } from '../validations/auth.schema';
 import { useLogin } from '../hooks/useLogin';
 import { LoginRequest } from '../types/auth.types';
@@ -62,6 +63,12 @@ export default function LoginForm() {
           </div>
           {errors.password && <p className="mt-1.5 text-xs text-red-400 ml-1">{errors.password.message}</p>}
         </div>
+      </div>
+
+      <div className="flex items-center justify-between mt-2">
+        <Link to="/forgot-password" className="text-xs text-indigo-400 hover:text-indigo-300 font-medium transition-colors">
+          ¿Olvidaste tu contraseña?
+        </Link>
       </div>
 
       <button

@@ -1,6 +1,8 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import LoginPage from '../../features/auth/pages/LoginPage';
 import RegisterPage from '../../features/auth/pages/RegisterPage';
+import { ForgotPasswordPage } from '../../features/auth/pages/ForgotPasswordPage';
+import { ResetPasswordPage } from '../../features/auth/pages/ResetPasswordPage';
 import { ProtectedRoute } from '../../features/auth/components/ProtectedRoute';
 import { DashboardLayout } from '../../features/dashboard/layout/DashboardLayout';
 import GeneralDashboardPage from '../../features/dashboard/pages/GeneralDashboardPage';
@@ -22,6 +24,8 @@ const AppRouter = () => {
       <Route path="/" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
+      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+      <Route path="/reset-password" element={<ResetPasswordPage />} />
 
       {/* Protected Dashboard Routes */}
       <Route element={<ProtectedRoute />}>

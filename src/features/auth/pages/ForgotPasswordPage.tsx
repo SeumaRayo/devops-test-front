@@ -34,7 +34,11 @@ export const ForgotPasswordPage: React.FC = () => {
     : null;
 
   return (
-    <div className="w-full max-w-md space-y-8 rounded-2xl border border-white/10 bg-gray-900/30 p-8 backdrop-blur-xl">
+    <div className="min-h-screen bg-[#0f172a] bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.3),rgba(255,255,255,0))] flex flex-col justify-center items-center p-4">
+      <div className="absolute top-0 w-full p-6 flex justify-between items-center">
+        <div className="text-white font-bold text-xl tracking-wider">DevOps<span className="text-indigo-500">App</span></div>
+      </div>
+      <div className="w-full max-w-md space-y-8 rounded-2xl border border-white/10 bg-gray-900/50 p-8 backdrop-blur-xl shadow-2xl">
       <div className="text-center">
         <h2 className="text-3xl font-bold tracking-tight text-white">Recuperar Contraseña</h2>
         <p className="mt-2 text-sm text-gray-400">
@@ -101,6 +105,7 @@ export const ForgotPasswordPage: React.FC = () => {
           </div>
         </form>
       )}
+      </div>
     </div>
   );
 };
