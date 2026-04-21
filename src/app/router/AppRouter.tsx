@@ -4,6 +4,8 @@ import RegisterPage from '../../features/auth/pages/RegisterPage';
 import { ProtectedRoute } from '../../features/auth/components/ProtectedRoute';
 import { DashboardLayout } from '../../features/dashboard/layout/DashboardLayout';
 import GeneralDashboardPage from '../../features/dashboard/pages/GeneralDashboardPage';
+import UsuariosListPage from '../../features/usuarios/pages/UsuariosListPage';
+import UsuarioDetailPage from '../../features/usuarios/pages/UsuarioDetailPage';
 import { useAuthStore } from '../store/auth.store';
 
 // Placeholder component for modules not yet developed
@@ -34,8 +36,8 @@ const AppRouter = () => {
           <Route index element={<GeneralDashboardPage />} />
 
           {/* Usuarios */}
-          <Route path="usuarios" element={<ComingSoon module="Gestión de Usuarios" />} />
-          <Route path="usuarios/:id" element={<ComingSoon module="Detalle de Usuario" />} />
+          <Route path="usuarios" element={<UsuariosListPage />} />
+          <Route path="usuarios/:id" element={<UsuarioDetailPage />} />
 
           {/* Accesos */}
           <Route path="accesos" element={<ComingSoon module="Gestión de Accesos" />} />
