@@ -10,6 +10,7 @@ import AccesosListPage from '../../features/accesos/pages/AccesosListPage';
 import EventosListPage from '../../features/eventos/pages/EventosListPage';
 import EventoDetailPage from '../../features/eventos/pages/EventoDetailPage';
 import EventosHistorialPage from '../../features/eventos/pages/EventosHistorialPage';
+import FuncionalidadesListPage from '../../features/funcionalidades/pages/FuncionalidadesListPage';
 import { useAuthStore } from '../store/auth.store';
 
 // Placeholder component for modules not yet developed
@@ -52,7 +53,7 @@ const AppRouter = () => {
           <Route path="eventos/:id" element={<EventoDetailPage />} />
 
           {/* Funcionalidades */}
-          <Route path="funcionalidades" element={<ComingSoon module="Gestión de Funcionalidades" />} />
+          <Route path="funcionalidades" element={<FuncionalidadesListPage />} />
 
           {/* Sesiones */}
           <Route path="sesiones" element={<ComingSoon module="Gestión de Sesiones" />} />
