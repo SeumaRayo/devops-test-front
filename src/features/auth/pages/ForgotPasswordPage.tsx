@@ -48,10 +48,10 @@ export const ForgotPasswordPage: React.FC = () => {
         <div className="animate-in fade-in rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-6 text-center text-emerald-400">
           <MailCheck className="mx-auto mb-3 h-10 w-10 opacity-80" />
           <h3 className="mb-2 text-lg font-medium text-emerald-300">¡Revisa tu bandeja!</h3>
-          <p className="text-sm">Si el correo está registrado, recibirás un enlace de recuperación.</p>
+          <p className="text-sm">Si el correo está registrado, recibirás un código de verificación de 6 dígitos.</p>
           <div className="mt-6">
-            <Link to="/login" className="text-sm font-medium text-indigo-400 hover:text-indigo-300 transition-colors">
-              Volver a iniciar sesión
+            <Link to="/reset-password" className="text-sm font-medium text-indigo-400 hover:text-indigo-300 transition-colors">
+              Ya tengo mi código, restablecer contraseña
             </Link>
           </div>
         </div>

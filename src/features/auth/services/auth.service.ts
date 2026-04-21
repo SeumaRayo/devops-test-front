@@ -19,7 +19,7 @@ export const authService = {
   },
 
   requestPasswordReset: async (email: string): Promise<PasswordResetResponse> => {
-    const response = await axiosInstance.post<PasswordResetResponse>(API_ENDPOINTS.AUTH.FORGOT_PASSWORD, { correoAcceso: email });
+    const response = await axiosInstance.post<PasswordResetResponse>(API_ENDPOINTS.AUTH.FORGOT_PASSWORD, { email });
     return response.data;
   },
 

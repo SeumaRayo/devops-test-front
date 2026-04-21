@@ -3,8 +3,10 @@ export interface ForgotPasswordRequest {
 }
 
 export interface ResetPasswordRequest {
-  token: string;
-  passwordNueva: string;
+  email: string;
+  code: string;
+  newPassword: string;
+  confirmPassword: string;
 }
 
 export interface PasswordResetResponse {

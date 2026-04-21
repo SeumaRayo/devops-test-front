@@ -3,15 +3,12 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { resetPasswordSchema, ResetPasswordFormValues } from '../validations/passwordReset.schema';
 import { useResetPassword } from '../api/passwordReset.queries';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { isAxiosError } from 'axios';
-import { Loader2, ArrowLeft, KeyRound, XCircle } from 'lucide-react';
+import { Loader2, ArrowLeft, KeyRound } from 'lucide-react';
 
 export const ResetPasswordPage: React.FC = () => {
-  const [searchParams] = useSearchParams();
-  const token = searchParams.get('token');
   const navigate = useNavigate();
-
   const { mutate, isPending, isSuccess, error } = useResetPassword();
 
   const {
@@ -21,15 +18,15 @@ export const ResetPasswordPage: React.FC = () => {
   } = useForm<ResetPasswordFormValues>({
     resolver: zodResolver(resetPasswordSchema),
     defaultValues: {
-      passwordNueva: '',
-      confirmarPassword: '',
+      email: '',
+      code: '',
+      newPassword: '',
+      confirmPassword: '',
     },
   });
 
   const onSubmit = (data: ResetPasswordFormValues) => {
-    if (token) {
-      mutate({ token, passwordNueva: data.passwordNueva });
-    }
+    mutate(data);
   };
 
   useEffect(() => {
@@ -41,33 +38,9 @@ export const ResetPasswordPage: React.FC = () => {
     }
   }, [isSuccess, navigate]);
 
-  if (!token) {
-    return (
-      <div className="min-h-screen bg-[#0f172a] bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.3),rgba(255,255,255,0))] flex flex-col justify-center items-center p-4">
-        <div className="absolute top-0 w-full p-6 flex justify-between items-center">
-          <div className="text-white font-bold text-xl tracking-wider">DevOps<span className="text-indigo-500">App</span></div>
-        </div>
-        <div className="w-full max-w-md space-y-8 rounded-2xl border border-white/10 bg-gray-900/50 p-8 backdrop-blur-xl shadow-2xl">
-        <div className="text-center">
-          <XCircle className="mx-auto mb-4 h-12 w-12 text-red-500 opacity-80" />
-          <h2 className="text-2xl font-bold tracking-tight text-white">Enlace Inválido</h2>
-          <p className="mt-2 text-sm text-gray-400">
-            El enlace de recuperación de contraseña está ausente, ha expirado o es inválido.
-          </p>
-          <div className="mt-6">
-            <Link to="/forgot-password" className="text-sm font-medium text-indigo-400 hover:text-indigo-300 transition-colors">
-              Solicitar un nuevo enlace
-            </Link>
-          </div>
-        </div>
-      </div>
-    </div>
-    );
-  }
-
   const backendError = error
     ? isAxiosError(error)
-      ? error.response?.data?.message || 'Error al restablecer la contraseña'
+      ? (error.response?.data as { message?: string })?.message || 'Error al restablecer la contraseña'
       : 'Error inesperado al procesar la solicitud'
     : null;
 
@@ -80,7 +53,7 @@ export const ResetPasswordPage: React.FC = () => {
       <div className="text-center">
         <h2 className="text-3xl font-bold tracking-tight text-white">Nueva Contraseña</h2>
         <p className="mt-2 text-sm text-gray-400">
-          Ingresa y confirma tu nueva contraseña.
+          Ingresa el código que recibiste en tu correo junto con tu nueva contraseña.
         </p>
       </div>
 
@@ -91,7 +64,7 @@ export const ResetPasswordPage: React.FC = () => {
           <p className="text-sm">Redirigiendo al inicio de sesión...</p>
         </div>
       ) : (
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           {backendError && (
             <div className="rounded-xl border border-red-500/20 bg-red-500/10 p-3 text-sm text-red-400">
               <strong>Atención:</strong> {backendError}
@@ -99,42 +72,77 @@ export const ResetPasswordPage: React.FC = () => {
           )}
 
           <div>
-            <label htmlFor="passwordNueva" className="block text-sm font-medium text-gray-300 mb-1">
-              Nueva Contraseña
+            <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-1">
+              Correo Electrónico
             </label>
             <input
-              id="passwordNueva"
-              type="password"
-              placeholder="••••••••"
-              {...register('passwordNueva')}
+              id="email"
+              type="email"
+              placeholder="tucorreo@ejemplo.com"
+              {...register('email')}
               className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-gray-500 outline-none transition focus:border-indigo-500/60 focus:bg-white/[0.07]"
-              aria-label="Nueva contraseña"
+              aria-label="Correo electrónico"
             />
-            {errors.passwordNueva && (
-              <p className="mt-1 text-xs text-red-400">{errors.passwordNueva.message}</p>
+            {errors.email && (
+              <p className="mt-1 text-xs text-red-400">{errors.email.message}</p>
             )}
           </div>
 
           <div>
-            <label htmlFor="confirmarPassword" className="block text-sm font-medium text-gray-300 mb-1">
+            <label htmlFor="code" className="block text-sm font-medium text-gray-300 mb-1">
+              Código de 6 dígitos
+            </label>
+            <input
+              id="code"
+              type="text"
+              placeholder="123456"
+              maxLength={6}
+              {...register('code')}
+              className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-gray-500 outline-none transition focus:border-indigo-500/60 focus:bg-white/[0.07] tracking-widest text-center"
+              aria-label="Código de verificación"
+            />
+            {errors.code && (
+              <p className="mt-1 text-xs text-red-400">{errors.code.message}</p>
+            )}
+          </div>
+
+          <div>
+            <label htmlFor="newPassword" className="block text-sm font-medium text-gray-300 mb-1">
+              Nueva Contraseña
+            </label>
+            <input
+              id="newPassword"
+              type="password"
+              placeholder="••••••••"
+              {...register('newPassword')}
+              className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-gray-500 outline-none transition focus:border-indigo-500/60 focus:bg-white/[0.07]"
+              aria-label="Nueva contraseña"
+            />
+            {errors.newPassword && (
+              <p className="mt-1 text-xs text-red-400">{errors.newPassword.message}</p>
+            )}
+          </div>
+
+          <div>
+            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-300 mb-1">
               Confirmar Contraseña
             </label>
             <input
-              id="confirmarPassword"
+              id="confirmPassword"
               type="password"
               placeholder="••••••••"
-              {...register('confirmarPassword')}
+              {...register('confirmPassword')}
               className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-gray-500 outline-none transition focus:border-indigo-500/60 focus:bg-white/[0.07]"
               aria-label="Confirmar contraseña"
             />
-            {errors.confirmarPassword && (
-              <p className="mt-1 text-xs text-red-400">{errors.confirmarPassword.message}</p>
+            {errors.confirmPassword && (
+              <p className="mt-1 text-xs text-red-400">{errors.confirmPassword.message}</p>
             )}
           </div>
 
           <button
             type="submit"
-            className="w-full flex justify-center items-center py-3 px-4 rounded-xl font-semibold text-white bg-indigo-600 hover:bg-indigo-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full flex justify-center items-center py-3 px-4 rounded-xl font-semibold text-white bg-indigo-600 hover:bg-indigo-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed mt-6"
             disabled={isPending}
           >
             {isPending ? (
