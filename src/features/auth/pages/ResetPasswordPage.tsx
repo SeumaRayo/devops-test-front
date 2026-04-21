@@ -5,8 +5,6 @@ import { resetPasswordSchema, ResetPasswordFormValues } from '../validations/pas
 import { useResetPassword } from '../api/passwordReset.queries';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { isAxiosError } from 'axios';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Loader2, ArrowLeft, KeyRound, XCircle } from 'lucide-react';
 
 export const ResetPasswordPage: React.FC = () => {
@@ -104,12 +102,12 @@ export const ResetPasswordPage: React.FC = () => {
             <label htmlFor="passwordNueva" className="block text-sm font-medium text-gray-300 mb-1">
               Nueva Contraseña
             </label>
-            <Input
+            <input
               id="passwordNueva"
               type="password"
               placeholder="••••••••"
               {...register('passwordNueva')}
-              className="bg-white/5 border-white/10 text-white placeholder-gray-500 focus-visible:ring-indigo-500"
+              className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-gray-500 outline-none transition focus:border-indigo-500/60 focus:bg-white/[0.07]"
               aria-label="Nueva contraseña"
             />
             {errors.passwordNueva && (
@@ -121,12 +119,12 @@ export const ResetPasswordPage: React.FC = () => {
             <label htmlFor="confirmarPassword" className="block text-sm font-medium text-gray-300 mb-1">
               Confirmar Contraseña
             </label>
-            <Input
+            <input
               id="confirmarPassword"
               type="password"
               placeholder="••••••••"
               {...register('confirmarPassword')}
-              className="bg-white/5 border-white/10 text-white placeholder-gray-500 focus-visible:ring-indigo-500"
+              className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-gray-500 outline-none transition focus:border-indigo-500/60 focus:bg-white/[0.07]"
               aria-label="Confirmar contraseña"
             />
             {errors.confirmarPassword && (
@@ -134,9 +132,9 @@ export const ResetPasswordPage: React.FC = () => {
             )}
           </div>
 
-          <Button
+          <button
             type="submit"
-            className="w-full bg-indigo-600 hover:bg-indigo-500 text-white"
+            className="w-full flex justify-center items-center py-3 px-4 rounded-xl font-semibold text-white bg-indigo-600 hover:bg-indigo-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={isPending}
           >
             {isPending ? (
@@ -147,7 +145,7 @@ export const ResetPasswordPage: React.FC = () => {
             ) : (
               'Restablecer Contraseña'
             )}
-          </Button>
+          </button>
 
           <div className="text-center mt-4">
             <Link to="/login" className="inline-flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors">

@@ -5,8 +5,6 @@ import { forgotPasswordSchema, ForgotPasswordFormValues } from '../validations/p
 import { useRequestPasswordReset } from '../api/passwordReset.queries';
 import { Link } from 'react-router-dom';
 import { isAxiosError } from 'axios';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Loader2, ArrowLeft, MailCheck } from 'lucide-react';
 
 export const ForgotPasswordPage: React.FC = () => {
@@ -69,12 +67,12 @@ export const ForgotPasswordPage: React.FC = () => {
             <label htmlFor="correoAcceso" className="block text-sm font-medium text-gray-300 mb-1">
               Correo Electrónico
             </label>
-            <Input
+            <input
               id="correoAcceso"
               type="email"
               placeholder="tucorreo@ejemplo.com"
               {...register('correoAcceso')}
-              className="bg-white/5 border-white/10 text-white placeholder-gray-500 focus-visible:ring-indigo-500"
+              className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-gray-500 outline-none transition focus:border-indigo-500/60 focus:bg-white/[0.07]"
               aria-label="Correo electrónico para recuperar contraseña"
             />
             {errors.correoAcceso && (
@@ -82,9 +80,9 @@ export const ForgotPasswordPage: React.FC = () => {
             )}
           </div>
 
-          <Button
+          <button
             type="submit"
-            className="w-full bg-indigo-600 hover:bg-indigo-500 text-white"
+            className="w-full flex justify-center items-center py-3 px-4 rounded-xl font-semibold text-white bg-indigo-600 hover:bg-indigo-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={isPending}
           >
             {isPending ? (
@@ -95,7 +93,7 @@ export const ForgotPasswordPage: React.FC = () => {
             ) : (
               'Recuperar Contraseña'
             )}
-          </Button>
+          </button>
 
           <div className="text-center mt-4">
             <Link to="/login" className="inline-flex items-center text-sm font-medium text-gray-400 hover:text-white transition-colors">
