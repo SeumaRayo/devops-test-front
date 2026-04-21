@@ -1,0 +1,111 @@
+import React, { useEffect, useState } from 'react';
+import { Plus } from 'lucide-react';
+import { PageHeader } from '../../../components/ui/PageHeader';
+import { DataTable, ColumnDef } from '../../../components/ui/DataTable';
+import { Badge } from '../../../components/ui/Badge';
+import { StatusToggle } from '../../../components/ui/StatusToggle';
+import { Modal } from '../../../components/ui/Modal';
+import { UsuarioForm } from '../components/UsuarioForm';
+import { useUsuarios } from '../hooks/useUsuarios';
+import { usuarioService } from '../services/usuario.service';
+import { UsuarioResponse, UsuarioCreateRequest } from '../types/usuario.types';
+
+const columns: ColumnDef<UsuarioResponse>[] = [
+  { header: 'ID', accessor: 'idUsuario', className: 'w-16 text-gray-500' },
+  {
+    header: 'Nombre Completo',
+    accessor: 'nombres',
+    render: (_, row) => (
+      <div>
+        <p className="font-medium text-white">{row.nombres} {row.apellidos}</p>
+        <p className="text-xs text-gray-500 mt-0.5">{row.documento}</p>
+      </div>
+    ),
+  },
+  {
+    header: 'Rol',
+    accessor: 'nombreRol',
+    render: (value) => (
+      <span className="text-xs font-mono text-indigo-400">{String(value)}</span>
+    ),
+  },
+  {
+    header: 'Estado',
+    accessor: 'estado',
+    render: (value) => <Badge status={String(value ?? 'ACTIVO')} />,
+  },
+];
+
+export default function UsuariosListPage() {
+  const { usuarios, pagination, isLoading, error, fetch, patchStatus } = useUsuarios();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
+
+  useEffect(() => {
+    fetch();
+  }, []);
+
+  const handleCreate = async (data: UsuarioCreateRequest) => {
+    setIsCreating(true);
+    try {
+      await usuarioService.create(data);
+      setIsModalOpen(false);
+      fetch();
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
+  const columnsWithActions: ColumnDef<UsuarioResponse>[] = [
+    ...columns,
+    {
+      header: 'Acciones',
+      accessor: 'idUsuario',
+      render: (_, row) => (
+        <StatusToggle
+          status={row.nombreRol ?? 'ACTIVO'}
+          onActivate={() => patchStatus(row.idUsuario, 'activar')}
+          onDeactivate={() => patchStatus(row.idUsuario, 'desactivar')}
+          onBlock={() => patchStatus(row.idUsuario, 'bloquear')}
+        />
+      ),
+    },
+  ];
+
+  return (
+    <div className="animate-in slide-in-from-bottom-4 fade-in duration-500">
+      <PageHeader
+        title="Gestión de Usuarios"
+        subtitle="Administra los usuarios del sistema, sus roles y estados."
+        action={
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-500"
+          >
+            <Plus size={16} />
+            Nuevo Usuario
+          </button>
+        }
+      />
+
+      {error && (
+        <div className="mb-4 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-400">
+          {error}
+        </div>
+      )}
+
+      <DataTable
+        columns={columnsWithActions}
+        data={usuarios}
+        pagination={pagination}
+        isLoading={isLoading}
+        emptyMessage="No se encontraron usuarios."
+        keyExtractor={(row) => row.idUsuario}
+      />
+
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Crear Nuevo Usuario" size="lg">
+        <UsuarioForm onSubmit={handleCreate} isLoading={isCreating} />
+      </Modal>
+    </div>
+  );
+}
