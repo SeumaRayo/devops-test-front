@@ -1,13 +1,15 @@
-import React, { useEffect } from 'react';
-import { Search, ShieldAlert } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Search, ShieldAlert, Eye } from 'lucide-react';
 import { PageHeader } from '../../../components/ui/PageHeader';
 import { DataTable, ColumnDef } from '../../../components/ui/DataTable';
 import { Badge } from '../../../components/ui/Badge';
+import { SesionDetailModal } from '../components/SesionDetailModal';
 import { useSesiones } from '../hooks/useSesiones';
 import { SesionResponseDto } from '../types/sesion.types';
 
 export default function SesionesListPage() {
   const { sesiones, pagination, isLoading, error, fetch, applyFilters, deleteSesion } = useSesiones();
+  const [viewItem, setViewItem] = useState<SesionResponseDto | null>(null);
 
   useEffect(() => {
     fetch();
@@ -54,13 +56,12 @@ export default function SesionesListPage() {
     {
       header: 'Acciones',
       accessor: 'idSesion',
-      render: (_, row) => row.activa && (
-        <button
-          onClick={() => handleDelete(row.idSesion)}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-red-400 bg-red-400/10 border border-red-400/20 rounded-md hover:bg-red-400/20 transition-colors"
-        >
-          <ShieldAlert size={14} /> Desconectar
-        </button>
+      render: (_, row) => (
+        <div className="flex items-center gap-4">
+          <button onClick={() => setViewItem(row)} className="text-gray-400 hover:text-indigo-400 transition-colors" title="Detalles / Desconectar">
+            <Eye size={18} />
+          </button>
+        </div>
       ),
     },
   ];
@@ -111,6 +112,13 @@ export default function SesionesListPage() {
         isLoading={isLoading}
         emptyMessage="No se encontraron sesiones."
         keyExtractor={(row) => String(row.idSesion)}
+      />
+
+      <SesionDetailModal 
+        isOpen={!!viewItem} 
+        onClose={() => setViewItem(null)} 
+        sesion={viewItem} 
+        onDisconnect={handleDelete}
       />
     </div>
   );

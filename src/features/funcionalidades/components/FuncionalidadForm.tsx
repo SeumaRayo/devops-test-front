@@ -6,13 +6,14 @@ import { FuncionalidadRequest } from '../types/funcionalidad.types';
 
 const schema = z.object({
   nombreFuncionalidad: z.string().min(1, 'El nombre es obligatorio').max(150),
-  urlFuncionalidad: z.string().max(250).optional(),
+  urlFuncionalidad: z.string().max(250).nullable().optional(),
   idPadre: z.number().nullable().optional(),
 });
 
 type FormValues = z.infer<typeof schema>;
 
 interface FuncionalidadFormProps {
+  initialData?: any;
   onSubmit: (data: FuncionalidadRequest) => Promise<void>;
   isLoading?: boolean;
 }
@@ -22,15 +23,30 @@ const inputClass =
 const labelClass = 'block text-xs font-medium text-gray-400 mb-1.5';
 const errorClass = 'mt-1 text-xs text-red-400';
 
-export const FuncionalidadForm: React.FC<FuncionalidadFormProps> = ({ onSubmit, isLoading }) => {
+export const FuncionalidadForm: React.FC<FuncionalidadFormProps> = ({ initialData, onSubmit, isLoading }) => {
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<FormValues>({ resolver: zodResolver(schema) });
+  } = useForm<FormValues>({ 
+    resolver: zodResolver(schema),
+    defaultValues: initialData ? {
+      nombreFuncionalidad: initialData.nombreFuncionalidad,
+      urlFuncionalidad: initialData.urlFuncionalidad || '',
+      idPadre: initialData.idPadre || undefined,
+    } : undefined
+  });
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+    <form onSubmit={handleSubmit(onSubmit as any)} className="space-y-4">
+      {Object.keys(errors).length > 0 && (
+        <div className="rounded-xl border border-red-500/20 bg-red-500/10 p-3 text-sm text-red-400">
+          <strong>Atención:</strong> Por favor corrige los errores para poder guardar.<br/>
+          {Object.entries(errors).map(([key, err]: any) => (
+             <span key={key} className="block ml-2">- {key}: {err.message}</span>
+          ))}
+        </div>
+      )}
       <div>
         <label className={labelClass}>Nombre de Funcionalidad</label>
         <input {...register('nombreFuncionalidad')} className={inputClass} placeholder="Ej. Gestión de Usuarios" />
@@ -60,7 +76,7 @@ export const FuncionalidadForm: React.FC<FuncionalidadFormProps> = ({ onSubmit, 
           disabled={isLoading}
           className="rounded-xl bg-indigo-600 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-500 disabled:opacity-50"
         >
-          {isLoading ? 'Guardando...' : 'Crear Funcionalidad'}
+          {isLoading ? 'Guardando...' : (initialData ? 'Guardar Cambios' : 'Crear Funcionalidad')}
         </button>
       </div>
     </form>

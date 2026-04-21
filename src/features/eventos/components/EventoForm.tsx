@@ -6,12 +6,12 @@ import { CreateEventoRequest } from '../types/evento.types';
 
 const schema = z.object({
   nombreEvento: z.string().min(1, 'El nombre es requerido').max(150),
-  descripcionEvento: z.string().max(5000).optional(),
+  descripcionEvento: z.string().max(5000).nullable().optional(),
   fechaEvento: z.string().min(1, 'La fecha es requerida'),
   horaEvento: z.string().min(1, 'La hora es requerida'),
   lugarEvento: z.string().min(1, 'El lugar es requerido').max(200),
-  referenciaUbicacion: z.string().max(255).optional(),
-  imagenUrl: z.string().max(500).optional(),
+  referenciaUbicacion: z.string().max(255).nullable().optional(),
+  imagenUrl: z.string().max(500).nullable().optional(),
   capacidadMaxima: z.number({ message: 'Requerido' }).min(0, 'No puede ser negativa'),
   tieneParqueadero: z.boolean(),
   cuposParqueadero: z.number().min(0).optional(),
@@ -20,7 +20,8 @@ const schema = z.object({
 type FormValues = z.infer<typeof schema>;
 
 interface EventoFormProps {
-  onSubmit: (data: CreateEventoRequest) => Promise<void>;
+  initialData?: any; // Used to populate form for editing
+  onSubmit: (data: any) => Promise<void>;
   isLoading?: boolean;
 }
 
@@ -29,18 +30,41 @@ const inputClass =
 const labelClass = 'block text-xs font-medium text-gray-400 mb-1.5';
 const errorClass = 'mt-1 text-xs text-red-400';
 
-export const EventoForm: React.FC<EventoFormProps> = ({ onSubmit, isLoading }) => {
+export const EventoForm: React.FC<EventoFormProps> = ({ initialData, onSubmit, isLoading }) => {
   const {
     register,
     handleSubmit,
     watch,
+    reset,
     formState: { errors },
-  } = useForm<FormValues>({ resolver: zodResolver(schema) });
+  } = useForm<FormValues>({ 
+    resolver: zodResolver(schema),
+    defaultValues: initialData ? {
+      nombreEvento: initialData.nombreEvento,
+      descripcionEvento: initialData.descripcionEvento || undefined,
+      fechaEvento: initialData.fechaEvento ? initialData.fechaEvento.split('T')[0] : '', 
+      horaEvento: initialData.horaEvento,
+      lugarEvento: initialData.lugarEvento,
+      referenciaUbicacion: initialData.referenciaUbicacion || undefined,
+      imagenUrl: initialData.imagenUrl || undefined,
+      capacidadMaxima: initialData.capacidadMaxima,
+      tieneParqueadero: initialData.tieneParqueadero,
+      cuposParqueadero: initialData.cuposParqueadero || undefined,
+    } : undefined
+  });
 
   const hasParqueadero = watch('tieneParqueadero');
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      {Object.keys(errors).length > 0 && (
+        <div className="rounded-xl border border-red-500/20 bg-red-500/10 p-3 text-sm text-red-400">
+          <strong>Atención:</strong> Por favor corrige los errores indicados para continuar:<br/>
+          {Object.entries(errors).map(([key, err]: any) => (
+             <span key={key} className="block ml-2">- {key}: {err.message}</span>
+          ))}
+        </div>
+      )}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="sm:col-span-2">
           <label className={labelClass}>Nombre del Evento</label>
@@ -90,7 +114,7 @@ export const EventoForm: React.FC<EventoFormProps> = ({ onSubmit, isLoading }) =
           disabled={isLoading}
           className="rounded-xl bg-indigo-600 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-500 disabled:opacity-50"
         >
-          {isLoading ? 'Registrando...' : 'Crear Evento'}
+          {isLoading ? 'Guardando...' : (initialData ? 'Guardar Cambios' : 'Crear Evento')}
         </button>
       </div>
     </form>

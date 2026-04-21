@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Plus, ShieldAlert } from 'lucide-react';
+import { Plus, ShieldAlert, Eye } from 'lucide-react';
 import { PageHeader } from '../../../components/ui/PageHeader';
 import { DataTable, ColumnDef } from '../../../components/ui/DataTable';
 import { Badge } from '../../../components/ui/Badge';
 import { StatusToggle } from '../../../components/ui/StatusToggle';
 import { Modal } from '../../../components/ui/Modal';
 import { CreateAccesoForm } from '../components/CreateAccesoForm';
+import { AccesoDetailModal } from '../components/AccesoDetailModal';
 import { useAccesos } from '../hooks/useAccesos';
 import { accesoService } from '../services/acceso.service';
 import { AccesoAdminResponse, CreateAccesoAdminRequest } from '../types/acceso.types';
@@ -14,6 +15,7 @@ export default function AccesosListPage() {
   const { accesos, isLoading, error, fetch, patchStatus } = useAccesos();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
+  const [viewItem, setViewItem] = useState<AccesoAdminResponse | null>(null);
 
   useEffect(() => {
     fetch();
@@ -65,6 +67,20 @@ export default function AccesosListPage() {
       ),
     },
     {
+      header: 'Rol',
+      accessor: 'rol',
+      render: (value) => <span className="text-xs font-mono text-indigo-400">{String(value)}</span>,
+    },
+    {
+      header: 'Fecha Registro',
+      accessor: 'creadoEn',
+      render: (value) => (
+        <span className="text-xs text-gray-400">
+          {value ? new Date(String(value)).toLocaleDateString() : '—'}
+        </span>
+      ),
+    },
+    {
       header: 'Estado',
       accessor: 'estadoCuenta',
       render: (value) => <Badge status={String(value ?? 'ACTIVO')} />,
@@ -73,12 +89,17 @@ export default function AccesosListPage() {
       header: 'Acciones',
       accessor: 'uuidAcceso',
       render: (_, row) => (
-        <StatusToggle
-          status={row.estadoCuenta}
-          onActivate={() => patchStatus(row.idUsuario, 'activar')}
-          onDeactivate={() => patchStatus(row.idUsuario, 'desactivar')}
-          onBlock={() => patchStatus(row.idUsuario, 'bloquear')}
-        />
+        <div className="flex items-center gap-4">
+          <StatusToggle
+            status={row.estadoCuenta}
+            onActivate={() => patchStatus(row.idUsuario, 'activar')}
+            onDeactivate={() => patchStatus(row.idUsuario, 'desactivar')}
+            onBlock={() => patchStatus(row.idUsuario, 'bloquear')}
+          />
+          <button onClick={() => setViewItem(row)} className="text-gray-400 hover:text-indigo-400 transition-colors" title="Ver Detalles">
+            <Eye size={18} />
+          </button>
+        </div>
       ),
     },
   ];
@@ -127,6 +148,12 @@ export default function AccesosListPage() {
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Crear Acceso Administrativo" size="sm">
         <CreateAccesoForm onSubmit={handleCreate} isLoading={isCreating} />
       </Modal>
+
+      <AccesoDetailModal 
+        isOpen={!!viewItem} 
+        onClose={() => setViewItem(null)} 
+        acceso={viewItem} 
+      />
     </div>
   );
 }

@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Plus, GitMerge } from 'lucide-react';
+import { Plus, GitMerge, Eye } from 'lucide-react';
 import { PageHeader } from '../../../components/ui/PageHeader';
 import { DataTable, ColumnDef } from '../../../components/ui/DataTable';
 import { Badge } from '../../../components/ui/Badge';
 import { StatusToggle } from '../../../components/ui/StatusToggle';
 import { Modal } from '../../../components/ui/Modal';
 import { FuncionalidadForm } from '../components/FuncionalidadForm';
+import { FuncionalidadDetailModal } from '../components/FuncionalidadDetailModal';
 import { useFuncionalidades } from '../hooks/useFuncionalidades';
 import { funcionalidadService } from '../services/funcionalidad.service';
 import { FuncionalidadResponse, FuncionalidadRequest } from '../types/funcionalidad.types';
@@ -14,6 +15,7 @@ export default function FuncionalidadesListPage() {
   const { funcionalidades, isLoading, error, fetch, patchStatus } = useFuncionalidades();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
+  const [viewItem, setViewItem] = useState<FuncionalidadResponse | null>(null);
 
   useEffect(() => {
     fetch();
@@ -59,11 +61,16 @@ export default function FuncionalidadesListPage() {
       header: 'Acciones',
       accessor: 'idFuncionalidad',
       render: (_, row) => (
-        <StatusToggle
-          status={row.estado}
-          onActivate={() => patchStatus(row.idFuncionalidad, 'activar')}
-          onDeactivate={() => patchStatus(row.idFuncionalidad, 'desactivar')}
-        />
+        <div className="flex items-center gap-4">
+          <StatusToggle
+            status={row.estado}
+            onActivate={() => patchStatus(row.idFuncionalidad, 'activar')}
+            onDeactivate={() => patchStatus(row.idFuncionalidad, 'desactivar')}
+          />
+          <button onClick={() => setViewItem(row)} className="text-gray-400 hover:text-indigo-400 transition-colors" title="Ver Detalles">
+            <Eye size={18} />
+          </button>
+        </div>
       ),
     },
   ];
@@ -103,9 +110,18 @@ export default function FuncionalidadesListPage() {
         keyExtractor={(row) => String(row.idFuncionalidad)}
       />
 
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Configurar Funcionalidad" size="sm">
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Crear Funcionalidad" size="md">
         <FuncionalidadForm onSubmit={handleCreate} isLoading={isCreating} />
       </Modal>
+
+      <FuncionalidadDetailModal
+        isOpen={!!viewItem}
+        onClose={() => setViewItem(null)}
+        funcionalidad={viewItem}
+        onUpdateSuccess={() => {
+          fetch(); // Refresh data on successful update
+        }}
+      />
     </div>
   );
 }

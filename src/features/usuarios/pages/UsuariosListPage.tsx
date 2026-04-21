@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Plus } from 'lucide-react';
+import { Plus, Eye } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { PageHeader } from '../../../components/ui/PageHeader';
 import { DataTable, ColumnDef } from '../../../components/ui/DataTable';
 import { Badge } from '../../../components/ui/Badge';
@@ -29,11 +30,6 @@ const columns: ColumnDef<UsuarioResponse>[] = [
       <span className="text-xs font-mono text-indigo-400">{String(value)}</span>
     ),
   },
-  {
-    header: 'Estado',
-    accessor: 'estado',
-    render: (value) => <Badge status={String(value ?? 'ACTIVO')} />,
-  },
 ];
 
 export default function UsuariosListPage() {
@@ -62,12 +58,17 @@ export default function UsuariosListPage() {
       header: 'Acciones',
       accessor: 'idUsuario',
       render: (_, row) => (
-        <StatusToggle
-          status={row.nombreRol ?? 'ACTIVO'}
-          onActivate={() => patchStatus(row.idUsuario, 'activar')}
-          onDeactivate={() => patchStatus(row.idUsuario, 'desactivar')}
-          onBlock={() => patchStatus(row.idUsuario, 'bloquear')}
-        />
+        <div className="flex items-center gap-4">
+          <StatusToggle
+            status={'ACTIVO'} // Fallback forced as backend does not send 'estado' in UserListResponse
+            onActivate={() => patchStatus(row.idUsuario, 'activar')}
+            onDeactivate={() => patchStatus(row.idUsuario, 'desactivar')}
+            onBlock={() => patchStatus(row.idUsuario, 'bloquear')}
+          />
+          <Link to={`/dashboard/usuarios/${row.idUsuario}`} className="text-gray-400 hover:text-indigo-400 transition-colors" title="Ver / Editar Detalles">
+            <Eye size={18} />
+          </Link>
+        </div>
       ),
     },
   ];

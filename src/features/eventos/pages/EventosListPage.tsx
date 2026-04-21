@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Plus, ListFilter } from 'lucide-react';
+import { Plus, ListFilter, Eye } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { PageHeader } from '../../../components/ui/PageHeader';
 import { DataTable, ColumnDef } from '../../../components/ui/DataTable';
 import { Badge } from '../../../components/ui/Badge';
@@ -102,14 +103,19 @@ export default function EventosListPage() {
        header: 'Acciones (Sistema)',
        accessor: 'sistema',
        render: (_, row) => (
-         <StatusToggle
-           status={row.estado}
-           onActivate={() => actionTransition(row.idEvento, 'activar')}
-           onDeactivate={() => {
-             const motivo = prompt('Motivo de desactivación:');
-             if (motivo) actionTransition(row.idEvento, 'desactivar', { comentario: motivo });
-           }}
-         />
+         <div className="flex items-center gap-4">
+           <StatusToggle
+             status={row.estado}
+             onActivate={() => actionTransition(row.idEvento, 'activar')}
+             onDeactivate={() => {
+               const motivo = prompt('Motivo de desactivación:');
+               if (motivo) actionTransition(row.idEvento, 'desactivar', { comentario: motivo });
+             }}
+           />
+           <Link to={`/dashboard/eventos/${row.idEvento}`} className="text-gray-400 hover:text-indigo-400 transition-colors" title="Ver / Editar Logística">
+             <Eye size={18} />
+           </Link>
+         </div>
        )
     }
   ];
