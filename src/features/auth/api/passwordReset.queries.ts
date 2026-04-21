@@ -4,13 +4,13 @@ import { ResetPasswordRequest, PasswordResetResponse } from '../types/passwordRe
 import { AxiosError } from 'axios';
 
 export const useRequestPasswordReset = () => {
-  return useMutation<PasswordResetResponse, AxiosError, string>({
+  return useMutation<PasswordResetResponse, AxiosError<{ message: string }>, string>({
     mutationFn: (email: string) => authService.requestPasswordReset(email),
   });
 };
 
 export const useResetPassword = () => {
-  return useMutation<PasswordResetResponse, AxiosError, ResetPasswordRequest>({
+  return useMutation<PasswordResetResponse, AxiosError<{ message: string }>, ResetPasswordRequest>({
     mutationFn: (payload: ResetPasswordRequest) => authService.resetPassword(payload),
   });
 };
