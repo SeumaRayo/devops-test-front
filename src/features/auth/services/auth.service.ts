@@ -26,5 +26,12 @@ export const authService = {
   resetPassword: async (payload: ResetPasswordRequest): Promise<PasswordResetResponse> => {
     const response = await axiosInstance.post<PasswordResetResponse>(API_ENDPOINTS.AUTH.RESET_PASSWORD, payload);
     return response.data;
+  },
+
+  getOAuth2Success: async (): Promise<AuthResponse> => {
+    const response = await axiosInstance.get<AuthResponse>(API_ENDPOINTS.AUTH.OAUTH_SUCCESS, {
+      withCredentials: true,
+    });
+    return response.data;
   }
 };

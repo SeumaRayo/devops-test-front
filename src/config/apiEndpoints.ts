@@ -9,6 +9,7 @@ export const API_ENDPOINTS = {
     RESET_PASSWORD: '/api/v1/auth/reset-password',
     REQUEST_UNLOCK: '/api/v1/auth/request-account-unlock',
     UNLOCK_ACCOUNT: '/api/v1/auth/unlock-account',
+    OAUTH_SUCCESS: '/api/v1/auth/oauth/success',
   },
   USUARIOS: {
     BASE: '/api/v1/usuarios',
