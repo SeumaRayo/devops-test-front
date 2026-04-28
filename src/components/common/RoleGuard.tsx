@@ -1,11 +1,11 @@
 import { ReactNode } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, Outlet } from 'react-router-dom';
 import { useAuthStore } from '@/app/store/auth.store';
 
 export interface RoleGuardProps {
   allowedRoles: string[];
   redirectTo?: string;
-  children: ReactNode;
+  children?: ReactNode;
 }
 
 export const RoleGuard = ({ 
@@ -27,5 +27,5 @@ export const RoleGuard = ({
     return <Navigate to={redirectTo} replace />;
   }
 
-  return <>{children}</>;
+  return children ? <>{children}</> : <Outlet />;
 };
