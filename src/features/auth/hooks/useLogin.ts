@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { authService } from '../services/auth.service';
 import { useAuthStore } from '../../../app/store/auth.store';
 import { LoginRequest } from '../types/auth.types';
+import { extractRoles } from '../../../utils/jwt.utils';
 import axios from 'axios';
 
 export const useLogin = () => {
@@ -17,7 +18,14 @@ export const useLogin = () => {
       setError(null);
       const res = await authService.login(credentials);
       setCredentials(res.token || '', { username: res.username || credentials.usernameOrEmail });
-      navigate('/dashboard'); // Ajustar ruta principal según necesidad
+      
+      const roles = extractRoles(res.token || '');
+      if (roles.includes('ROLE_ADMIN')) {
+        navigate('/dashboard');
+      } else {
+        // TODO: Confirmar con QA la ruta publica/usuario_normal correcta
+        navigate('/portal'); 
+      }
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
         setError(err.response?.data?.message || 'Error al iniciar sesión. Verifica tus credenciales.');
