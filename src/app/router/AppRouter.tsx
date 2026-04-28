@@ -15,6 +15,8 @@ import SesionesListPage from '../../features/sesiones/pages/SesionesListPage';
 import { useAuthStore } from '../store/auth.store';
 import { RoleGuard } from '../../components/common/RoleGuard';
 import UnauthorizedPage from '../../pages/UnauthorizedPage';
+import PortalPage from '../../pages/PortalPage';
+import NotFoundPage from '../../pages/NotFoundPage';
 
 const AppRouter = () => {
   const isAuthenticated = useAuthStore(state => state.isAuthenticated);
@@ -25,6 +27,11 @@ const AppRouter = () => {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/unauthorized" element={<UnauthorizedPage />} />
+      
+      {/* Protected Portal Route (Non-admin default) */}
+      <Route element={<ProtectedRoute />}>
+        <Route path="/portal" element={<PortalPage />} />
+      </Route>
 
       {/* Protected Dashboard Routes */}
       <Route element={<ProtectedRoute />}>
@@ -52,6 +59,9 @@ const AppRouter = () => {
           </Route>
         </Route>
       </Route>
+
+      {/* Fallback 404 Route */}
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
 };
