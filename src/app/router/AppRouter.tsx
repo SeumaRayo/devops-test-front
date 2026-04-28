@@ -14,6 +14,7 @@ import FuncionalidadesListPage from '../../features/funcionalidades/pages/Funcio
 import SesionesListPage from '../../features/sesiones/pages/SesionesListPage';
 import { useAuthStore } from '../store/auth.store';
 import { RoleGuard } from '../../components/common/RoleGuard';
+import UnauthorizedPage from '../../pages/UnauthorizedPage';
 
 const AppRouter = () => {
   const isAuthenticated = useAuthStore(state => state.isAuthenticated);
@@ -23,6 +24,7 @@ const AppRouter = () => {
       <Route path="/" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
+      <Route path="/unauthorized" element={<UnauthorizedPage />} />
 
       {/* Protected Dashboard Routes */}
       <Route element={<ProtectedRoute />}>
