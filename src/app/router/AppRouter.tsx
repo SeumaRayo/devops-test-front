@@ -1,8 +1,9 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import LoginPage from '../../features/auth/pages/LoginPage';
 import RegisterPage from '../../features/auth/pages/RegisterPage';
 import { ForgotPasswordPage } from '../../features/auth/pages/ForgotPasswordPage';
 import { ResetPasswordPage } from '../../features/auth/pages/ResetPasswordPage';
+import { OAuth2RedirectHandler } from '../../features/auth/pages/OAuth2RedirectHandler';
 import { ProtectedRoute } from '../../features/auth/components/ProtectedRoute';
 import { DashboardLayout } from '../../features/dashboard/layout/DashboardLayout';
 import GeneralDashboardPage from '../../features/dashboard/pages/GeneralDashboardPage';
@@ -20,16 +21,26 @@ import UnauthorizedPage from '../../pages/UnauthorizedPage';
 import PortalPage from '../../pages/PortalPage';
 import NotFoundPage from '../../pages/NotFoundPage';
 
-const AppRouter = () => {
+const RootRedirect = () => {
   const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+  const location = useLocation();
 
+  if (location.search.includes('authenticated=true')) {
+    return <Navigate to={`/oauth2/redirect${location.search}`} replace />;
+  }
+
+  return isAuthenticated ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />;
+};
+
+const AppRouter = () => {
   return (
     <Routes>
-      <Route path="/" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />} />
+      <Route path="/" element={<RootRedirect />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/reset-password" element={<ResetPasswordPage />} />
+      <Route path="/oauth2/redirect" element={<OAuth2RedirectHandler />} />
       <Route path="/unauthorized" element={<UnauthorizedPage />} />
       
       {/* Protected Portal Route (Non-admin default) */}
