@@ -2,13 +2,12 @@ import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { forgotPasswordSchema, ForgotPasswordFormValues } from '../validations/passwordReset.schema';
-import { useRequestPasswordReset } from '../api/passwordReset.queries';
+import { useForgotPassword } from '../hooks/useForgotPassword';
 import { Link } from 'react-router-dom';
-import { isAxiosError } from 'axios';
 import { Loader2, ArrowLeft, MailCheck } from 'lucide-react';
 
 export const ForgotPasswordPage: React.FC = () => {
-  const { mutate, isPending, isSuccess, error } = useRequestPasswordReset();
+  const { requestReset, isLoading, isSuccess, error } = useForgotPassword();
 
   const {
     register,
@@ -22,14 +21,8 @@ export const ForgotPasswordPage: React.FC = () => {
   });
 
   const onSubmit = (data: ForgotPasswordFormValues) => {
-    mutate(data.correoAcceso);
+    requestReset(data.correoAcceso);
   };
-
-  const backendError = error
-    ? isAxiosError(error)
-      ? error.response?.data?.message || 'Error al solicitar la recuperación'
-      : 'Error inesperado al procesar la solicitud'
-    : null;
 
   return (
     <div className="min-h-screen bg-[#0f172a] bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.3),rgba(255,255,255,0))] flex flex-col justify-center items-center p-4">
@@ -57,9 +50,9 @@ export const ForgotPasswordPage: React.FC = () => {
         </div>
       ) : (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          {backendError && (
+          {error && (
             <div className="rounded-xl border border-red-500/20 bg-red-500/10 p-3 text-sm text-red-400">
-              <strong>Atención:</strong> {backendError}
+              <strong>Atención:</strong> {error}
             </div>
           )}
 
@@ -83,9 +76,9 @@ export const ForgotPasswordPage: React.FC = () => {
           <button
             type="submit"
             className="w-full flex justify-center items-center py-3 px-4 rounded-xl font-semibold text-white bg-indigo-600 hover:bg-indigo-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            disabled={isPending}
+            disabled={isLoading}
           >
-            {isPending ? (
+            {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Enviando...
