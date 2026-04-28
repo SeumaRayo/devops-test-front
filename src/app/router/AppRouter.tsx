@@ -13,6 +13,7 @@ import EventosHistorialPage from '../../features/eventos/pages/EventosHistorialP
 import FuncionalidadesListPage from '../../features/funcionalidades/pages/FuncionalidadesListPage';
 import SesionesListPage from '../../features/sesiones/pages/SesionesListPage';
 import { useAuthStore } from '../store/auth.store';
+import { RoleGuard } from '../../components/common/RoleGuard';
 
 const AppRouter = () => {
   const isAuthenticated = useAuthStore(state => state.isAuthenticated);
@@ -25,26 +26,28 @@ const AppRouter = () => {
 
       {/* Protected Dashboard Routes */}
       <Route element={<ProtectedRoute />}>
-        <Route path="/dashboard" element={<DashboardLayout />}>
-          <Route index element={<GeneralDashboardPage />} />
+        <Route element={<RoleGuard allowedRoles={['ROLE_ADMIN']} />}>
+          <Route path="/dashboard" element={<DashboardLayout />}>
+            <Route index element={<GeneralDashboardPage />} />
 
-          {/* Usuarios */}
-          <Route path="usuarios" element={<UsuariosListPage />} />
-          <Route path="usuarios/:id" element={<UsuarioDetailPage />} />
+            {/* Usuarios */}
+            <Route path="usuarios" element={<UsuariosListPage />} />
+            <Route path="usuarios/:id" element={<UsuarioDetailPage />} />
 
-          {/* Accesos */}
-          <Route path="accesos" element={<AccesosListPage />} />
+            {/* Accesos */}
+            <Route path="accesos" element={<AccesosListPage />} />
 
-          {/* Eventos */}
-          <Route path="eventos" element={<EventosListPage />} />
-          <Route path="eventos/historial" element={<EventosHistorialPage />} />
-          <Route path="eventos/:id" element={<EventoDetailPage />} />
+            {/* Eventos */}
+            <Route path="eventos" element={<EventosListPage />} />
+            <Route path="eventos/historial" element={<EventosHistorialPage />} />
+            <Route path="eventos/:id" element={<EventoDetailPage />} />
 
-          {/* Funcionalidades */}
-          <Route path="funcionalidades" element={<FuncionalidadesListPage />} />
+            {/* Funcionalidades */}
+            <Route path="funcionalidades" element={<FuncionalidadesListPage />} />
 
-          {/* Sesiones */}
-          <Route path="sesiones" element={<SesionesListPage />} />
+            {/* Sesiones */}
+            <Route path="sesiones" element={<SesionesListPage />} />
+          </Route>
         </Route>
       </Route>
     </Routes>
