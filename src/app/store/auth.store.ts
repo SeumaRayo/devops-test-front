@@ -1,12 +1,13 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { User } from '../../features/auth/types/auth.types';
+import { extractRoles } from '../../utils/jwt.utils';
 
 interface AuthState {
   token: string | null;
   user: User | null;
   isAuthenticated: boolean;
-  setCredentials: (token: string, userData: User) => void;
+  setCredentials: (token: string, userData: Omit<User, 'roles'>) => void;
   clearCredentials: () => void;
 }
 
@@ -16,7 +17,10 @@ export const useAuthStore = create<AuthState>()(
       token: null,
       user: null,
       isAuthenticated: false,
-      setCredentials: (token, userData) => set({ token, user: userData, isAuthenticated: true }),
+      setCredentials: (token, userData) => {
+        const roles = extractRoles(token);
+        set({ token, user: { ...userData, roles }, isAuthenticated: true });
+      },
       clearCredentials: () => set({ token: null, user: null, isAuthenticated: false }),
     }),
     {
