@@ -75,6 +75,7 @@ jobs:
             --config=.semgrep/ \
             ${{ steps.policy.outputs.baseline }} \
             $STRICT_FLAGS \
+            --sarif --output=results.sarif \
             --exclude="*.test.ts" \
             --exclude="*.test.tsx" \
             --exclude="*.spec.ts" \
