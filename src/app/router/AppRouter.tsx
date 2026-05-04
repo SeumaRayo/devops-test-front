@@ -20,16 +20,27 @@ import { RoleGuard } from '../../components/common/RoleGuard';
 import UnauthorizedPage from '../../pages/UnauthorizedPage';
 import PortalPage from '../../pages/PortalPage';
 import NotFoundPage from '../../pages/NotFoundPage';
+import { ROLES } from '../../config/roles';
 
 const RootRedirect = () => {
-  const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+  const { isAuthenticated, user } = useAuthStore();
   const location = useLocation();
 
   if (location.search.includes('authenticated=true')) {
     return <Navigate to={`/oauth2/redirect${location.search}`} replace />;
   }
 
-  return isAuthenticated ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />;
+  if (isAuthenticated) {
+    if (user?.roles.includes(ROLES.ADMIN)) {
+      return <Navigate to="/dashboard" replace />;
+    }
+    if (user?.roles.includes(ROLES.ORGANIZER)) {
+      return <Navigate to="/dashboard/eventos" replace />;
+    }
+    return <Navigate to="/portal" replace />;
+  }
+
+  return <Navigate to="/login" replace />;
 };
 
 const AppRouter = () => {
@@ -42,7 +53,7 @@ const AppRouter = () => {
       <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route path="/oauth2/redirect" element={<OAuth2RedirectHandler />} />
       <Route path="/unauthorized" element={<UnauthorizedPage />} />
-      
+
       {/* Protected Portal Route (Non-admin default) */}
       <Route element={<ProtectedRoute />}>
         <Route path="/portal" element={<PortalPage />} />
@@ -50,27 +61,35 @@ const AppRouter = () => {
 
       {/* Protected Dashboard Routes */}
       <Route element={<ProtectedRoute />}>
-        <Route element={<RoleGuard allowedRoles={['ROLE_ADMIN']} />}>
+        {/* Permite a ADMIN y ORGANIZER entrar al layout del dashboard */}
+        <Route element={<RoleGuard allowedRoles={[ROLES.ADMIN, ROLES.ORGANIZER]} />}>
           <Route path="/dashboard" element={<DashboardLayout />}>
-            <Route index element={<GeneralDashboardPage />} />
 
-            {/* Usuarios */}
-            <Route path="usuarios" element={<UsuariosListPage />} />
-            <Route path="usuarios/:id" element={<UsuarioDetailPage />} />
+            {/* Rutas exclusivas de ADMIN */}
+            <Route element={<RoleGuard allowedRoles={[ROLES.ADMIN]} />}>
+              <Route index element={<GeneralDashboardPage />} />
+              {/* Usuarios */}
+              <Route path="usuarios" element={<UsuariosListPage />} />
+              <Route path="usuarios/:id" element={<UsuarioDetailPage />} />
+              {/* Accesos */}
+              <Route path="accesos" element={<AccesosListPage />} />
+              {/* Funcionalidades */}
+              <Route path="funcionalidades" element={<FuncionalidadesListPage />} />
+              {/* Sesiones */}
+              <Route path="sesiones" element={<SesionesListPage />} />
+            </Route>
 
-            {/* Accesos */}
-            <Route path="accesos" element={<AccesosListPage />} />
-
+            {/* Rutas compartidas (ADMIN y ORGANIZER) */}
             {/* Eventos */}
             <Route path="eventos" element={<EventosListPage />} />
             <Route path="eventos/historial" element={<EventosHistorialPage />} />
             <Route path="eventos/:id" element={<EventoDetailPage />} />
 
-            {/* Funcionalidades */}
-            <Route path="funcionalidades" element={<FuncionalidadesListPage />} />
+            {/* Fallback index para ROLE_ORGANIZER: redirige a eventos */}
+            <Route element={<RoleGuard allowedRoles={[ROLES.ORGANIZER]} redirectTo="/unauthorized" />}>
+              <Route index element={<Navigate to="/dashboard/eventos" replace />} />
+            </Route>
 
-            {/* Sesiones */}
-            <Route path="sesiones" element={<SesionesListPage />} />
           </Route>
         </Route>
       </Route>
