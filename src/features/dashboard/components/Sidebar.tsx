@@ -5,40 +5,37 @@ import {
   CalendarDays, Puzzle, MonitorDot, ChevronRight,
 } from 'lucide-react';
 import { NavItemType } from '../types/sidebar.types';
+import { ROLES } from '../../../config/roles';
 import { useAuthStore } from '../../../app/store/auth.store';
 import { useLogout } from '../../auth/hooks/useLogout';
 
-interface ExtendedNavItemType extends NavItemType {
-  roles?: string[];
-}
-
-const NAV_MENU: ExtendedNavItemType[] = [
+const NAV_MENU: NavItemType[] = [
   {
     id: 'dashboard',
     title: 'Panel General',
     icon: LayoutDashboard,
     path: '/dashboard',
-    roles: ['ROLE_ADMIN'],
+    roles: [ROLES.ADMIN],
   },
   {
     id: 'usuarios',
     title: 'Usuarios',
     icon: Users,
     path: '/dashboard/usuarios',
-    roles: ['ROLE_ADMIN'],
+    roles: [ROLES.ADMIN],
   },
   {
     id: 'accesos',
     title: 'Accesos',
     icon: ShieldCheck,
     path: '/dashboard/accesos',
-    roles: ['ROLE_ADMIN'],
+    roles: [ROLES.ADMIN],
   },
   {
     id: 'eventos',
     title: 'Eventos',
     icon: CalendarDays,
-    roles: ['ROLE_ADMIN', 'ROLE_ORGANIZER'],
+    roles: [ROLES.ADMIN, ROLES.ORGANIZER],
     subModules: [
       { id: 'eventos-list', title: 'Listado', path: '/dashboard/eventos', icon: CalendarDays },
       { id: 'eventos-historial', title: 'Historial', path: '/dashboard/eventos/historial', icon: MonitorDot },
@@ -49,14 +46,14 @@ const NAV_MENU: ExtendedNavItemType[] = [
     title: 'Funcionalidades',
     icon: Puzzle,
     path: '/dashboard/funcionalidades',
-    roles: ['ROLE_ADMIN'],
+    roles: [ROLES.ADMIN],
   },
   {
     id: 'sesiones',
     title: 'Sesiones',
     icon: MonitorDot,
     path: '/dashboard/sesiones',
-    roles: ['ROLE_ADMIN'],
+    roles: [ROLES.ADMIN],
   },
 ];
 

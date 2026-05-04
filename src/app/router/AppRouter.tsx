@@ -20,6 +20,7 @@ import { RoleGuard } from '../../components/common/RoleGuard';
 import UnauthorizedPage from '../../pages/UnauthorizedPage';
 import PortalPage from '../../pages/PortalPage';
 import NotFoundPage from '../../pages/NotFoundPage';
+import { ROLES } from '../../config/roles';
 
 const RootRedirect = () => {
   const { isAuthenticated, user } = useAuthStore();
@@ -30,10 +31,10 @@ const RootRedirect = () => {
   }
 
   if (isAuthenticated) {
-    if (user?.roles.includes('ROLE_ADMIN')) {
+    if (user?.roles.includes(ROLES.ADMIN)) {
       return <Navigate to="/dashboard" replace />;
     }
-    if (user?.roles.includes('ROLE_ORGANIZER')) {
+    if (user?.roles.includes(ROLES.ORGANIZER)) {
       return <Navigate to="/dashboard/eventos" replace />;
     }
     return <Navigate to="/portal" replace />;
@@ -61,11 +62,11 @@ const AppRouter = () => {
       {/* Protected Dashboard Routes */}
       <Route element={<ProtectedRoute />}>
         {/* Permite a ADMIN y ORGANIZER entrar al layout del dashboard */}
-        <Route element={<RoleGuard allowedRoles={['ROLE_ADMIN', 'ROLE_ORGANIZER']} />}>
+        <Route element={<RoleGuard allowedRoles={[ROLES.ADMIN, ROLES.ORGANIZER]} />}>
           <Route path="/dashboard" element={<DashboardLayout />}>
 
             {/* Rutas exclusivas de ADMIN */}
-            <Route element={<RoleGuard allowedRoles={['ROLE_ADMIN']} />}>
+            <Route element={<RoleGuard allowedRoles={[ROLES.ADMIN]} />}>
               <Route index element={<GeneralDashboardPage />} />
               {/* Usuarios */}
               <Route path="usuarios" element={<UsuariosListPage />} />
@@ -83,6 +84,11 @@ const AppRouter = () => {
             <Route path="eventos" element={<EventosListPage />} />
             <Route path="eventos/historial" element={<EventosHistorialPage />} />
             <Route path="eventos/:id" element={<EventoDetailPage />} />
+
+            {/* Fallback index para ROLE_ORGANIZER: redirige a eventos */}
+            <Route element={<RoleGuard allowedRoles={[ROLES.ORGANIZER]} redirectTo="/unauthorized" />}>
+              <Route index element={<Navigate to="/dashboard/eventos" replace />} />
+            </Route>
 
           </Route>
         </Route>

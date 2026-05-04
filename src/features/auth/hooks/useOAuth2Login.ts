@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../../../app/store/auth.store';
 import { extractRoles } from '../../../utils/jwt.utils';
 import { authService } from '../services/auth.service';
+import { ROLES } from '../../../config/roles';
 
 export const useOAuth2Login = () => {
   const navigate = useNavigate();
@@ -23,8 +24,7 @@ export const useOAuth2Login = () => {
           const res = await authService.getOAuth2Success();
           if (res.token) {
             setCredentials(res.token, { username: res.username || 'Usuario OAuth' });
-            
-            // Redirigir a la raíz para que RootRedirect decida según el rol
+            // RootRedirect en AppRouter.tsx se encarga del enrutamiento por rol
             navigate('/', { replace: true });
           } else {
             throw new Error('No se recibió token en la respuesta');
