@@ -24,12 +24,8 @@ export const useOAuth2Login = () => {
           if (res.token) {
             setCredentials(res.token, { username: res.username || 'Usuario OAuth' });
             
-            const roles = extractRoles(res.token);
-            if (roles.includes('ROLE_ADMIN')) {
-              navigate('/dashboard', { replace: true });
-            } else {
-              navigate('/portal', { replace: true });
-            }
+            // Redirigir a la raíz para que RootRedirect decida según el rol
+            navigate('/', { replace: true });
           } else {
             throw new Error('No se recibió token en la respuesta');
           }

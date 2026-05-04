@@ -19,13 +19,9 @@ export const useLogin = () => {
       const res = await authService.login(credentials);
       setCredentials(res.token || '', { username: res.username || credentials.usernameOrEmail });
       
-      const roles = extractRoles(res.token || '');
-      if (roles.includes('ROLE_ADMIN')) {
-        navigate('/dashboard');
-      } else {
-        // TODO: Confirmar con QA la ruta publica/usuario_normal correcta
-        navigate('/portal'); 
-      }
+      // Dejamos que RootRedirect (AppRouter.tsx) maneje a dónde debe ir
+      // según su rol.
+      navigate('/');
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
         setError(err.response?.data?.message || 'Error al iniciar sesión. Verifica tus credenciales.');

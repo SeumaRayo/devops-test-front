@@ -5,31 +5,40 @@ import {
   CalendarDays, Puzzle, MonitorDot, ChevronRight,
 } from 'lucide-react';
 import { NavItemType } from '../types/sidebar.types';
+import { useAuthStore } from '../../../app/store/auth.store';
 import { useLogout } from '../../auth/hooks/useLogout';
 
-const NAV_MENU: NavItemType[] = [
+interface ExtendedNavItemType extends NavItemType {
+  roles?: string[];
+}
+
+const NAV_MENU: ExtendedNavItemType[] = [
   {
     id: 'dashboard',
     title: 'Panel General',
     icon: LayoutDashboard,
     path: '/dashboard',
+    roles: ['ROLE_ADMIN'],
   },
   {
     id: 'usuarios',
     title: 'Usuarios',
     icon: Users,
     path: '/dashboard/usuarios',
+    roles: ['ROLE_ADMIN'],
   },
   {
     id: 'accesos',
     title: 'Accesos',
     icon: ShieldCheck,
     path: '/dashboard/accesos',
+    roles: ['ROLE_ADMIN'],
   },
   {
     id: 'eventos',
     title: 'Eventos',
     icon: CalendarDays,
+    roles: ['ROLE_ADMIN', 'ROLE_ORGANIZER'],
     subModules: [
       { id: 'eventos-list', title: 'Listado', path: '/dashboard/eventos', icon: CalendarDays },
       { id: 'eventos-historial', title: 'Historial', path: '/dashboard/eventos/historial', icon: MonitorDot },
@@ -40,12 +49,14 @@ const NAV_MENU: NavItemType[] = [
     title: 'Funcionalidades',
     icon: Puzzle,
     path: '/dashboard/funcionalidades',
+    roles: ['ROLE_ADMIN'],
   },
   {
     id: 'sesiones',
     title: 'Sesiones',
     icon: MonitorDot,
     path: '/dashboard/sesiones',
+    roles: ['ROLE_ADMIN'],
   },
 ];
 
@@ -113,6 +124,12 @@ const SidebarNavItem: React.FC<SidebarItemProps> = ({ item, isExpanded }) => {
 export const Sidebar: React.FC = () => {
   const [isExpanded, setIsExpanded] = useState(true);
   const { logout } = useLogout();
+  const user = useAuthStore(state => state.user);
+
+  const filteredMenu = NAV_MENU.filter(item => {
+    if (!item.roles) return true;
+    return item.roles.some(role => user?.roles.includes(role));
+  });
 
   return (
     <aside className={`${isExpanded ? 'w-64' : 'w-[84px]'} h-screen bg-gray-900/50 backdrop-blur-3xl border-r border-white/10 flex flex-col transition-all duration-300 relative z-30 shrink-0`}>
@@ -129,7 +146,7 @@ export const Sidebar: React.FC = () => {
         <div className={`px-5 mb-4 text-xs font-semibold text-gray-500 uppercase tracking-wider transition-opacity duration-300 ${!isExpanded && 'opacity-0'}`}>
           Menú Principal
         </div>
-        {NAV_MENU.map((item) => (
+        {filteredMenu.map((item) => (
           <SidebarNavItem key={item.id} item={item} isExpanded={isExpanded} />
         ))}
       </nav>
