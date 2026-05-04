@@ -15,6 +15,17 @@ const schema = z.object({
   capacidadMaxima: z.number({ message: 'Requerido' }).min(0, 'No puede ser negativa'),
   tieneParqueadero: z.boolean(),
   cuposParqueadero: z.number().min(0).optional(),
+  esDePago: z.boolean().default(false),
+  precio: z.number().min(0).optional(),
+  moneda: z.enum(['COP', 'USD', 'EUR', 'MXN']).optional(),
+}).refine(data => {
+  if (data.esDePago) {
+    return data.precio !== undefined && data.precio > 0 && !!data.moneda;
+  }
+  return true;
+}, {
+  message: "El precio (mayor a 0) y la moneda son obligatorios si el evento es de pago",
+  path: ["precio"]
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -37,12 +48,12 @@ export const EventoForm: React.FC<EventoFormProps> = ({ initialData, onSubmit, i
     watch,
     reset,
     formState: { errors },
-  } = useForm<FormValues>({ 
+  } = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: initialData ? {
       nombreEvento: initialData.nombreEvento,
       descripcionEvento: initialData.descripcionEvento || undefined,
-      fechaEvento: initialData.fechaEvento ? initialData.fechaEvento.split('T')[0] : '', 
+      fechaEvento: initialData.fechaEvento ? initialData.fechaEvento.split('T')[0] : '',
       horaEvento: initialData.horaEvento,
       lugarEvento: initialData.lugarEvento,
       referenciaUbicacion: initialData.referenciaUbicacion || undefined,
@@ -50,18 +61,24 @@ export const EventoForm: React.FC<EventoFormProps> = ({ initialData, onSubmit, i
       capacidadMaxima: initialData.capacidadMaxima,
       tieneParqueadero: initialData.tieneParqueadero,
       cuposParqueadero: initialData.cuposParqueadero || undefined,
-    } : undefined
+      esDePago: initialData.esDePago || false,
+      precio: initialData.precio || undefined,
+      moneda: initialData.moneda || undefined,
+    } : {
+      esDePago: false,
+    }
   });
 
   const hasParqueadero = watch('tieneParqueadero');
+  const isPaid = watch('esDePago');
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       {Object.keys(errors).length > 0 && (
         <div className="rounded-xl border border-red-500/20 bg-red-500/10 p-3 text-sm text-red-400">
-          <strong>Atención:</strong> Por favor corrige los errores indicados para continuar:<br/>
+          <strong>Atención:</strong> Por favor corrige los errores indicados para continuar:<br />
           {Object.entries(errors).map(([key, err]: any) => (
-             <span key={key} className="block ml-2">- {key}: {err.message}</span>
+            <span key={key} className="block ml-2">- {key}: {err.message}</span>
           ))}
         </div>
       )}
@@ -104,6 +121,33 @@ export const EventoForm: React.FC<EventoFormProps> = ({ initialData, onSubmit, i
             <label className={labelClass}>Cupos de Parqueadero</label>
             <input type="number" {...register('cuposParqueadero', { valueAsNumber: true })} className={inputClass} placeholder="100" />
             {errors.cuposParqueadero && <p className={errorClass}>{errors.cuposParqueadero.message}</p>}
+          </div>
+        )}
+
+        {/* --- Sección de Pagos --- */}
+        <div className="sm:col-span-2 flex items-center gap-3 bg-white/5 border border-white/10 rounded-xl p-4 mt-4">
+          <input type="checkbox" {...register('esDePago')} className="w-5 h-5 rounded border-white/20 bg-transparent text-indigo-500 focus:ring-indigo-500/50" />
+          <label className="text-sm font-medium text-white">¿El evento tiene un costo de inscripción?</label>
+        </div>
+
+        {isPaid && (
+          <div className="sm:col-span-2 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div>
+              <label className={labelClass}>Precio</label>
+              <input type="number" step="0.01" {...register('precio', { valueAsNumber: true })} className={inputClass} placeholder="Ej. 50000" />
+              {errors.precio && <p className={errorClass}>{errors.precio.message}</p>}
+            </div>
+            <div>
+              <label className={labelClass}>Moneda</label>
+              <select {...register('moneda')} className={inputClass}>
+                <option value="">Selecciona moneda...</option>
+                <option value="COP">COP - Pesos Colombianos</option>
+                <option value="USD">USD - Dólares</option>
+                <option value="EUR">EUR - Euros</option>
+                <option value="MXN">MXN - Pesos Mexicanos</option>
+              </select>
+              {errors.moneda && <p className={errorClass}>{errors.moneda.message}</p>}
+            </div>
           </div>
         )}
       </div>

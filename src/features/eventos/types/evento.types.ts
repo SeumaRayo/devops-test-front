@@ -42,6 +42,9 @@ export interface CreateEventoRequest {
   capacidadMaxima: number;
   tieneParqueadero: boolean;
   cuposParqueadero?: number;
+  esDePago: boolean;
+  precio?: number;
+  moneda?: 'COP' | 'USD' | 'EUR' | 'MXN';
 }
 
 export interface UpdateEventoRequest {
@@ -55,6 +58,9 @@ export interface UpdateEventoRequest {
   capacidadMaxima?: number;
   tieneParqueadero?: boolean;
   cuposParqueadero?: number;
+  esDePago?: boolean;
+  precio?: number;
+  moneda?: 'COP' | 'USD' | 'EUR' | 'MXN';
 }
 
 export interface HistorialEventoResponse {
