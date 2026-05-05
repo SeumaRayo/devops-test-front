@@ -9,15 +9,16 @@ interface SesionDetailModalProps {
   onClose: () => void;
   sesion: SesionResponseDto | null;
   onDisconnect: (idSesion: number) => void;
+  isAdmin: boolean;
 }
 
-export const SesionDetailModal: React.FC<SesionDetailModalProps> = ({ isOpen, onClose, sesion, onDisconnect }) => {
+export const SesionDetailModal: React.FC<SesionDetailModalProps> = ({ isOpen, onClose, sesion, onDisconnect, isAdmin }) => {
   if (!sesion) return null;
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Detalles de Sesión" size="lg">
       <div className="space-y-4">
-        {sesion.activa && (
+        {sesion.activa && isAdmin && (
           <div className="flex justify-end bg-red-500/5 border border-red-500/10 p-3 rounded-xl items-center gap-4">
             <p className="text-xs text-red-400">Esta sesión aún se encuentra activa y autorizada.</p>
             <button

@@ -8,11 +8,13 @@ import { Modal } from '../../../components/ui/Modal';
 import { CreateAccesoForm } from '../components/CreateAccesoForm';
 import { AccesoDetailModal } from '../components/AccesoDetailModal';
 import { useAccesos } from '../hooks/useAccesos';
+import { usePermissions } from '../../../hooks/usePermissions';
 import { accesoService } from '../services/acceso.service';
 import { AccesoAdminResponse, CreateAccesoAdminRequest } from '../types/acceso.types';
 
 export default function AccesosListPage() {
   const { accesos, isLoading, error, fetch, patchStatus } = useAccesos();
+  const { isAdmin } = usePermissions();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [viewItem, setViewItem] = useState<AccesoAdminResponse | null>(null);
