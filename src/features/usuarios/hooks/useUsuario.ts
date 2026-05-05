@@ -28,7 +28,7 @@ export const useUsuario = () => {
   const update = useCallback(async (id: number, payload: UsuarioUpdateRequest) => {
     setState(prev => ({ ...prev, isLoading: true, error: null }));
     try {
-      const result = await usuarioService.update(id, payload);
+      const result = await usuarioService.updateAdmin(id, payload);
       setState({ usuario: result, isLoading: false, error: null });
       return result;
     } catch {
