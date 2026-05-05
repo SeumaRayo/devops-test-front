@@ -54,4 +54,7 @@ export const API_ENDPOINTS = {
     BY_USER: (userId: number) => `/api/v1/usuarios/${userId}/sesiones`,
     ULTIMA_BY_USER: (userId: number) => `/api/v1/usuarios/${userId}/sesiones/ultima`,
   },
+  TICKETS: {
+    INSCRIBIR: (eventoId: number) => `/api/v1/tickets/evento/${eventoId}`,
+  },
 } as const;

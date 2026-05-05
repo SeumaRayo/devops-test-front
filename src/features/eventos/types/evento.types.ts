@@ -11,6 +11,7 @@ export interface PageResponse<T> {
 
 export type EstadoEvento = 'BORRADOR' | 'PUBLICADO' | 'CERRADO' | 'CANCELADO';
 export type Estado = 'ACTIVO' | 'INACTIVO';
+export type MonedaEvento = 'COP' | 'USD' | 'EUR' | 'MXN';
 
 export interface EventoResponse {
   idEvento: number;
@@ -29,6 +30,10 @@ export interface EventoResponse {
   estado: Estado;
   creadoEn: string;
   actualizadoEn: string;
+  esDePago: boolean;
+  precio?: number;
+  moneda?: MonedaEvento;
+  capacidadDisponible: number;
 }
 
 export interface CreateEventoRequest {
@@ -42,6 +47,9 @@ export interface CreateEventoRequest {
   capacidadMaxima: number;
   tieneParqueadero: boolean;
   cuposParqueadero?: number;
+  esDePago: boolean;
+  precio?: number;
+  moneda?: MonedaEvento;
 }
 
 export interface UpdateEventoRequest {
@@ -55,6 +63,9 @@ export interface UpdateEventoRequest {
   capacidadMaxima?: number;
   tieneParqueadero?: boolean;
   cuposParqueadero?: number;
+  esDePago?: boolean;
+  precio?: number;
+  moneda?: MonedaEvento;
 }
 
 export interface HistorialEventoResponse {
