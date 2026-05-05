@@ -56,10 +56,10 @@ export const usuarioService = {
     return data;
   },
 
-  // PUT /api/v1/usuarios/{id}
-  update: async (id: number, payload: UsuarioUpdateRequest): Promise<UsuarioResponse> => {
+  // PUT /api/v1/usuarios/${id}/admin
+  updateAdmin: async (id: number, payload: UsuarioUpdateRequest): Promise<UsuarioResponse> => {
     const { data } = await axiosInstance.put<UsuarioResponse>(
-      API_ENDPOINTS.USUARIOS.BY_ID(id),
+      API_ENDPOINTS.USUARIOS.UPDATE_ADMIN(id),
       payload
     );
     return data;
