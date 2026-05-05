@@ -1,12 +1,7 @@
 import axiosInstance from '../../../lib/axios';
 import { API_ENDPOINTS } from '../../../config/apiEndpoints';
 
-export interface InscripcionResponse {
-  mensaje: string;
-  ticketId: number;
-  estadoTicket: string;
-  clientSecret?: string;
-}
+import { InscripcionResponse } from '../types/ticket.types';
 
 export const ticketService = {
   inscribirse: async (eventoId: number): Promise<InscripcionResponse> => {

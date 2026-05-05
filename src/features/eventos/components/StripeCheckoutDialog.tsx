@@ -10,7 +10,7 @@ import { Loader2 } from 'lucide-react';
 
 // === LLAVE PÚBLICA DE PRUEBA DE STRIPE ===
 // En producción, esto debería venir de una variable de entorno como import.meta.env.VITE_STRIPE_PUBLIC_KEY
-const stripePromise = loadStripe('pk_test_51TQL0J6VMHrS2VDsQoXauMdLGEx65GrQU0fePNM7x1HqZgJPuh1v9RCd4ZX50RbU2BV75oQ5AIRMsU65YyaoFF1r00NbUwZ52I');
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 
 interface StripeCheckoutFormProps {
   onSuccess: () => void;

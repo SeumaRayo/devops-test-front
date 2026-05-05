@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { useAuthStore } from '../app/store/auth.store';
+import { useAuthStore } from '../../../app/store/auth.store';
 import { useNavigate } from 'react-router-dom';
-import { useEventos } from '../features/eventos/hooks/useEventos';
-import { useInscripcion } from '../features/eventos/hooks/useInscripcion';
-import { EventoPublicoCard } from '../features/eventos/components/EventoPublicoCard';
-import { StripeCheckoutDialog } from '../features/eventos/components/StripeCheckoutDialog';
+import { useEventos } from '../hooks/useEventos';
+import { useInscribirEvento } from '../api/ticket.queries';
+import { EventoPublicoCard } from '../components/EventoPublicoCard';
+import { StripeCheckoutDialog } from '../components/StripeCheckoutDialog';
 import { Loader2 } from 'lucide-react';
 
 const PortalPage = () => {
@@ -13,7 +13,7 @@ const PortalPage = () => {
 
   // Estados
   const { eventos, isLoading: isLoadingEventos, fetch: fetchEventos, error: errorEventos } = useEventos();
-  const { mutate: inscribirse, isPending: isInscribiendo } = useInscripcion();
+  const { mutate: inscribirse, isPending: isInscribiendo } = useInscribirEvento();
   
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);

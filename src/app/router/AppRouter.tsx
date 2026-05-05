@@ -18,7 +18,7 @@ import SesionesListPage from '../../features/sesiones/pages/SesionesListPage';
 import { useAuthStore } from '../store/auth.store';
 import { RoleGuard } from '../../components/common/RoleGuard';
 import UnauthorizedPage from '../../pages/UnauthorizedPage';
-import PortalPage from '../../pages/PortalPage';
+import PortalPage from '../../features/eventos/pages/PortalPage';
 import NotFoundPage from '../../pages/NotFoundPage';
 import { ROLES } from '../../config/roles';
 
