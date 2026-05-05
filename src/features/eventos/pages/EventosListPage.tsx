@@ -8,11 +8,13 @@ import { StatusToggle } from '../../../components/ui/StatusToggle';
 import { Modal } from '../../../components/ui/Modal';
 import { EventoForm } from '../components/EventoForm';
 import { useEventos } from '../hooks/useEventos';
+import { usePermissions } from '../../../hooks/usePermissions';
 import { eventoService } from '../services/evento.service';
 import { EventoResponse, CreateEventoRequest, EstadoEvento } from '../types/evento.types';
 
 export default function EventosListPage() {
   const { eventos, pagination, isLoading, error, fetch, applyFilters, actionTransition } = useEventos();
+  const { isAdmin, isOrganizer } = usePermissions();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
 
@@ -126,13 +128,15 @@ export default function EventosListPage() {
         title="Gestión de Eventos"
         subtitle="Administra la planeación, publicación y cierre de eventos."
         action={
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-500"
-          >
-            <Plus size={16} />
-            Nuevo Evento
-          </button>
+          (isAdmin || isOrganizer) && (
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-500"
+            >
+              <Plus size={16} />
+              Nuevo Evento
+            </button>
+          )
         }
       />
 

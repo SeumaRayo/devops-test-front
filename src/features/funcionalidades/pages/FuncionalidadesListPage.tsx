@@ -8,11 +8,13 @@ import { Modal } from '../../../components/ui/Modal';
 import { FuncionalidadForm } from '../components/FuncionalidadForm';
 import { FuncionalidadDetailModal } from '../components/FuncionalidadDetailModal';
 import { useFuncionalidades } from '../hooks/useFuncionalidades';
+import { usePermissions } from '../../../hooks/usePermissions';
 import { funcionalidadService } from '../services/funcionalidad.service';
 import { FuncionalidadResponse, FuncionalidadRequest } from '../types/funcionalidad.types';
 
 export default function FuncionalidadesListPage() {
   const { funcionalidades, isLoading, error, fetch, patchStatus } = useFuncionalidades();
+  const { isAdmin } = usePermissions();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [viewItem, setViewItem] = useState<FuncionalidadResponse | null>(null);

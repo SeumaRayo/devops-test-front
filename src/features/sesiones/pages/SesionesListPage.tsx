@@ -5,10 +5,12 @@ import { DataTable, ColumnDef } from '../../../components/ui/DataTable';
 import { Badge } from '../../../components/ui/Badge';
 import { SesionDetailModal } from '../components/SesionDetailModal';
 import { useSesiones } from '../hooks/useSesiones';
+import { usePermissions } from '../../../hooks/usePermissions';
 import { SesionResponseDto } from '../types/sesion.types';
 
 export default function SesionesListPage() {
   const { sesiones, pagination, isLoading, error, fetch, applyFilters, deleteSesion } = useSesiones();
+  const { isAdmin } = usePermissions();
   const [viewItem, setViewItem] = useState<SesionResponseDto | null>(null);
 
   useEffect(() => {
@@ -119,6 +121,7 @@ export default function SesionesListPage() {
         onClose={() => setViewItem(null)} 
         sesion={viewItem} 
         onDisconnect={handleDelete}
+        isAdmin={isAdmin}
       />
     </div>
   );
