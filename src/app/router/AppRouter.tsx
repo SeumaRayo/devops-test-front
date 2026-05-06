@@ -5,6 +5,7 @@ import { ForgotPasswordPage } from '../../features/auth/pages/ForgotPasswordPage
 import { ResetPasswordPage } from '../../features/auth/pages/ResetPasswordPage';
 import { OAuth2SuccessPage } from '../../features/auth/pages/OAuth2SuccessPage';
 import { OAuth2ErrorPage } from '../../features/auth/pages/OAuth2ErrorPage';
+import { UnlockAccountPage } from '../../features/auth/pages/UnlockAccountPage';
 import { ProtectedRoute } from '../../features/auth/components/ProtectedRoute';
 import { DashboardLayout } from '../../features/dashboard/layout/DashboardLayout';
 import GeneralDashboardPage from '../../features/dashboard/pages/GeneralDashboardPage';
@@ -20,6 +21,7 @@ import { useAuthStore } from '../store/auth.store';
 import { RoleGuard } from '../../components/common/RoleGuard';
 import UnauthorizedPage from '../../pages/UnauthorizedPage';
 import PortalPage from '../../features/eventos/pages/PortalPage';
+import ProfilePage from '../../features/auth/pages/ProfilePage';
 import NotFoundPage from '../../pages/NotFoundPage';
 import { ROLES } from '../../config/roles';
 
@@ -54,6 +56,7 @@ const AppRouter = () => {
       <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route path="/oauth2/success" element={<OAuth2SuccessPage />} />
       <Route path="/oauth2/error" element={<OAuth2ErrorPage />} />
+      <Route path="/unlock-account" element={<UnlockAccountPage />} />
       <Route path="/unauthorized" element={<UnauthorizedPage />} />
 
       {/* Protected Portal Route (Non-admin default) */}
@@ -63,9 +66,13 @@ const AppRouter = () => {
 
       {/* Protected Dashboard Routes */}
       <Route element={<ProtectedRoute />}>
-        {/* Permite a ADMIN y ORGANIZER entrar al layout del dashboard */}
-        <Route element={<RoleGuard allowedRoles={[ROLES.ADMIN, ROLES.ORGANIZER]} />}>
-          <Route path="/dashboard" element={<DashboardLayout />}>
+        <Route path="/dashboard" element={<DashboardLayout />}>
+
+          {/* Perfil - accesible por todos los roles autenticados */}
+          <Route path="profile" element={<ProfilePage />} />
+
+          {/* Permite a ADMIN y ORGANIZER entrar al resto del dashboard */}
+          <Route element={<RoleGuard allowedRoles={[ROLES.ADMIN, ROLES.ORGANIZER]} />}>
 
             {/* Rutas exclusivas de ADMIN */}
             <Route element={<RoleGuard allowedRoles={[ROLES.ADMIN]} />}>
@@ -93,6 +100,7 @@ const AppRouter = () => {
             </Route>
 
           </Route>
+
         </Route>
       </Route>
 

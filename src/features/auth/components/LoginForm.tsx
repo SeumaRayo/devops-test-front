@@ -71,6 +71,9 @@ export default function LoginForm() {
         <Link to="/forgot-password" className="text-xs text-indigo-400 hover:text-indigo-300 font-medium transition-colors">
           ¿Olvidaste tu contraseña?
         </Link>
+        <Link to="/unlock-account" className="text-xs text-gray-400 hover:text-gray-300 font-medium transition-colors">
+          ¿Cuenta bloqueada?
+        </Link>
       </div>
 
       <button

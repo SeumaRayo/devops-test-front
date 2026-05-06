@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import {
   Menu, LogOut, LayoutDashboard, Users, ShieldCheck,
-  CalendarDays, Puzzle, MonitorDot, ChevronRight,
+  CalendarDays, Puzzle, MonitorDot, ChevronRight, UserCircle,
 } from 'lucide-react';
 import { NavItemType } from '../types/sidebar.types';
 import { ROLES } from '../../../config/roles';
@@ -54,6 +54,13 @@ const NAV_MENU: NavItemType[] = [
     icon: MonitorDot,
     path: '/dashboard/sesiones',
     roles: [ROLES.ADMIN],
+  },
+  {
+    id: 'profile',
+    title: 'Perfil',
+    icon: UserCircle,
+    path: '/dashboard/profile',
+    roles: [ROLES.ADMIN, ROLES.ORGANIZER, ROLES.USER],
   },
 ];
 
