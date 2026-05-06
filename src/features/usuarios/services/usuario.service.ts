@@ -65,6 +65,12 @@ export const usuarioService = {
     return data;
   },
 
+  // GET /api/v1/usuarios/id
+  getCurrentUser: async (): Promise<UsuarioResponse> => {
+    const { data } = await axiosInstance.get<UsuarioResponse>('/api/v1/usuarios/id');
+    return data;
+  },
+
   // PATCH /api/v1/usuarios/{id}/activar
   activar: async (id: number): Promise<UsuarioResponse> => {
     const { data } = await axiosInstance.patch<UsuarioResponse>(API_ENDPOINTS.USUARIOS.ACTIVAR(id));

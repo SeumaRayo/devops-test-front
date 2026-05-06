@@ -21,6 +21,7 @@ import { useAuthStore } from '../store/auth.store';
 import { RoleGuard } from '../../components/common/RoleGuard';
 import UnauthorizedPage from '../../pages/UnauthorizedPage';
 import PortalPage from '../../features/eventos/pages/PortalPage';
+import ProfilePage from '../../features/auth/pages/ProfilePage';
 import NotFoundPage from '../../pages/NotFoundPage';
 import { ROLES } from '../../config/roles';
 
@@ -65,9 +66,13 @@ const AppRouter = () => {
 
       {/* Protected Dashboard Routes */}
       <Route element={<ProtectedRoute />}>
-        {/* Permite a ADMIN y ORGANIZER entrar al layout del dashboard */}
-        <Route element={<RoleGuard allowedRoles={[ROLES.ADMIN, ROLES.ORGANIZER]} />}>
-          <Route path="/dashboard" element={<DashboardLayout />}>
+        <Route path="/dashboard" element={<DashboardLayout />}>
+
+          {/* Perfil - accesible por todos los roles autenticados */}
+          <Route path="profile" element={<ProfilePage />} />
+
+          {/* Permite a ADMIN y ORGANIZER entrar al resto del dashboard */}
+          <Route element={<RoleGuard allowedRoles={[ROLES.ADMIN, ROLES.ORGANIZER]} />}>
 
             {/* Rutas exclusivas de ADMIN */}
             <Route element={<RoleGuard allowedRoles={[ROLES.ADMIN]} />}>
@@ -95,6 +100,7 @@ const AppRouter = () => {
             </Route>
 
           </Route>
+
         </Route>
       </Route>
 

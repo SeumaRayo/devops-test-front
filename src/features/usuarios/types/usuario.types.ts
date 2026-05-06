@@ -6,6 +6,9 @@ export interface UsuarioResponse {
   apellidos: string;
   documento: string;
   nombreRol: string;
+  genero?: string;
+  telefono?: string;
+  fechaNacimiento?: string;
 }
 
 export interface UsuarioCreatedResponse {
