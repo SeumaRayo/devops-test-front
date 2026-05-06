@@ -48,3 +48,28 @@ export const extractRoles = (token: string): string[] => {
     return [];
   }
 };
+
+/**
+ * Extrae el nombre o email del token si está disponible.
+ * Si el subject (sub) es un UUID (ID de usuario), devuelve un fallback para no mostrar el ID en la UI.
+ */
+export const extractSubject = (token: string): string => {
+  if (!token) return 'Usuario OAuth';
+  try {
+    const decoded = jwtDecode<JwtPayload>(token);
+    
+    if (decoded.email && typeof decoded.email === 'string') return decoded.email;
+    if (decoded.name && typeof decoded.name === 'string') return decoded.name;
+    if (decoded.username && typeof decoded.username === 'string') return decoded.username;
+    
+    // Si el sub existe y NO es un UUID, lo devolvemos
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (decoded.sub && !uuidRegex.test(decoded.sub)) {
+      return decoded.sub;
+    }
+    
+    return 'Usuario OAuth';
+  } catch (error) {
+    return 'Usuario OAuth';
+  }
+};
