@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { resetPasswordSchema, ResetPasswordFormValues } from '../validations/passwordReset.schema';
-import { useResetPassword } from '../api/passwordReset.queries';
+import { useResetPassword } from '../hooks/passwordReset.queries';
 import { Link, useNavigate } from 'react-router-dom';
 import { isAxiosError } from 'axios';
 import { Loader2, ArrowLeft, KeyRound } from 'lucide-react';

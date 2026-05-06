@@ -1,4 +1,4 @@
-import { useRequestPasswordReset } from '../api/passwordReset.queries';
+import { useRequestPasswordReset } from './passwordReset.queries';
 import { isAxiosError } from 'axios';
 
 export const useForgotPassword = () => {
