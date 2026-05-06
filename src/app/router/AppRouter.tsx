@@ -5,6 +5,7 @@ import { ForgotPasswordPage } from '../../features/auth/pages/ForgotPasswordPage
 import { ResetPasswordPage } from '../../features/auth/pages/ResetPasswordPage';
 import { OAuth2SuccessPage } from '../../features/auth/pages/OAuth2SuccessPage';
 import { OAuth2ErrorPage } from '../../features/auth/pages/OAuth2ErrorPage';
+import { UnlockAccountPage } from '../../features/auth/pages/UnlockAccountPage';
 import { ProtectedRoute } from '../../features/auth/components/ProtectedRoute';
 import { DashboardLayout } from '../../features/dashboard/layout/DashboardLayout';
 import GeneralDashboardPage from '../../features/dashboard/pages/GeneralDashboardPage';
@@ -54,6 +55,7 @@ const AppRouter = () => {
       <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route path="/oauth2/success" element={<OAuth2SuccessPage />} />
       <Route path="/oauth2/error" element={<OAuth2ErrorPage />} />
+      <Route path="/unlock-account" element={<UnlockAccountPage />} />
       <Route path="/unauthorized" element={<UnauthorizedPage />} />
 
       {/* Protected Portal Route (Non-admin default) */}
