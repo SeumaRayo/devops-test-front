@@ -1,0 +1,262 @@
+import React, { useEffect, useState } from 'react';
+import { useAuthStore } from '../../../app/store/auth.store';
+import { useNavigate, Link } from 'react-router-dom';
+import { useEventos } from '../hooks/useEventos';
+import { useInscribirEvento } from '../hooks/ticket.queries';
+import { EventoPublicoCard } from '../components/EventoPublicoCard';
+import { StripeCheckoutDialog } from '../components/StripeCheckoutDialog';
+import { Loader2, Search, SlidersHorizontal, X, Ticket } from 'lucide-react';
+
+const PortalPage = () => {
+  const { user } = useAuthStore();
+  const navigate = useNavigate();
+
+  // 'disponibles' → GET /api/v1/eventos/disponibles (ALL authenticated roles)
+  const {
+    eventos,
+    isLoading: isLoadingEventos,
+    fetch: fetchEventos,
+    applyFilters,
+    error: errorEventos,
+  } = useEventos('disponibles');
+
+  const { mutate: inscribirse, isPending: isInscribiendo } = useInscribirEvento();
+
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [stripeConfig, setStripeConfig] = useState<{ isOpen: boolean; clientSecret: string }>({
+    isOpen: false,
+    clientSecret: '',
+  });
+
+  // Search / filter state
+  const [searchNombre, setSearchNombre] = useState('');
+  const [searchLugar, setSearchLugar] = useState('');
+  const [filterPago, setFilterPago] = useState<'' | 'true' | 'false'>('');
+  const [filterCupos, setFilterCupos] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
+
+  // Load disponibles on mount (backend filters PUBLICADO + ACTIVO automatically)
+  useEffect(() => {
+    fetchEventos();
+  }, [fetchEventos]);
+
+  // Check for successful Stripe redirect
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('payment_intent') === 'success') {
+      setSuccessMessage('¡Pago procesado exitosamente por Stripe! (El ticket se registrará como pagado).');
+    }
+  }, []);
+
+  const handleSearch = () => {
+    applyFilters({
+      nombre: searchNombre || undefined,
+      lugar: searchLugar || undefined,
+      esDePago: filterPago === '' ? undefined : filterPago === 'true',
+      conCupos: filterCupos || undefined,
+    });
+  };
+
+  const handleClearFilters = () => {
+    setSearchNombre('');
+    setSearchLugar('');
+    setFilterPago('');
+    setFilterCupos(false);
+    fetchEventos();
+  };
+
+  const handleInscripcion = (idEvento: number) => {
+    setSuccessMessage(null);
+    setErrorMessage(null);
+    inscribirse(idEvento, {
+      onSuccess: (data) => {
+        if (data.clientSecret) {
+          setStripeConfig({ isOpen: true, clientSecret: data.clientSecret });
+        } else {
+          const ticketId = data.idTicket ?? data.ticketId;
+          setSuccessMessage(`¡Inscripción exitosa! Ticket #${ticketId} creado.`);
+        }
+      },
+      onError: (err: any) => {
+        setErrorMessage(
+          err.response?.data?.message ||
+          err.response?.data?.detail ||
+          err.message ||
+          'Error al intentar inscribirse.'
+        );
+      },
+    });
+  };
+
+  const handlePaymentSuccess = () => {
+    setStripeConfig({ isOpen: false, clientSecret: '' });
+    setSuccessMessage('¡El pago ha sido validado correctamente!');
+    fetchEventos();
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-950 p-4 pb-20">
+
+      {/* ── HEADER (same style as original) ── */}
+      <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between mt-8 mb-8 bg-gray-900/30 border border-white/10 backdrop-blur-xl p-6 rounded-2xl shadow-xl">
+        <div>
+          <h1 className="text-3xl font-bold text-white mb-2">Catálogo de Eventos</h1>
+          <p className="text-gray-400">
+            Bienvenido, <span className="text-blue-400 font-semibold">{user?.username}</span>. Explora los próximos eventos.
+          </p>
+        </div>
+        <div className="flex items-center gap-3 mt-4 md:mt-0">
+          <Link
+            to="/mis-tickets"
+            className="flex items-center gap-2 bg-indigo-600/10 hover:bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 font-medium py-2 px-5 rounded-xl transition-all duration-300"
+          >
+            <Ticket size={16} />
+            Mis Tickets
+          </Link>
+          <button
+            onClick={() => {
+              useAuthStore.getState().clearCredentials();
+              navigate('/login');
+            }}
+            className="bg-red-600/10 hover:bg-red-600 text-red-500 hover:text-white border border-red-600/50 font-medium py-2 px-6 rounded-xl transition-all duration-300"
+          >
+            Cerrar Sesión
+          </button>
+        </div>
+      </div>
+
+      {/* ── SEARCH & FILTER BAR ── */}
+      <div className="max-w-6xl mx-auto mb-6 bg-gray-900/30 border border-white/10 rounded-2xl p-4 space-y-3 backdrop-blur-xl">
+        <div className="flex items-center gap-3 flex-wrap">
+          <div className="flex-1 min-w-[180px] flex items-center gap-2 bg-gray-900/60 border border-white/10 rounded-xl px-3 py-2">
+            <Search size={14} className="text-gray-500 shrink-0" />
+            <input
+              type="text"
+              placeholder="Buscar por nombre..."
+              value={searchNombre}
+              onChange={(e) => setSearchNombre(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+              className="bg-transparent text-sm text-gray-200 placeholder-gray-600 outline-none w-full"
+            />
+          </div>
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm border transition-all ${
+              showFilters
+                ? 'bg-indigo-600/20 text-indigo-400 border-indigo-500/30'
+                : 'text-gray-400 border-white/10 hover:bg-white/5'
+            }`}
+          >
+            <SlidersHorizontal size={14} />
+            Filtros
+          </button>
+          <button
+            onClick={handleSearch}
+            className="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold transition-all"
+          >
+            Buscar
+          </button>
+          <button
+            onClick={handleClearFilters}
+            className="flex items-center gap-1 text-xs text-gray-500 hover:text-gray-300 transition-colors"
+          >
+            <X size={12} /> Limpiar
+          </button>
+        </div>
+
+        {showFilters && (
+          <div className="flex flex-wrap gap-3 pt-2 border-t border-white/5 animate-in fade-in slide-in-from-top-2 duration-200">
+            <div className="flex-1 min-w-[160px] flex items-center gap-2 bg-gray-900/60 border border-white/10 rounded-xl px-3 py-2">
+              <Search size={14} className="text-gray-500 shrink-0" />
+              <input
+                type="text"
+                placeholder="Lugar..."
+                value={searchLugar}
+                onChange={(e) => setSearchLugar(e.target.value)}
+                className="bg-transparent text-sm text-gray-200 placeholder-gray-600 outline-none w-full"
+              />
+            </div>
+            <select
+              value={filterPago}
+              onChange={(e) => setFilterPago(e.target.value as '' | 'true' | 'false')}
+              className="bg-gray-900/60 border border-white/10 rounded-xl px-3 py-2 text-sm text-gray-300 outline-none"
+            >
+              <option value="">Todos (gratis y de pago)</option>
+              <option value="false">Solo gratuitos</option>
+              <option value="true">Solo de pago</option>
+            </select>
+            <label className="flex items-center gap-2 text-sm text-gray-400 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={filterCupos}
+                onChange={(e) => setFilterCupos(e.target.checked)}
+                className="accent-indigo-500 w-4 h-4"
+              />
+              Con cupos disponibles
+            </label>
+          </div>
+        )}
+      </div>
+
+      {/* ── STATUS MESSAGES ── */}
+      <div className="max-w-6xl mx-auto mb-6 space-y-3">
+        {successMessage && (
+          <div className="bg-green-500/10 border border-green-500/20 text-green-400 px-6 py-4 rounded-xl font-medium shadow-lg animate-in fade-in slide-in-from-top-4">
+            ✅ {successMessage}{' '}
+            {successMessage.includes('Ticket') && (
+              <Link to="/mis-tickets" className="underline text-indigo-400 hover:text-indigo-300 ml-1">
+                Ver mis tickets →
+              </Link>
+            )}
+          </div>
+        )}
+        {errorMessage && (
+          <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-6 py-4 rounded-xl font-medium shadow-lg animate-in fade-in slide-in-from-top-4">
+            ❌ {errorMessage}
+          </div>
+        )}
+        {errorEventos && (
+          <div className="bg-orange-500/10 border border-orange-500/20 text-orange-400 px-6 py-4 rounded-xl font-medium shadow-lg">
+            ⚠ {errorEventos}
+          </div>
+        )}
+      </div>
+
+      {/* ── EVENT GRID ── */}
+      <div className="max-w-6xl mx-auto">
+        {isLoadingEventos ? (
+          <div className="flex flex-col items-center justify-center py-20 text-gray-400">
+            <Loader2 className="w-10 h-10 animate-spin text-blue-500 mb-4" />
+            <p>Cargando eventos disponibles...</p>
+          </div>
+        ) : eventos.length === 0 ? (
+          <div className="text-center py-20 bg-gray-900/20 border border-white/5 rounded-2xl">
+            <p className="text-gray-400 text-lg">No hay eventos publicados en este momento.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {eventos.map((ev) => (
+              <EventoPublicoCard
+                key={ev.idEvento}
+                evento={ev}
+                onInscribirse={handleInscripcion}
+                isPending={isInscribiendo}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* ── STRIPE MODAL ── */}
+      <StripeCheckoutDialog
+        isOpen={stripeConfig.isOpen}
+        clientSecret={stripeConfig.clientSecret}
+        onClose={() => setStripeConfig({ isOpen: false, clientSecret: '' })}
+        onSuccess={handlePaymentSuccess}
+      />
+    </div>
+  );
+};
+
+export default PortalPage;
