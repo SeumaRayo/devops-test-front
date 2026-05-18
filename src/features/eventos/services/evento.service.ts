@@ -10,6 +10,12 @@ import {
   EventoDisponiblesFilterRequest,
   MisEventosFilterRequest,
   PageResponse,
+  StaffResponseDTO,
+  AssignStaffRequest,
+  MisAsignacionesResponseDTO,
+  CheckInRequest,
+  CheckInResponseDTO,
+  ResumenCheckInDTO,
 } from '../types/evento.types';
 import { TicketResponseDTO } from '../types/ticket.types';
 
@@ -75,6 +81,12 @@ export const eventoService = {
     return data;
   },
 
+  // GET /api/v1/eventos/disponibles/{id}
+  getDisponibleById: async (id: number): Promise<EventoResponse> => {
+    const { data } = await axiosInstance.get<EventoResponse>(API_ENDPOINTS.EVENTOS.DISPONIBLE_BY_ID(id));
+    return data;
+  },
+
   // POST /api/v1/eventos  — ORGANIZER and ADMIN only
   create: async (payload: CreateEventoRequest): Promise<EventoResponse> => {
     const { data } = await axiosInstance.post<EventoResponse>(API_ENDPOINTS.EVENTOS.BASE, payload);
@@ -137,4 +149,56 @@ export const eventoService = {
     const { data } = await axiosInstance.patch<EventoResponse>(API_ENDPOINTS.EVENTOS.DESACTIVAR(id), payload);
     return data;
   },
+
+  // --- STAFF ENDPOINTS ---
+
+  // POST /api/v1/eventos/{id}/staff
+  assignStaff: async (id: number, payload: AssignStaffRequest): Promise<StaffResponseDTO> => {
+    const { data } = await axiosInstance.post<StaffResponseDTO>(API_ENDPOINTS.EVENTOS.STAFF.BASE(id), payload);
+    return data;
+  },
+
+  // GET /api/v1/eventos/{id}/staff
+  getStaff: async (id: number): Promise<StaffResponseDTO[]> => {
+    const { data } = await axiosInstance.get<StaffResponseDTO[]>(API_ENDPOINTS.EVENTOS.STAFF.BASE(id));
+    return data;
+  },
+
+  // PATCH /api/v1/eventos/{id}/staff/{userId}/activar
+  activarStaff: async (id: number, userId: number): Promise<StaffResponseDTO> => {
+    const { data } = await axiosInstance.patch<StaffResponseDTO>(API_ENDPOINTS.EVENTOS.STAFF.ACTIVAR(id, userId));
+    return data;
+  },
+
+  // PATCH /api/v1/eventos/{id}/staff/{userId}/desactivar
+  desactivarStaff: async (id: number, userId: number): Promise<StaffResponseDTO> => {
+    const { data } = await axiosInstance.patch<StaffResponseDTO>(API_ENDPOINTS.EVENTOS.STAFF.DESACTIVAR(id, userId));
+    return data;
+  },
+
+  // GET /api/v1/eventos/staff/mis-asignaciones
+  getMisAsignacionesStaff: async (): Promise<MisAsignacionesResponseDTO[]> => {
+    const { data } = await axiosInstance.get<MisAsignacionesResponseDTO[]>(API_ENDPOINTS.EVENTOS.STAFF.MIS_ASIGNACIONES);
+    return data;
+  },
+
+  tieneAsignacionesStaff: async (): Promise<boolean> => {
+    const { data } = await axiosInstance.get<boolean>(API_ENDPOINTS.EVENTOS.STAFF.TIENE_ASIGNACIONES);
+    return data;
+  },
+
+  // --- CHECK-IN ENDPOINTS ---
+
+  // POST /api/v1/eventos/{id}/check-in
+  checkIn: async (id: number, payload: CheckInRequest): Promise<CheckInResponseDTO> => {
+    const { data } = await axiosInstance.post<CheckInResponseDTO>(API_ENDPOINTS.EVENTOS.CHECKIN.BASE(id), payload);
+    return data;
+  },
+
+  // GET /api/v1/eventos/{id}/check-in/resumen
+  getCheckInResumen: async (id: number): Promise<ResumenCheckInDTO> => {
+    const { data } = await axiosInstance.get<ResumenCheckInDTO>(API_ENDPOINTS.EVENTOS.CHECKIN.RESUMEN(id));
+    return data;
+  },
 };
+

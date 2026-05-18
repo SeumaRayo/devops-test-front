@@ -8,10 +8,11 @@ import { PageHeader } from '../../../components/ui/PageHeader';
 import { Badge } from '../../../components/ui/Badge';
 import { useEvento } from '../hooks/useEvento';
 import { EventoForm } from '../components/EventoForm';
+import { EventoStaffTab } from '../components/EventoStaffTab';
 import { eventoService } from '../services/evento.service';
 import { TicketResponseDTO } from '../types/ticket.types';
 
-type Tab = 'info' | 'historial' | 'tickets';
+type Tab = 'info' | 'historial' | 'tickets' | 'staff';
 
 const ticketEstadoStyle = (estado: TicketResponseDTO['estadoTicket']) => {
   switch (estado) {
@@ -128,6 +129,9 @@ export default function EventoDetailPage() {
               </span>
             )}
           </span>
+        </button>
+        <button className={tabClass('staff')} onClick={() => setActiveTab('staff')}>
+          <span className="flex items-center gap-2"><Users size={14} /> Staff</span>
         </button>
       </div>
 
@@ -320,6 +324,19 @@ export default function EventoDetailPage() {
               </table>
             </div>
           )}
+        </div>
+      )}
+
+      {/* ── STAFF TAB ── */}
+      {activeTab === 'staff' && (
+        <div className="rounded-2xl border border-white/5 bg-gray-900/30 p-6 backdrop-blur-xl">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+              <Users size={18} className="text-indigo-400" />
+              Gestión de Staff
+            </h3>
+          </div>
+          <EventoStaffTab idEvento={Number(id)} />
         </div>
       )}
     </div>

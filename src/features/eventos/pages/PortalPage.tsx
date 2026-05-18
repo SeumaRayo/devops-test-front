@@ -2,10 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { useAuthStore } from '../../../app/store/auth.store';
 import { useNavigate, Link } from 'react-router-dom';
 import { useEventos } from '../hooks/useEventos';
-import { useInscribirEvento } from '../hooks/ticket.queries';
 import { EventoPublicoCard } from '../components/EventoPublicoCard';
-import { StripeCheckoutDialog } from '../components/StripeCheckoutDialog';
-import { Loader2, Search, SlidersHorizontal, X, Ticket } from 'lucide-react';
+import { eventoService } from '../services/evento.service';
+import { Loader2, Search, SlidersHorizontal, X, Ticket, QrCode } from 'lucide-react';
 
 const PortalPage = () => {
   const { user } = useAuthStore();
@@ -20,15 +19,6 @@ const PortalPage = () => {
     error: errorEventos,
   } = useEventos('disponibles');
 
-  const { mutate: inscribirse, isPending: isInscribiendo } = useInscribirEvento();
-
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [stripeConfig, setStripeConfig] = useState<{ isOpen: boolean; clientSecret: string }>({
-    isOpen: false,
-    clientSecret: '',
-  });
-
   // Search / filter state
   const [searchNombre, setSearchNombre] = useState('');
   const [searchLugar, setSearchLugar] = useState('');
@@ -36,9 +26,23 @@ const PortalPage = () => {
   const [filterCupos, setFilterCupos] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
 
+  // Staff state
+  const [isStaff, setIsStaff] = useState(false);
+
   // Load disponibles on mount (backend filters PUBLICADO + ACTIVO automatically)
   useEffect(() => {
     fetchEventos();
+
+    // Check if the user is staff for any event
+    const checkStaff = async () => {
+      try {
+        const isStaff = await eventoService.tieneAsignacionesStaff();
+        setIsStaff(isStaff);
+      } catch (err) {
+        // Ignore error
+      }
+    };
+    checkStaff();
   }, [fetchEventos]);
 
   // Check for successful Stripe redirect
@@ -66,35 +70,6 @@ const PortalPage = () => {
     fetchEventos();
   };
 
-  const handleInscripcion = (idEvento: number) => {
-    setSuccessMessage(null);
-    setErrorMessage(null);
-    inscribirse(idEvento, {
-      onSuccess: (data) => {
-        if (data.clientSecret) {
-          setStripeConfig({ isOpen: true, clientSecret: data.clientSecret });
-        } else {
-          const ticketId = data.idTicket ?? data.ticketId;
-          setSuccessMessage(`¡Inscripción exitosa! Ticket #${ticketId} creado.`);
-        }
-      },
-      onError: (err: any) => {
-        setErrorMessage(
-          err.response?.data?.message ||
-          err.response?.data?.detail ||
-          err.message ||
-          'Error al intentar inscribirse.'
-        );
-      },
-    });
-  };
-
-  const handlePaymentSuccess = () => {
-    setStripeConfig({ isOpen: false, clientSecret: '' });
-    setSuccessMessage('¡El pago ha sido validado correctamente!');
-    fetchEventos();
-  };
-
   return (
     <div className="min-h-screen bg-gray-950 p-4 pb-20">
 
@@ -107,6 +82,24 @@ const PortalPage = () => {
           </p>
         </div>
         <div className="flex items-center gap-3 mt-4 md:mt-0">
+          {isStaff ? (
+            <Link
+              to="/asignaciones"
+              className="flex items-center gap-2 bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 font-medium py-2 px-5 rounded-xl transition-all duration-300"
+            >
+              <QrCode size={16} />
+              Panel Staff
+            </Link>
+          ) : (
+            <button
+              disabled
+              title="Aún no has sido seleccionado como staff en ningún evento"
+              className="flex items-center gap-2 bg-gray-800/30 text-gray-500 border border-gray-700/50 font-medium py-2 px-5 rounded-xl cursor-not-allowed"
+            >
+              <QrCode size={16} />
+              Panel Staff
+            </button>
+          )}
           <Link
             to="/mis-tickets"
             className="flex items-center gap-2 bg-indigo-600/10 hover:bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 font-medium py-2 px-5 rounded-xl transition-all duration-300"
@@ -201,21 +194,6 @@ const PortalPage = () => {
 
       {/* ── STATUS MESSAGES ── */}
       <div className="max-w-6xl mx-auto mb-6 space-y-3">
-        {successMessage && (
-          <div className="bg-green-500/10 border border-green-500/20 text-green-400 px-6 py-4 rounded-xl font-medium shadow-lg animate-in fade-in slide-in-from-top-4">
-            ✅ {successMessage}{' '}
-            {successMessage.includes('Ticket') && (
-              <Link to="/mis-tickets" className="underline text-indigo-400 hover:text-indigo-300 ml-1">
-                Ver mis tickets →
-              </Link>
-            )}
-          </div>
-        )}
-        {errorMessage && (
-          <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-6 py-4 rounded-xl font-medium shadow-lg animate-in fade-in slide-in-from-top-4">
-            ❌ {errorMessage}
-          </div>
-        )}
         {errorEventos && (
           <div className="bg-orange-500/10 border border-orange-500/20 text-orange-400 px-6 py-4 rounded-xl font-medium shadow-lg">
             ⚠ {errorEventos}
@@ -240,21 +218,11 @@ const PortalPage = () => {
               <EventoPublicoCard
                 key={ev.idEvento}
                 evento={ev}
-                onInscribirse={handleInscripcion}
-                isPending={isInscribiendo}
               />
             ))}
           </div>
         )}
       </div>
-
-      {/* ── STRIPE MODAL ── */}
-      <StripeCheckoutDialog
-        isOpen={stripeConfig.isOpen}
-        clientSecret={stripeConfig.clientSecret}
-        onClose={() => setStripeConfig({ isOpen: false, clientSecret: '' })}
-        onSuccess={handlePaymentSuccess}
-      />
     </div>
   );
 };

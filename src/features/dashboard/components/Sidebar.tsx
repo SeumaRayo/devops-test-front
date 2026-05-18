@@ -2,14 +2,23 @@ import React, { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import {
   Menu, LogOut, LayoutDashboard, Users, ShieldCheck,
-  CalendarDays, Puzzle, MonitorDot, ChevronRight, UserCircle,
+  CalendarDays, Puzzle, MonitorDot, ChevronRight, UserCircle, QrCode, Ticket, Home
 } from 'lucide-react';
 import { NavItemType } from '../types/sidebar.types';
 import { ROLES } from '../../../config/roles';
 import { useAuthStore } from '../../../app/store/auth.store';
 import { useLogout } from '../../auth/hooks/useLogout';
+import { eventoService } from '../../eventos/services/evento.service';
+import { useEffect } from 'react';
 
 const NAV_MENU: NavItemType[] = [
+  {
+    id: 'catalogo',
+    title: 'Catálogo de Eventos',
+    icon: Home,
+    path: '/portal',
+    roles: [ROLES.ADMIN, ROLES.ORGANIZER, ROLES.USER],
+  },
   {
     id: 'dashboard',
     title: 'Panel General',
@@ -127,13 +136,38 @@ const SidebarNavItem: React.FC<SidebarItemProps> = ({ item, isExpanded }) => {
 
 export const Sidebar: React.FC = () => {
   const [isExpanded, setIsExpanded] = useState(true);
+  const [hasStaffAssignments, setHasStaffAssignments] = useState(false);
   const { logout } = useLogout();
   const user = useAuthStore(state => state.user);
+
+  useEffect(() => {
+    const checkStaffAssignments = async () => {
+      try {
+        const isStaff = await eventoService.tieneAsignacionesStaff();
+        setHasStaffAssignments(isStaff);
+      } catch (error) {
+        // Ignorar si el usuario no tiene permisos o hay error, asume que no es staff
+        console.error('Error verificando asignaciones de staff', error);
+      }
+    };
+    if (user) {
+      checkStaffAssignments();
+    }
+  }, [user]);
 
   const filteredMenu = NAV_MENU.filter(item => {
     if (!item.roles) return true;
     return item.roles.some(role => user?.roles.includes(role));
   });
+
+  if (hasStaffAssignments) {
+    filteredMenu.push({
+      id: 'asignaciones',
+      title: 'Operación / Check-in',
+      icon: QrCode,
+      path: '/asignaciones',
+    });
+  }
 
   return (
     <aside className={`${isExpanded ? 'w-64' : 'w-[84px]'} h-screen bg-gray-900/50 backdrop-blur-3xl border-r border-white/10 flex flex-col transition-all duration-300 relative z-30 shrink-0`}>

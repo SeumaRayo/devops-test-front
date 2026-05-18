@@ -28,4 +28,12 @@ export const ticketService = {
     const { data } = await axiosInstance.post<TicketResponseDTO>(API_ENDPOINTS.TICKETS.CANCELAR(id));
     return data;
   },
+
+  // GET /api/v1/tickets/{id}/qr  — Owner or ADMIN. Returns a blob URL for use in <img>
+  getQrImageUrl: async (id: number): Promise<string> => {
+    const { data } = await axiosInstance.get<Blob>(API_ENDPOINTS.TICKETS.QR(id), {
+      responseType: 'blob',
+    });
+    return URL.createObjectURL(data);
+  },
 };

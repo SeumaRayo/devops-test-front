@@ -2,13 +2,13 @@ import React from 'react';
 import { EventoResponse } from '../types/evento.types';
 import { MapPin, Calendar, Clock, Loader2 } from 'lucide-react';
 
+import { Link } from 'react-router-dom';
+
 interface Props {
   evento: EventoResponse;
-  onInscribirse: (id: number) => void;
-  isPending: boolean;
 }
 
-export const EventoPublicoCard: React.FC<Props> = ({ evento, onInscribirse, isPending }) => {
+export const EventoPublicoCard: React.FC<Props> = ({ evento }) => {
   const isFree = !evento.esDePago || evento.precio === 0;
 
   return (
@@ -45,22 +45,12 @@ export const EventoPublicoCard: React.FC<Props> = ({ evento, onInscribirse, isPe
           )}
         </div>
 
-        <button
-          onClick={() => onInscribirse(evento.idEvento)}
-          disabled={isPending || evento.capacidadDisponible === 0}
-          className={`flex items-center justify-center px-6 py-2.5 rounded-xl font-medium transition-colors ${evento.capacidadDisponible === 0
-              ? 'bg-gray-800 text-gray-500 cursor-not-allowed'
-              : 'bg-blue-600 hover:bg-blue-700 text-white'
-            }`}
+        <Link
+          to={`/portal/eventos/${evento.idEvento}`}
+          className={`flex items-center justify-center px-6 py-2.5 rounded-xl font-medium transition-colors bg-blue-600 hover:bg-blue-700 text-white`}
         >
-          {isPending ? (
-            <Loader2 className="w-5 h-5 animate-spin" />
-          ) : evento.capacidadDisponible === 0 ? (
-            'Agotado'
-          ) : (
-            'Inscribirse'
-          )}
-        </button>
+          Ver Detalles
+        </Link>
       </div>
     </div>
   );

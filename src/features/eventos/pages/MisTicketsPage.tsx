@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useMisTickets, useCancelarTicket } from '../hooks/ticket.queries';
+import { ticketService } from '../services/ticket.service';
 import { TicketResponseDTO } from '../types/ticket.types';
 import {
   Loader2, Ticket, XCircle, CheckCircle, Clock,
-  CreditCard, Ban, ArrowLeft, CalendarDays,
+  CreditCard, Ban, ArrowLeft, CalendarDays, QrCode, X, Download,
 } from 'lucide-react';
 import { useAuthStore } from '../../../app/store/auth.store';
 
@@ -30,16 +31,135 @@ const estadoStyle = (estado: TicketResponseDTO['estadoTicket']) => {
   }
 };
 
+// ── QR Modal ─────────────────────────────────────────────────────────────────
+interface QrModalProps {
+  ticket: TicketResponseDTO;
+  onClose: () => void;
+}
+
+const QrModal: React.FC<QrModalProps> = ({ ticket, onClose }) => {
+  const [qrUrl, setQrUrl] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  React.useEffect(() => {
+    let objectUrl: string;
+    const fetchQr = async () => {
+      try {
+        objectUrl = await ticketService.getQrImageUrl(ticket.idTicket);
+        setQrUrl(objectUrl);
+      } catch (err: any) {
+        setError(err.response?.data?.message || 'No se pudo cargar el código QR.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchQr();
+    return () => {
+      // Revoke the object URL when the modal unmounts to avoid memory leaks
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+    };
+  }, [ticket.idTicket]);
+
+  const handleDownload = () => {
+    if (!qrUrl) return;
+    const link = document.createElement('a');
+    link.href = qrUrl;
+    link.download = `ticket-${ticket.idTicket}-qr.png`;
+    link.click();
+  };
+
+  return (
+    // Backdrop
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-200"
+      onClick={onClose}
+    >
+      <div
+        className="bg-gray-900 border border-white/10 rounded-3xl p-8 shadow-2xl w-full max-w-sm animate-in zoom-in-95 slide-in-from-bottom-4 duration-300"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="text-lg font-bold text-white">Código QR del Ticket</h2>
+            <p className="text-sm text-gray-400 truncate max-w-[200px]">{ticket.nombreEvento}</p>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-2 rounded-xl hover:bg-white/5 text-gray-400 hover:text-white transition-colors"
+          >
+            <X size={20} />
+          </button>
+        </div>
+
+        {/* QR Image */}
+        <div className="flex justify-center mb-6">
+          {isLoading ? (
+            <div className="w-64 h-64 flex items-center justify-center bg-gray-800 rounded-2xl border border-white/5">
+              <Loader2 className="w-10 h-10 animate-spin text-indigo-400" />
+            </div>
+          ) : error ? (
+            <div className="w-64 h-64 flex flex-col items-center justify-center bg-red-500/5 border border-red-500/20 rounded-2xl gap-3 p-4 text-center">
+              <XCircle className="text-red-400" size={40} />
+              <p className="text-red-400 text-sm">{error}</p>
+            </div>
+          ) : (
+            <div className="p-3 bg-white rounded-2xl shadow-lg shadow-indigo-500/20">
+              <img
+                src={qrUrl!}
+                alt={`QR Ticket #${ticket.idTicket}`}
+                className="w-56 h-56 object-contain"
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Info */}
+        <div className="text-center space-y-1 mb-6">
+          <p className="text-gray-400 text-xs font-medium uppercase tracking-wider">Ticket</p>
+          <p className="text-white font-mono text-lg font-bold">#{ticket.idTicket}</p>
+          <span className={`inline-flex items-center gap-1.5 text-xs px-3 py-1 rounded-full border font-medium ${estadoStyle(ticket.estadoTicket)}`}>
+            {estadoIcon(ticket.estadoTicket)} {ticket.estadoTicket}
+          </span>
+        </div>
+
+        {/* Actions */}
+        <div className="flex gap-3">
+          <button
+            onClick={handleDownload}
+            disabled={!qrUrl}
+            className="flex-1 flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-medium py-3 rounded-xl transition-colors text-sm"
+          >
+            <Download size={16} /> Descargar PNG
+          </button>
+          <button
+            onClick={onClose}
+            className="flex-1 flex items-center justify-center gap-2 bg-gray-800 hover:bg-gray-700 text-gray-300 font-medium py-3 rounded-xl transition-colors text-sm"
+          >
+            <X size={16} /> Cerrar
+          </button>
+        </div>
+
+        <p className="text-center text-xs text-gray-600 mt-4">
+          Muestra este QR en la entrada del evento
+        </p>
+      </div>
+    </div>
+  );
+};
+
+// ── Main Page ─────────────────────────────────────────────────────────────────
 const MisTicketsPage: React.FC = () => {
   const { user } = useAuthStore();
   const navigate = useNavigate();
 
-  // GET /api/v1/tickets/mis-tickets — tickets del usuario autenticado
   const { data: tickets, isLoading, error } = useMisTickets();
   const { mutate: cancelar, isPending: isCancelling } = useCancelarTicket();
 
   const [cancelling, setCancelling] = useState<number | null>(null);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; msg: string } | null>(null);
+  const [qrTicket, setQrTicket] = useState<TicketResponseDTO | null>(null);
 
   const handleCancelar = (id: number) => {
     if (!confirm('¿Estás seguro de que deseas cancelar este ticket? El cupo será devuelto al evento.')) return;
@@ -65,7 +185,7 @@ const MisTicketsPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-950 p-4 pb-20">
 
-      {/* ── HEADER (same style as PortalPage) ── */}
+      {/* ── HEADER ── */}
       <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-between mt-8 mb-8 bg-gray-900/30 border border-white/10 backdrop-blur-xl p-6 rounded-2xl shadow-xl">
         <div>
           <h1 className="text-3xl font-bold text-white mb-2 flex items-center gap-3">
@@ -154,26 +274,45 @@ const MisTicketsPage: React.FC = () => {
                   </p>
                 </div>
 
-                {/* Cancel — only for active tickets */}
-                {(ticket.estadoTicket === 'GRATIS' || ticket.estadoTicket === 'PAGADO') && (
-                  <button
-                    onClick={() => handleCancelar(ticket.idTicket)}
-                    disabled={isCancelling && cancelling === ticket.idTicket}
-                    className="shrink-0 flex items-center gap-2 text-xs bg-red-500/10 text-red-400 border border-red-500/20 px-3 py-2 rounded-xl hover:bg-red-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {isCancelling && cancelling === ticket.idTicket ? (
-                      <Loader2 size={12} className="animate-spin" />
-                    ) : (
-                      <XCircle size={12} />
-                    )}
-                    Cancelar inscripción
-                  </button>
-                )}
+                {/* Actions */}
+                <div className="flex items-center gap-2 shrink-0">
+                  {/* Ver QR — only for active tickets */}
+                  {(ticket.estadoTicket === 'GRATIS' || ticket.estadoTicket === 'PAGADO') && (
+                    <button
+                      onClick={() => setQrTicket(ticket)}
+                      className="flex items-center gap-2 text-xs bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-3 py-2 rounded-xl hover:bg-indigo-500/20 transition-all"
+                    >
+                      <QrCode size={14} />
+                      Ver QR
+                    </button>
+                  )}
+
+                  {/* Cancel — only for active tickets */}
+                  {(ticket.estadoTicket === 'GRATIS' || ticket.estadoTicket === 'PAGADO') && (
+                    <button
+                      onClick={() => handleCancelar(ticket.idTicket)}
+                      disabled={isCancelling && cancelling === ticket.idTicket}
+                      className="flex items-center gap-2 text-xs bg-red-500/10 text-red-400 border border-red-500/20 px-3 py-2 rounded-xl hover:bg-red-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {isCancelling && cancelling === ticket.idTicket ? (
+                        <Loader2 size={12} className="animate-spin" />
+                      ) : (
+                        <XCircle size={12} />
+                      )}
+                      Cancelar
+                    </button>
+                  )}
+                </div>
               </div>
             ))}
           </div>
         )}
       </div>
+
+      {/* QR Modal */}
+      {qrTicket && (
+        <QrModal ticket={qrTicket} onClose={() => setQrTicket(null)} />
+      )}
     </div>
   );
 };

@@ -24,6 +24,9 @@ import PortalPage from '../../features/eventos/pages/PortalPage';
 import MisTicketsPage from '../../features/eventos/pages/MisTicketsPage';
 import ProfilePage from '../../features/auth/pages/ProfilePage';
 import NotFoundPage from '../../pages/NotFoundPage';
+import MisAsignacionesPage from '../../features/eventos/pages/MisAsignacionesPage';
+import CheckInPage from '../../features/eventos/pages/CheckInPage';
+import PortalEventoDetailPage from '../../features/eventos/pages/PortalEventoDetailPage';
 import { ROLES } from '../../config/roles';
 
 const RootRedirect = () => {
@@ -63,12 +66,18 @@ const AppRouter = () => {
       {/* Protected Portal Routes — accessible by all authenticated roles */}
       <Route element={<ProtectedRoute />}>
         <Route path="/portal" element={<PortalPage />} />
+        <Route path="/portal/eventos/:id" element={<PortalEventoDetailPage />} />
         <Route path="/mis-tickets" element={<MisTicketsPage />} />
+        <Route path="/asignaciones" element={<MisAsignacionesPage />} />
+        <Route path="/eventos/:id/checkin" element={<CheckInPage />} />
       </Route>
 
       {/* Protected Dashboard Routes */}
       <Route element={<ProtectedRoute />}>
         <Route path="/dashboard" element={<DashboardLayout />}>
+
+          {/* Perfil - accesible por todos los roles autenticados */}
+          <Route path="profile" element={<ProfilePage />} />
 
           {/* Perfil - accesible por todos los roles autenticados */}
           <Route path="profile" element={<ProfilePage />} />
