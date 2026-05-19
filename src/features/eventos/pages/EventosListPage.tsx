@@ -13,8 +13,19 @@ import { eventoService } from '../services/evento.service';
 import { EventoResponse, CreateEventoRequest, EstadoEvento } from '../types/evento.types';
 
 export default function EventosListPage() {
-  const { eventos, pagination, isLoading, error, fetch, applyFilters, actionTransition } = useEventos();
   const { isAdmin, isOrganizer } = usePermissions();
+
+  /**
+   * Breaking change compliance:
+   *  - ROLE_ADMIN      → GET /api/v1/eventos          (lista global)
+   *  - ROLE_ORGANIZER  → GET /api/v1/eventos/mis-eventos (solo los suyos)
+   *  - ROLE_USER       → no debe acceder a esta página (ruta protegida por RoleGuard)
+   */
+  const fetchMode = isAdmin ? 'admin' : 'mis-eventos';
+
+  const { eventos, pagination, isLoading, error, fetch, applyFilters, actionTransition } =
+    useEventos(fetchMode);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
 
@@ -64,9 +75,8 @@ export default function EventosListPage() {
       header: 'Acciones (Publicación)',
       accessor: 'acciones',
       render: (_, row) => {
-        // Here we map backend valid transitions for Evento
-        // BORRADOR -> PUBLICADO, CANCELADO
-        // PUBLICADO -> CERRADO, CANCELADO
+        // BORRADOR → PUBLICADO, CANCELADO
+        // PUBLICADO → CERRADO, CANCELADO
         const estado = row.estadoEvento;
         return (
           <div className="flex items-center gap-2">
@@ -125,8 +135,12 @@ export default function EventosListPage() {
   return (
     <div className="animate-in slide-in-from-bottom-4 fade-in duration-500">
       <PageHeader
-        title="Gestión de Eventos"
-        subtitle="Administra la planeación, publicación y cierre de eventos."
+        title={isAdmin ? 'Gestión de Eventos' : 'Mis Eventos'}
+        subtitle={
+          isAdmin
+            ? 'Administra la planeación, publicación y cierre de todos los eventos.'
+            : 'Gestiona los eventos que has creado.'
+        }
         action={
           (isAdmin || isOrganizer) && (
             <button
