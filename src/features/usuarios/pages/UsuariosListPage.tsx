@@ -12,15 +12,20 @@ import { usuarioService } from '../services/usuario.service';
 import { UsuarioResponse, UsuarioCreateRequest } from '../types/usuario.types';
 
 const columns: ColumnDef<UsuarioResponse>[] = [
-  { header: 'ID', accessor: 'idUsuario', className: 'w-16 text-gray-500' },
   {
     header: 'Nombre Completo',
     accessor: 'nombres',
     render: (_, row) => (
       <div>
         <p className="font-medium text-white">{row.nombres} {row.apellidos}</p>
-        <p className="text-xs text-gray-500 mt-0.5">{row.documento}</p>
       </div>
+    ),
+  },
+  {
+    header: 'Documento',
+    accessor: 'documento',
+    render: (value) => (
+      <span className="text-sm text-gray-400 font-mono">{String(value)}</span>
     ),
   },
   {
