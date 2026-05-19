@@ -1,8 +1,17 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import axiosInstance from '../../../lib/axios';
+import { API_ENDPOINTS } from '../../../config/apiEndpoints';
 import { UsuarioUpdateRequest, UsuarioResponse, UsuarioCreatedResponse } from '../types/usuario.types';
+import { Loader2 } from 'lucide-react';
+
+interface RolOption {
+  idRol: number;
+  nombreRol: string;
+  estado: string;
+}
 
 const updateSchema = z.object({
   documento: z.string().min(1, 'El documento es requerido').max(20),
@@ -25,7 +34,7 @@ type UpdateFormValues = {
 };
 
 interface UpdateUsuarioFormProps {
-  initialData?: any; // The user data to prepopulate
+  initialData?: any;
   onSubmit: (data: UsuarioUpdateRequest) => Promise<void>;
   isLoading?: boolean;
 }
@@ -36,13 +45,31 @@ const labelClass = 'block text-xs font-medium text-gray-400 mb-1.5';
 const errorClass = 'mt-1 text-xs text-red-400';
 
 export const UpdateUsuarioForm: React.FC<UpdateUsuarioFormProps> = ({ initialData, onSubmit, isLoading }) => {
-  const mapRol = (nombre: string) => {
-    if (!nombre) return 1;
-    const n = nombre.toUpperCase();
-    if (n.includes('ADMIN')) return 2;
-    if (n.includes('INVITADO')) return 3;
-    return 1;
+  const [roles, setRoles] = useState<RolOption[]>([]);
+  const [rolesLoading, setRolesLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchRoles = async () => {
+      try {
+        const { data } = await axiosInstance.get<RolOption[]>(API_ENDPOINTS.ROLES.ALL);
+        setRoles(data.filter((r) => r.estado === 'ACTIVO'));
+      } catch {
+        // fallback to empty
+      } finally {
+        setRolesLoading(false);
+      }
+    };
+    fetchRoles();
+  }, []);
+
+  const findRoleId = (nombreRol: string | undefined) => {
+    if (!nombreRol || roles.length === 0) return undefined;
+    const match = roles.find((r) => r.nombreRol === nombreRol);
+    return match?.idRol;
   };
+
+
+  const roleId = findRoleId(initialData?.nombreRol);
 
   const {
     register,
@@ -58,12 +85,13 @@ export const UpdateUsuarioForm: React.FC<UpdateUsuarioFormProps> = ({ initialDat
       telefono: initialData?.telefono || '',
       genero: initialData?.genero || 'masculino',
       fechaNacimiento: initialData?.fechaNacimiento ? new Date(initialData.fechaNacimiento).toISOString().split('T')[0] : '',
-      idRol: initialData?.nombreRol ? mapRol(initialData.nombreRol) : 1,
+      idRol: roleId ?? 0,
     }
   });
 
   useEffect(() => {
     if (initialData) {
+      const matchedId = findRoleId(initialData.nombreRol);
       reset({
         documento: initialData.documento || '',
         nombres: initialData.nombres || '',
@@ -71,10 +99,10 @@ export const UpdateUsuarioForm: React.FC<UpdateUsuarioFormProps> = ({ initialDat
         telefono: initialData.telefono || '',
         genero: initialData.genero || 'masculino',
         fechaNacimiento: initialData.fechaNacimiento ? new Date(initialData.fechaNacimiento).toISOString().split('T')[0] : '',
-        idRol: initialData.nombreRol ? mapRol(initialData.nombreRol) : 1,
+        idRol: matchedId ?? 0,
       });
     }
-  }, [initialData, reset]);
+  }, [initialData, roles, reset]);
 
   return (
     <form onSubmit={handleSubmit(onSubmit as any)} className="space-y-4">
@@ -122,11 +150,20 @@ export const UpdateUsuarioForm: React.FC<UpdateUsuarioFormProps> = ({ initialDat
         </div>
         <div className="sm:col-span-2">
           <label className={labelClass}>Asignación de Rol</label>
-          <select {...register('idRol')} className={inputClass}>
-            <option value={1}>USER (Usuario Base)</option>
-            <option value={2}>ADMIN (Administrador)</option>
-            <option value={3}>INVITADO (Invitado)</option>
-          </select>
+          {rolesLoading ? (
+            <div className="flex items-center gap-2 text-gray-400 text-sm py-2.5">
+              <Loader2 size={16} className="animate-spin" /> Cargando roles...
+            </div>
+          ) : (
+            <select {...register('idRol')} className={inputClass}>
+              <option value={0}>Selecciona un rol</option>
+              {roles.map((rol) => (
+                <option key={rol.idRol} value={rol.idRol}>
+                  {rol.nombreRol}
+                </option>
+              ))}
+            </select>
+          )}
           {errors.idRol && <p className={errorClass}>{errors.idRol.message}</p>}
         </div>
       </div>

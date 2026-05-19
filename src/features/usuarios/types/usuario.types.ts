@@ -5,10 +5,11 @@ export interface UsuarioResponse {
   nombres: string;
   apellidos: string;
   documento: string;
-  nombreRol: string;
   genero?: string;
-  telefono?: string;
   fechaNacimiento?: string;
+  telefono?: string;
+  estado: string;
+  nombreRol?: string;
 }
 
 export interface UsuarioCreatedResponse {

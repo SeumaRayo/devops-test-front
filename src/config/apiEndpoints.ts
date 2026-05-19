@@ -61,6 +61,9 @@ export const API_ENDPOINTS = {
     ACTIVAR: (id: number) => `/api/v1/funcionalidad/${id}/activar`,
     DESACTIVAR: (id: number) => `/api/v1/funcionalidad/${id}/desactivar`,
   },
+  ROLES: {
+    ALL: '/api/v1/roles/all',
+  },
   SESIONES: {
     BASE: '/api/v1/sesiones',
     ACTIVAS: '/api/v1/sesiones/activas',

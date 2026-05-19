@@ -12,23 +12,33 @@ import { usuarioService } from '../services/usuario.service';
 import { UsuarioResponse, UsuarioCreateRequest } from '../types/usuario.types';
 
 const columns: ColumnDef<UsuarioResponse>[] = [
-  { header: 'ID', accessor: 'idUsuario', className: 'w-16 text-gray-500' },
   {
     header: 'Nombre Completo',
     accessor: 'nombres',
     render: (_, row) => (
       <div>
         <p className="font-medium text-white">{row.nombres} {row.apellidos}</p>
-        <p className="text-xs text-gray-500 mt-0.5">{row.documento}</p>
       </div>
     ),
   },
   {
-    header: 'Rol',
-    accessor: 'nombreRol',
+    header: 'Documento',
+    accessor: 'documento',
     render: (value) => (
-      <span className="text-xs font-mono text-indigo-400">{String(value)}</span>
+      <span className="text-sm text-gray-400 font-mono">{String(value)}</span>
     ),
+  },
+  {
+    header: 'Teléfono',
+    accessor: 'telefono',
+    render: (value) => (
+      <span className="text-sm text-gray-400">{String(value || '—')}</span>
+    ),
+  },
+  {
+    header: 'Estado',
+    accessor: 'estado',
+    render: (value) => <Badge status={String(value)} />,
   },
 ];
 
@@ -60,12 +70,12 @@ export default function UsuariosListPage() {
       render: (_, row) => (
         <div className="flex items-center gap-4">
           <StatusToggle
-            status={'ACTIVO'} // Fallback forced as backend does not send 'estado' in UserListResponse
+            status={row.estado}
             onActivate={() => patchStatus(row.idUsuario, 'activar')}
             onDeactivate={() => patchStatus(row.idUsuario, 'desactivar')}
             onBlock={() => patchStatus(row.idUsuario, 'bloquear')}
           />
-          <Link to={`/dashboard/usuarios/${row.idUsuario}`} className="text-gray-400 hover:text-indigo-400 transition-colors" title="Ver / Editar Detalles">
+          <Link to={`/dashboard/usuarios/${row.idUsuario}`} className="text-gray-400 hover:text-indigo-400 transition-colors shrink-0 ml-1" title="Ver / Editar Detalles">
             <Eye size={18} />
           </Link>
         </div>
