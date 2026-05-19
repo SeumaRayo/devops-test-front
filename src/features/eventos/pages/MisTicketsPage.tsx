@@ -3,33 +3,12 @@ import { Link } from 'react-router-dom';
 import { useMisTickets, useCancelarTicket } from '../hooks/ticket.queries';
 import { ticketService } from '../services/ticket.service';
 import { TicketResponseDTO } from '../types/ticket.types';
+import { ticketEstadoIcon, ticketEstadoStyle } from '../utils/ticketDisplay';
 import {
-  Loader2, Ticket, XCircle, CheckCircle, Clock,
-  CreditCard, Ban, ArrowLeft, CalendarDays, QrCode, X, Download,
+  Loader2, Ticket, XCircle, CreditCard,
+  Ban, ArrowLeft, CalendarDays, QrCode, X, Download,
 } from 'lucide-react';
 import { useAuthStore } from '../../../app/store/auth.store';
-
-const estadoIcon = (estado: TicketResponseDTO['estadoTicket']) => {
-  switch (estado) {
-    case 'GRATIS':      return <CheckCircle size={14} />;
-    case 'PAGADO':      return <CreditCard size={14} />;
-    case 'PENDIENTE':   return <Clock size={14} />;
-    case 'CANCELADO':   return <Ban size={14} />;
-    case 'REEMBOLSADO': return <XCircle size={14} />;
-    default: return null;
-  }
-};
-
-const estadoStyle = (estado: TicketResponseDTO['estadoTicket']) => {
-  switch (estado) {
-    case 'GRATIS':      return 'text-green-400 bg-green-500/10 border-green-500/30';
-    case 'PAGADO':      return 'text-blue-400 bg-blue-500/10 border-blue-500/30';
-    case 'PENDIENTE':   return 'text-yellow-400 bg-yellow-500/10 border-yellow-500/30';
-    case 'CANCELADO':   return 'text-red-400 bg-red-500/10 border-red-500/30';
-    case 'REEMBOLSADO': return 'text-purple-400 bg-purple-500/10 border-purple-500/30';
-    default:            return 'text-gray-400 bg-gray-500/10 border-gray-500/20';
-  }
-};
 
 interface QrModalProps {
   ticket: TicketResponseDTO;
@@ -116,8 +95,8 @@ const QrModal: React.FC<QrModalProps> = ({ ticket, onClose }) => {
         <div className="text-center space-y-1 mb-6">
           <p className="text-gray-400 text-xs font-medium uppercase tracking-wider">Ticket</p>
           <p className="text-white font-mono text-lg font-bold">#{ticket.idTicket}</p>
-          <span className={`inline-flex items-center gap-1.5 text-xs px-3 py-1 rounded-full border font-medium ${estadoStyle(ticket.estadoTicket)}`}>
-            {estadoIcon(ticket.estadoTicket)} {ticket.estadoTicket}
+          <span className={`inline-flex items-center gap-1.5 text-xs px-3 py-1 rounded-full border font-medium ${ticketEstadoStyle(ticket.estadoTicket)}`}>
+            {ticketEstadoIcon(ticket.estadoTicket)} {ticket.estadoTicket}
           </span>
         </div>
 
@@ -249,8 +228,8 @@ export default function MisTicketsPage() {
                 <div className="flex-1 min-w-0 space-y-1.5">
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="text-white font-semibold">{ticket.nombreEvento}</span>
-                    <span className={`inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full border font-medium ${estadoStyle(ticket.estadoTicket)}`}>
-                      {estadoIcon(ticket.estadoTicket)}
+                    <span className={`inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full border font-medium ${ticketEstadoStyle(ticket.estadoTicket)}`}>
+                      {ticketEstadoIcon(ticket.estadoTicket)}
                       {ticket.estadoTicket}
                     </span>
                   </div>
