@@ -93,3 +93,71 @@ export interface EventoFilterRequest {
   fechaInicio?: string;
   fechaFin?: string;
 }
+
+// For GET /eventos/disponibles (ROLE_USER, ORGANIZER, ADMIN)
+export interface EventoDisponiblesFilterRequest {
+  page?: number;
+  size?: number;
+  nombre?: string;
+  lugar?: string;
+  fechaInicio?: string;
+  fechaFin?: string;
+  esDePago?: boolean;
+  conCupos?: boolean;
+}
+
+// For GET /eventos/mis-eventos (ROLE_ORGANIZER, ADMIN)
+export interface MisEventosFilterRequest {
+  page?: number;
+  size?: number;
+  estadoEvento?: EstadoEvento;
+  estado?: Estado;
+  nombre?: string;
+  lugar?: string;
+  fechaInicio?: string;
+  fechaFin?: string;
+}
+
+// Staff & Check-in DTOs
+export interface StaffResponseDTO {
+  idEventoStaff: number;
+  idEvento: number;
+  idUsuario: number;
+  nombreCompleto: string;
+  estado: Estado;
+  asignadoEn: string;
+}
+
+export interface AssignStaffRequest {
+  idUsuario: number;
+}
+
+export interface MisAsignacionesResponseDTO {
+  idEvento: number;
+  nombreEvento: string;
+  fechaEvento: string;
+  horaEvento: string;
+  lugarEvento: string;
+  estadoEvento: EstadoEvento;
+}
+
+export interface CheckInRequest {
+  codigoQr: string;
+}
+
+export interface CheckInResponseDTO {
+  idTicket: number;
+  idEvento: number;
+  nombreEvento: string;
+  nombreAsistente: string;
+  estadoTicket: string;
+  checkinRealizado: boolean;
+  fechaCheckin: string;
+}
+
+export interface ResumenCheckInDTO {
+  totalInscritos: number;
+  totalIngresados: number;
+  totalPendientes: number;
+  porcentajeIngreso: number;
+}

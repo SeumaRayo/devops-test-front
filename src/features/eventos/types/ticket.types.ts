@@ -1,6 +1,31 @@
+export type EstadoTicket =
+  | 'GRATIS'
+  | 'PENDIENTE'
+  | 'PAGADO'
+  | 'CANCELADO'
+  | 'REEMBOLSADO';
+
+// Response from POST /tickets/evento/{eventoId}
 export interface InscripcionResponse {
-  mensaje: string;
-  ticketId: number;
-  estadoTicket: string;
-  clientSecret?: string;
+  idTicket: number;
+  estadoTicket: EstadoTicket;
+  codigoQr: string;
+  clientSecret: string | null;
+  // Legacy compatibility
+  ticketId?: number;
+  mensaje?: string;
+}
+
+// Full ticket DTO returned by GET /tickets/mis-tickets and GET /tickets/{id}
+export interface TicketResponseDTO {
+  idTicket: number;
+  idEvento: number;
+  nombreEvento: string;
+  idUsuario: number;
+  estadoTicket: EstadoTicket;
+  montoPagado: number;
+  moneda: string | null;
+  codigoQr: string;
+  fechaCompra: string;
+  creadoEn: string;
 }

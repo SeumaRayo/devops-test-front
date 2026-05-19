@@ -31,14 +31,29 @@ export const API_ENDPOINTS = {
   },
   EVENTOS: {
     BASE: '/api/v1/eventos',
+    DISPONIBLES: '/api/v1/eventos/disponibles',
+    DISPONIBLE_BY_ID: (id: number) => `/api/v1/eventos/disponibles/${id}`,
+    MIS_EVENTOS: '/api/v1/eventos/mis-eventos',
     BY_ID: (id: number) => `/api/v1/eventos/${id}`,
-    BY_USER: (userId: number) => `/api/v1/eventos/usuarios/${userId}/eventos`,
+    BY_USER: (userId: number) => `/api/v1/usuarios/${userId}/eventos`,
+    TICKETS_DEL_EVENTO: (id: number) => `/api/v1/eventos/${id}/tickets`,
     HISTORIAL: (id: number) => `/api/v1/eventos/${id}/historial`,
     PUBLICAR: (id: number) => `/api/v1/eventos/${id}/publicar`,
     CANCELAR: (id: number) => `/api/v1/eventos/${id}/cancelar`,
     CERRAR: (id: number) => `/api/v1/eventos/${id}/cerrar`,
     ACTIVAR: (id: number) => `/api/v1/eventos/${id}/activar`,
     DESACTIVAR: (id: number) => `/api/v1/eventos/${id}/desactivar`,
+    STAFF: {
+      BASE: (id: number) => `/api/v1/eventos/${id}/staff`,
+      ACTIVAR: (id: number, userId: number) => `/api/v1/eventos/${id}/staff/${userId}/activar`,
+      DESACTIVAR: (id: number, userId: number) => `/api/v1/eventos/${id}/staff/${userId}/desactivar`,
+      MIS_ASIGNACIONES: '/api/v1/eventos/staff/mis-asignaciones',
+      TIENE_ASIGNACIONES: '/api/v1/eventos/staff/tiene-asignaciones',
+    },
+    CHECKIN: {
+      BASE: (id: number) => `/api/v1/eventos/${id}/check-in`,
+      RESUMEN: (id: number) => `/api/v1/eventos/${id}/check-in/resumen`,
+    },
   },
   FUNCIONALIDADES: {
     BASE: '/api/v1/funcionalidad',
@@ -56,5 +71,9 @@ export const API_ENDPOINTS = {
   },
   TICKETS: {
     INSCRIBIR: (eventoId: number) => `/api/v1/tickets/evento/${eventoId}`,
+    MIS_TICKETS: '/api/v1/tickets/mis-tickets',
+    BY_ID: (id: number) => `/api/v1/tickets/${id}`,
+    CANCELAR: (id: number) => `/api/v1/tickets/${id}/cancelar`,
+    QR: (id: number) => `/api/v1/tickets/${id}/qr`,
   },
 } as const;
