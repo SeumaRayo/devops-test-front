@@ -6,23 +6,27 @@ import { ResetPasswordPage } from '../../features/auth/pages/ResetPasswordPage';
 import { OAuth2SuccessPage } from '../../features/auth/pages/OAuth2SuccessPage';
 import { OAuth2ErrorPage } from '../../features/auth/pages/OAuth2ErrorPage';
 import { UnlockAccountPage } from '../../features/auth/pages/UnlockAccountPage';
+import ProfilePage from '../../features/auth/pages/ProfilePage';
 import { ProtectedRoute } from '../../features/auth/components/ProtectedRoute';
 import { DashboardLayout } from '../../features/dashboard/layout/DashboardLayout';
 import GeneralDashboardPage from '../../features/dashboard/pages/GeneralDashboardPage';
-import UsuariosListPage from '../../features/usuarios/pages/UsuariosListPage';
-import UsuarioDetailPage from '../../features/usuarios/pages/UsuarioDetailPage';
-import AccesosListPage from '../../features/accesos/pages/AccesosListPage';
 import EventosListPage from '../../features/eventos/pages/EventosListPage';
 import EventoDetailPage from '../../features/eventos/pages/EventoDetailPage';
 import EventosHistorialPage from '../../features/eventos/pages/EventosHistorialPage';
+import PortalPage from '../../features/eventos/pages/PortalPage';
+import PortalEventoDetailPage from '../../features/eventos/pages/PortalEventoDetailPage';
+import MisTicketsPage from '../../features/eventos/pages/MisTicketsPage';
+import MisAsignacionesPage from '../../features/eventos/pages/MisAsignacionesPage';
+import CheckInPage from '../../features/eventos/pages/CheckInPage';
 import FuncionalidadesListPage from '../../features/funcionalidades/pages/FuncionalidadesListPage';
 import SesionesListPage from '../../features/sesiones/pages/SesionesListPage';
-import { useAuthStore } from '../store/auth.store';
-import { RoleGuard } from '../../components/common/RoleGuard';
+import AccesosListPage from '../../features/accesos/pages/AccesosListPage';
+import UsuariosListPage from '../../features/usuarios/pages/UsuariosListPage';
+import UsuarioDetailPage from '../../features/usuarios/pages/UsuarioDetailPage';
 import UnauthorizedPage from '../../pages/UnauthorizedPage';
-import PortalPage from '../../features/eventos/pages/PortalPage';
-import ProfilePage from '../../features/auth/pages/ProfilePage';
 import NotFoundPage from '../../pages/NotFoundPage';
+import { RoleGuard } from '../../components/common/RoleGuard';
+import { useAuthStore } from '../store/auth.store';
 import { ROLES } from '../../config/roles';
 
 const RootRedirect = () => {
@@ -59,9 +63,13 @@ const AppRouter = () => {
       <Route path="/unlock-account" element={<UnlockAccountPage />} />
       <Route path="/unauthorized" element={<UnauthorizedPage />} />
 
-      {/* Protected Portal Route (Non-admin default) */}
+      {/* Protected Portal Routes — accessible by all authenticated roles */}
       <Route element={<ProtectedRoute />}>
         <Route path="/portal" element={<PortalPage />} />
+        <Route path="/portal/eventos/:id" element={<PortalEventoDetailPage />} />
+        <Route path="/mis-tickets" element={<MisTicketsPage />} />
+        <Route path="/asignaciones" element={<MisAsignacionesPage />} />
+        <Route path="/eventos/:id/checkin" element={<CheckInPage />} />
       </Route>
 
       {/* Protected Dashboard Routes */}
