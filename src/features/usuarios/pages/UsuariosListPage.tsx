@@ -24,11 +24,16 @@ const columns: ColumnDef<UsuarioResponse>[] = [
     ),
   },
   {
-    header: 'Rol',
-    accessor: 'nombreRol',
+    header: 'Teléfono',
+    accessor: 'telefono',
     render: (value) => (
-      <span className="text-xs font-mono text-indigo-400">{String(value)}</span>
+      <span className="text-sm text-gray-400">{String(value || '—')}</span>
     ),
+  },
+  {
+    header: 'Estado',
+    accessor: 'estado',
+    render: (value) => <Badge status={String(value)} />,
   },
 ];
 
@@ -60,7 +65,7 @@ export default function UsuariosListPage() {
       render: (_, row) => (
         <div className="flex items-center gap-4">
           <StatusToggle
-            status={'ACTIVO'} // Fallback forced as backend does not send 'estado' in UserListResponse
+            status={row.estado}
             onActivate={() => patchStatus(row.idUsuario, 'activar')}
             onDeactivate={() => patchStatus(row.idUsuario, 'desactivar')}
             onBlock={() => patchStatus(row.idUsuario, 'bloquear')}

@@ -97,8 +97,9 @@ export default function UsuarioDetailPage() {
 
               <div className="grid grid-cols-2 gap-4 pt-2">
                 <DetailField label="ID" value={String(usuario.idUsuario)} />
-                <DetailField label="Rol" value={usuario.nombreRol} />
+                {usuario.nombreRol && <DetailField label="Rol" value={usuario.nombreRol} />}
                 <DetailField label="Documento" value={usuario.documento} />
+                {usuario.telefono && <DetailField label="Teléfono" value={usuario.telefono} />}
               </div>
             </>
           )}
@@ -107,11 +108,11 @@ export default function UsuarioDetailPage() {
         {/* Status card */}
         <div className="rounded-2xl border border-white/5 bg-gray-900/30 p-6 backdrop-blur-xl space-y-4">
           <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-widest">Estado</h3>
-          <Badge status="ACTIVO" />
+          <Badge status={usuario.estado} />
           <div className="pt-2">
             <p className="text-xs text-gray-500 mb-3">Cambiar estado:</p>
             <StatusToggle
-              status="ACTIVO"
+              status={usuario.estado}
               onActivate={() => patchStatus(usuario.idUsuario, 'activar')}
               onDeactivate={() => patchStatus(usuario.idUsuario, 'desactivar')}
               onBlock={() => patchStatus(usuario.idUsuario, 'bloquear')}

@@ -53,8 +53,8 @@ export const QRScanner: React.FC<QRScannerProps> = ({ onScanSuccess }) => {
 
     return () => {
       if (scanner) {
-        const stop = started ? scanner.stop() : Promise.resolve();
-        stop.finally(() => scanner?.clear().catch(() => {}));
+        const stopPromise = started ? scanner.stop() : Promise.resolve();
+        stopPromise.finally(() => { scanner?.clear(); });
       }
     };
   }, []);
