@@ -75,7 +75,7 @@ export default function UsuariosListPage() {
             onDeactivate={() => patchStatus(row.idUsuario, 'desactivar')}
             onBlock={() => patchStatus(row.idUsuario, 'bloquear')}
           />
-          <Link to={`/dashboard/usuarios/${row.idUsuario}`} className="text-gray-400 hover:text-indigo-400 transition-colors" title="Ver / Editar Detalles">
+          <Link to={`/dashboard/usuarios/${row.idUsuario}`} className="text-gray-400 hover:text-indigo-400 transition-colors shrink-0 ml-1" title="Ver / Editar Detalles">
             <Eye size={18} />
           </Link>
         </div>
