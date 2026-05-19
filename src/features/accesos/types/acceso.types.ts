@@ -8,6 +8,7 @@ export interface AccesoAdminResponse {
   ultimoLogin: string | null;
   creadoEn: string;
   actualizadoEn: string;
+  rol?: string;
 }
 
 export interface AccesoUserResponse {

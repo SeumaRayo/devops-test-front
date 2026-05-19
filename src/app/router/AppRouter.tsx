@@ -21,6 +21,7 @@ import CheckInPage from '../../features/eventos/pages/CheckInPage';
 import FuncionalidadesListPage from '../../features/funcionalidades/pages/FuncionalidadesListPage';
 import SesionesListPage from '../../features/sesiones/pages/SesionesListPage';
 import AccesosListPage from '../../features/accesos/pages/AccesosListPage';
+import AccesoDetailPage from '../../features/accesos/pages/AccesoDetailPage';
 import UsuariosListPage from '../../features/usuarios/pages/UsuariosListPage';
 import UsuarioDetailPage from '../../features/usuarios/pages/UsuarioDetailPage';
 import UnauthorizedPage from '../../pages/UnauthorizedPage';
@@ -90,6 +91,7 @@ const AppRouter = () => {
               <Route path="usuarios/:id" element={<UsuarioDetailPage />} />
               {/* Accesos */}
               <Route path="accesos" element={<AccesosListPage />} />
+              <Route path="accesos/:id" element={<AccesoDetailPage />} />
               {/* Funcionalidades */}
               <Route path="funcionalidades" element={<FuncionalidadesListPage />} />
               {/* Sesiones */}

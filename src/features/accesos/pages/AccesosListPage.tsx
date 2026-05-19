@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Plus, ShieldAlert, Eye } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { PageHeader } from '../../../components/ui/PageHeader';
 import { DataTable, ColumnDef } from '../../../components/ui/DataTable';
 import { Badge } from '../../../components/ui/Badge';
 import { StatusToggle } from '../../../components/ui/StatusToggle';
 import { Modal } from '../../../components/ui/Modal';
 import { CreateAccesoForm } from '../components/CreateAccesoForm';
-import { AccesoDetailModal } from '../components/AccesoDetailModal';
 import { useAccesos } from '../hooks/useAccesos';
 import { usePermissions } from '../../../hooks/usePermissions';
 import { accesoService } from '../services/acceso.service';
@@ -17,7 +17,6 @@ export default function AccesosListPage() {
   const { isAdmin } = usePermissions();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
-  const [viewItem, setViewItem] = useState<AccesoAdminResponse | null>(null);
 
   useEffect(() => {
     fetch();
@@ -69,11 +68,6 @@ export default function AccesosListPage() {
       ),
     },
     {
-      header: 'Rol',
-      accessor: 'rol',
-      render: (value) => <span className="text-xs font-mono text-indigo-400">{String(value)}</span>,
-    },
-    {
       header: 'Fecha Registro',
       accessor: 'creadoEn',
       render: (value) => (
@@ -98,9 +92,9 @@ export default function AccesosListPage() {
             onDeactivate={() => patchStatus(row.idUsuario, 'desactivar')}
             onBlock={() => patchStatus(row.idUsuario, 'bloquear')}
           />
-          <button onClick={() => setViewItem(row)} className="text-gray-400 hover:text-indigo-400 transition-colors" title="Ver Detalles">
+          <Link to={`/dashboard/accesos/${row.idUsuario}`} className="text-gray-400 hover:text-indigo-400 transition-colors" title="Ver Detalles">
             <Eye size={18} />
-          </button>
+          </Link>
         </div>
       ),
     },
@@ -150,12 +144,6 @@ export default function AccesosListPage() {
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Crear Acceso Administrativo" size="sm">
         <CreateAccesoForm onSubmit={handleCreate} isLoading={isCreating} />
       </Modal>
-
-      <AccesoDetailModal 
-        isOpen={!!viewItem} 
-        onClose={() => setViewItem(null)} 
-        acceso={viewItem} 
-      />
     </div>
   );
 }
