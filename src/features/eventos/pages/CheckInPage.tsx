@@ -5,7 +5,7 @@ import { ResumenCheckInDTO, EventoResponse } from '../types/evento.types';
 import { Loader2, QrCode, Users, CheckCircle, Clock, AlertCircle, ArrowLeft, Camera, X } from 'lucide-react';
 import { QRScanner } from '../components/QRScanner';
 
-const CheckInPage = () => {
+export default function CheckInPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [evento, setEvento] = useState<EventoResponse | null>(null);
@@ -21,8 +21,8 @@ const CheckInPage = () => {
     try {
       const data = await eventoService.getCheckInResumen(Number(id));
       setResumen(data);
-    } catch (err: any) {
-      console.error('Error fetching resumen:', err);
+    } catch {
+      // ignore
     }
   };
 
@@ -44,7 +44,6 @@ const CheckInPage = () => {
     if (id) fetchData();
   }, [id]);
 
-  // Mantener foco en el input para lectores QR
   useEffect(() => {
     if (!isLoading && inputRef.current) {
       inputRef.current.focus();
@@ -67,7 +66,7 @@ const CheckInPage = () => {
       setQrInput('');
     } finally {
       setIsCheckingIn(false);
-      setIsScannerOpen(false); // Close scanner on successful or failed scan to let user read the message
+      setIsScannerOpen(false);
       inputRef.current?.focus();
     }
   };
@@ -224,6 +223,4 @@ const CheckInPage = () => {
       </div>
     </div>
   );
-};
-
-export default CheckInPage;
+}

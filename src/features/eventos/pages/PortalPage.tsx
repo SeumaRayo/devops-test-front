@@ -10,7 +10,6 @@ const PortalPage = () => {
   const { user } = useAuthStore();
   const navigate = useNavigate();
 
-  // 'disponibles' → GET /api/v1/eventos/disponibles (ALL authenticated roles)
   const {
     eventos,
     isLoading: isLoadingEventos,
@@ -19,17 +18,14 @@ const PortalPage = () => {
     error: errorEventos,
   } = useEventos('disponibles');
 
-  // Search / filter state
   const [searchNombre, setSearchNombre] = useState('');
   const [searchLugar, setSearchLugar] = useState('');
   const [filterPago, setFilterPago] = useState<'' | 'true' | 'false'>('');
   const [filterCupos, setFilterCupos] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
 
-  // Staff state
   const [isStaff, setIsStaff] = useState(false);
 
-  // Load disponibles on mount (backend filters PUBLICADO + ACTIVO automatically)
   useEffect(() => {
     fetchEventos();
 
@@ -38,8 +34,8 @@ const PortalPage = () => {
       try {
         const isStaff = await eventoService.tieneAsignacionesStaff();
         setIsStaff(isStaff);
-      } catch (err) {
-        // Ignore error
+      } catch {
+        // ignore
       }
     };
     checkStaff();

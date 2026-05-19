@@ -6,7 +6,7 @@ import { useInscribirEvento } from '../hooks/ticket.queries';
 import { StripeCheckoutDialog } from '../components/StripeCheckoutDialog';
 import { Loader2, ArrowLeft, Calendar, Clock, MapPin, Users, Ticket, CheckCircle, AlertCircle } from 'lucide-react';
 
-const PortalEventoDetailPage = () => {
+export default function PortalEventoDetailPage() {
   const { id } = useParams<{ id: string }>();
   const [evento, setEvento] = useState<EventoResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -220,6 +220,5 @@ const PortalEventoDetailPage = () => {
       />
     </div>
   );
-};
+}
 
-export default PortalEventoDetailPage;

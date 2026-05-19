@@ -15,12 +15,6 @@ import { EventoResponse, CreateEventoRequest, EstadoEvento } from '../types/even
 export default function EventosListPage() {
   const { isAdmin, isOrganizer } = usePermissions();
 
-  /**
-   * Breaking change compliance:
-   *  - ROLE_ADMIN      → GET /api/v1/eventos          (lista global)
-   *  - ROLE_ORGANIZER  → GET /api/v1/eventos/mis-eventos (solo los suyos)
-   *  - ROLE_USER       → no debe acceder a esta página (ruta protegida por RoleGuard)
-   */
   const fetchMode = isAdmin ? 'admin' : 'mis-eventos';
 
   const { eventos, pagination, isLoading, error, fetch, applyFilters, actionTransition } =

@@ -13,7 +13,6 @@ export const QRScanner: React.FC<QRScannerProps> = ({ onScanSuccess }) => {
   const [errorMsg, setErrorMsg] = useState('');
   const hasScanned = useRef(false);
 
-  // Stable callback ref so the effect doesn't restart on parent re-renders
   const onScanSuccessRef = useRef(onScanSuccess);
   useEffect(() => { onScanSuccessRef.current = onScanSuccess; }, [onScanSuccess]);
 
@@ -30,13 +29,12 @@ export const QRScanner: React.FC<QRScannerProps> = ({ onScanSuccess }) => {
           { facingMode: 'environment' },
           { fps: 15, qrbox: { width: 240, height: 240 }, aspectRatio: 1.0 },
           (decodedText: string) => {
-            // Fire only once per mount
             if (hasScanned.current) return;
             hasScanned.current = true;
             setStatus('scanned');
             onScanSuccessRef.current(decodedText);
           },
-          () => { /* per-frame not-found — ignore */ }
+          () => {}
         );
         started = true;
         setStatus('running');

@@ -62,7 +62,6 @@ export const useEventos = (mode: EventosFetchMode = 'admin') => {
         setState((prev) => ({ ...prev, isLoading: false, error: 'Error al cargar eventos.' }));
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [filters, mode]
   );
 

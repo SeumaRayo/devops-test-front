@@ -12,10 +12,10 @@ const formatDate = (dateString: string) => {
 };
 
 const formatTime = (timeString: string) => {
-  return timeString.substring(0, 5); // Assuming HH:mm:ss
+  return timeString.substring(0, 5);
 };
 
-const MisAsignacionesPage = () => {
+export default function MisAsignacionesPage() {
   const { user } = useAuthStore();
   const navigate = useNavigate();
   const [asignaciones, setAsignaciones] = useState<MisAsignacionesResponseDTO[]>([]);
@@ -120,6 +120,4 @@ const MisAsignacionesPage = () => {
       </div>
     </div>
   );
-};
-
-export default MisAsignacionesPage;
+}

@@ -31,7 +31,6 @@ const estadoStyle = (estado: TicketResponseDTO['estadoTicket']) => {
   }
 };
 
-// ── QR Modal ─────────────────────────────────────────────────────────────────
 interface QrModalProps {
   ticket: TicketResponseDTO;
   onClose: () => void;
@@ -56,7 +55,6 @@ const QrModal: React.FC<QrModalProps> = ({ ticket, onClose }) => {
     };
     fetchQr();
     return () => {
-      // Revoke the object URL when the modal unmounts to avoid memory leaks
       if (objectUrl) URL.revokeObjectURL(objectUrl);
     };
   }, [ticket.idTicket]);
@@ -70,7 +68,6 @@ const QrModal: React.FC<QrModalProps> = ({ ticket, onClose }) => {
   };
 
   return (
-    // Backdrop
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-200"
       onClick={onClose}
@@ -149,8 +146,7 @@ const QrModal: React.FC<QrModalProps> = ({ ticket, onClose }) => {
   );
 };
 
-// ── Main Page ─────────────────────────────────────────────────────────────────
-const MisTicketsPage: React.FC = () => {
+export default function MisTicketsPage() {
   const { user } = useAuthStore();
 
   const { data: tickets, isLoading, error } = useMisTickets();
@@ -314,6 +310,4 @@ const MisTicketsPage: React.FC = () => {
       )}
     </div>
   );
-};
-
-export default MisTicketsPage;
+}

@@ -17,7 +17,6 @@ export const EventoStaffTab: React.FC<EventoStaffTabProps> = ({ idEvento }) => {
   const [idUsuarioInput, setIdUsuarioInput] = useState('');
   const [isAssigning, setIsAssigning] = useState(false);
 
-  // Search state
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<UsuarioResponse[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -61,10 +60,9 @@ export const EventoStaffTab: React.FC<EventoStaffTabProps> = ({ idEvento }) => {
     setIsSearching(true);
     setHasSearched(true);
     try {
-      // Intentar buscar por documento o por nombre
       const data = await usuarioService.getAll({ 
         nombres: searchQuery, 
-        size: 5 // Limitar resultados
+        size: 5
       });
       setSearchResults(data.content);
     } catch (err) {
@@ -80,10 +78,6 @@ export const EventoStaffTab: React.FC<EventoStaffTabProps> = ({ idEvento }) => {
     try {
       await eventoService.assignStaff(idEvento, { idUsuario });
       await fetchStaff();
-      // Opcional: limpiar búsqueda después de asignar exitosamente
-      // setSearchQuery('');
-      // setSearchResults([]);
-      // setHasSearched(false);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Error al asignar staff.');
     } finally {
