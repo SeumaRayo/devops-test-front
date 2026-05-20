@@ -107,6 +107,18 @@ const PortalPage = () => {
             <Ticket size={16} />
             Mis Tickets
           </Link>
+          <Link
+            to="/mis-pagos"
+            className="flex items-center gap-2 bg-blue-600/10 hover:bg-blue-600/20 text-blue-400 border border-blue-500/30 font-medium py-2 px-4 rounded-xl transition-all duration-300"
+          >
+            Pagos
+          </Link>
+          <Link
+            to="/mis-reembolsos"
+            className="flex items-center gap-2 bg-purple-600/10 hover:bg-purple-600/20 text-purple-400 border border-purple-500/30 font-medium py-2 px-4 rounded-xl transition-all duration-300"
+          >
+            Reembolsos
+          </Link>
           <button
             onClick={() => {
               useAuthStore.getState().clearCredentials();

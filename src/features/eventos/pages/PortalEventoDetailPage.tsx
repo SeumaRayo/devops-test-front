@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { eventoService } from '../services/evento.service';
 import { EventoResponse } from '../types/evento.types';
-import { useInscribirEvento } from '../hooks/ticket.queries';
+import { useInscribirEvento, useCancelarTicket } from '../hooks/ticket.queries';
 import { StripeCheckoutDialog } from '../components/StripeCheckoutDialog';
-import { Loader2, ArrowLeft, Calendar, Clock, MapPin, Users, Ticket, CheckCircle, AlertCircle } from 'lucide-react';
+import { Loader2, ArrowLeft, Calendar, Clock, MapPin, Users, Ticket, CheckCircle, AlertCircle, X, DollarSign } from 'lucide-react';
 
 const PortalEventoDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -14,12 +14,17 @@ const PortalEventoDetailPage = () => {
   const [error, setError] = useState<string | null>(null);
 
   const { mutate: inscribirse, isPending: isInscribiendo } = useInscribirEvento();
+  const { mutate: cancelarTicket } = useCancelarTicket();
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [stripeConfig, setStripeConfig] = useState<{ isOpen: boolean; clientSecret: string }>({
     isOpen: false,
     clientSecret: '',
   });
+
+  // ===== CONFIRMATION DIALOG STATE =====
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [pendingTicketId, setPendingTicketId] = useState<number | null>(null);
 
   const fetchEvento = async () => {
     try {
@@ -45,13 +50,27 @@ const PortalEventoDetailPage = () => {
     if (!evento) return;
     setSuccessMessage(null);
     setErrorMessage(null);
+    setShowConfirmDialog(true);
+  };
+
+  const handleCancelConfirmation = () => {
+    setShowConfirmDialog(false);
+  };
+
+  const handleConfirmInscripcion = () => {
+    if (!evento) return;
+    setShowConfirmDialog(false);
+    setSuccessMessage(null);
+    setErrorMessage(null);
     inscribirse(evento.idEvento, {
       onSuccess: (data) => {
         if (data.clientSecret) {
+          const ticketId = data.idTicket ?? data.ticketId;
+          if (ticketId) setPendingTicketId(ticketId);
           setStripeConfig({ isOpen: true, clientSecret: data.clientSecret });
         } else {
           const ticketId = data.idTicket ?? data.ticketId;
-          setSuccessMessage(`¡Inscripción exitosa! Ticket #${ticketId} creado.`);
+          setSuccessMessage(`¡Inscripcion exitosa! Ticket #${ticketId} creado.`);
         }
       },
       onError: (err: any) => {
@@ -65,8 +84,18 @@ const PortalEventoDetailPage = () => {
     });
   };
 
+  const handleStripeClose = () => {
+    setStripeConfig({ isOpen: false, clientSecret: '' });
+    if (pendingTicketId) {
+      cancelarTicket(pendingTicketId, {
+        onSettled: () => setPendingTicketId(null),
+      });
+    }
+  };
+
   const handlePaymentSuccess = () => {
     setStripeConfig({ isOpen: false, clientSecret: '' });
+    setPendingTicketId(null);
     setSuccessMessage('¡El pago ha sido validado correctamente!');
     fetchEvento();
   };
@@ -213,10 +242,85 @@ const PortalEventoDetailPage = () => {
         </div>
       </div>
 
+      {/* ===== CONFIRMATION DIALOG ===== */}
+      {showConfirmDialog && evento && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+          onClick={handleCancelConfirmation}
+        >
+          <div
+            className="bg-gray-900 border border-white/10 rounded-3xl p-8 shadow-2xl w-full max-w-md animate-in zoom-in-95"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                <Ticket className="text-indigo-400" />
+                Confirmar inscripcion
+              </h2>
+              <button onClick={handleCancelConfirmation} className="text-gray-400 hover:text-white">
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="bg-gray-800/50 border border-white/5 rounded-xl p-4 mb-4 space-y-2">
+              <p className="text-white font-semibold">{evento.nombreEvento}</p>
+              <p className="text-sm text-gray-400">
+                {evento.lugarEvento} &middot;{' '}
+                {new Date(evento.fechaEvento + 'T00:00:00').toLocaleDateString('es-CO', {
+                  day: 'numeric',
+                  month: 'long',
+                  year: 'numeric',
+                })}
+              </p>
+              <div className="flex items-center gap-2 pt-2 border-t border-white/5">
+                <DollarSign size={16} className="text-gray-500" />
+                {isFree ? (
+                  <span className="text-green-400 font-bold text-lg">Gratis</span>
+                ) : (
+                  <span className="text-white font-bold text-lg">
+                    ${evento.precio} {evento.moneda}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <p className="text-sm text-gray-300 mb-6">
+              {isFree
+                ? 'Al confirmar, quedaras inscrito de inmediato con un ticket GRATIS.'
+                : 'Al confirmar, seras redirigido a la pasarela de pago seguro de Stripe.'}
+            </p>
+
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={handleCancelConfirmation}
+                className="flex-1 bg-gray-800 hover:bg-gray-700 text-white py-2.5 rounded-xl text-sm font-medium transition-colors"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmInscripcion}
+                disabled={isInscribiendo}
+                className="flex-1 flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white py-2.5 rounded-xl text-sm font-medium transition-colors"
+              >
+                {isInscribiendo ? (
+                  <Loader2 size={16} className="animate-spin" />
+                ) : isFree ? (
+                  'Confirmar inscripcion'
+                ) : (
+                  'Ir a pagar'
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <StripeCheckoutDialog
         isOpen={stripeConfig.isOpen}
         clientSecret={stripeConfig.clientSecret}
-        onClose={() => setStripeConfig({ isOpen: false, clientSecret: '' })}
+        onClose={handleStripeClose}
         onSuccess={handlePaymentSuccess}
       />
     </div>

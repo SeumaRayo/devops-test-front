@@ -54,6 +54,17 @@ export const API_ENDPOINTS = {
       BASE: (id: number) => `/api/v1/eventos/${id}/check-in`,
       RESUMEN: (id: number) => `/api/v1/eventos/${id}/check-in/resumen`,
     },
+    REEMBOLSOS: {
+      BASE: (eventoId: number) => `/api/v1/eventos/${eventoId}/reembolsos`,
+      BY_ID: (eventoId: number, solicitudId: number) => `/api/v1/eventos/${eventoId}/reembolsos/${solicitudId}`,
+      REVISAR: (eventoId: number, solicitudId: number) => `/api/v1/eventos/${eventoId}/reembolsos/${solicitudId}/revisar`,
+      APROBAR: (eventoId: number, solicitudId: number) => `/api/v1/eventos/${eventoId}/reembolsos/${solicitudId}/aprobar`,
+      RECHAZAR: (eventoId: number, solicitudId: number) => `/api/v1/eventos/${eventoId}/reembolsos/${solicitudId}/rechazar`,
+      MARCAR_REEMBOLSADO: (eventoId: number, solicitudId: number) => `/api/v1/eventos/${eventoId}/reembolsos/${solicitudId}/marcar-reembolsado`,
+    },
+    PAGOS: {
+      BASE: (eventoId: number) => `/api/v1/eventos/${eventoId}/pagos`,
+    },
   },
   FUNCIONALIDADES: {
     BASE: '/api/v1/funcionalidad',
@@ -75,5 +86,14 @@ export const API_ENDPOINTS = {
     BY_ID: (id: number) => `/api/v1/tickets/${id}`,
     CANCELAR: (id: number) => `/api/v1/tickets/${id}/cancelar`,
     QR: (id: number) => `/api/v1/tickets/${id}/qr`,
+    SOLICITAR_REEMBOLSO: (id: number) => `/api/v1/tickets/${id}/reembolso`,
+  },
+  REEMBOLSOS: {
+    MIS_SOLICITUDES: '/api/v1/reembolsos/mis-solicitudes',
+    BY_ID: (id: number) => `/api/v1/reembolsos/${id}`,
+    CANCELAR: (id: number) => `/api/v1/reembolsos/${id}/cancelar`,
+  },
+  PAGOS: {
+    MIS_PAGOS: '/api/v1/pagos/mis-pagos',
   },
 } as const;

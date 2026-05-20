@@ -10,6 +10,9 @@ const axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
+    if (config.data instanceof FormData && config.headers) {
+      delete config.headers['Content-Type'];
+    }
     try {
       const authStorage = localStorage.getItem('auth-storage');
       if (authStorage) {

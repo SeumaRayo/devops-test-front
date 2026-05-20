@@ -24,6 +24,8 @@ import PortalPage from '../../features/eventos/pages/PortalPage';
 import MisTicketsPage from '../../features/eventos/pages/MisTicketsPage';
 import ProfilePage from '../../features/auth/pages/ProfilePage';
 import NotFoundPage from '../../pages/NotFoundPage';
+import MisReembolsosPage from '../../features/reembolsos/pages/MisSolicitudesReembolsoPage';
+import MisPagosPage from '../../features/pagos/pages/MisPagosPage';
 import MisAsignacionesPage from '../../features/eventos/pages/MisAsignacionesPage';
 import CheckInPage from '../../features/eventos/pages/CheckInPage';
 import PortalEventoDetailPage from '../../features/eventos/pages/PortalEventoDetailPage';
@@ -68,6 +70,8 @@ const AppRouter = () => {
         <Route path="/portal" element={<PortalPage />} />
         <Route path="/portal/eventos/:id" element={<PortalEventoDetailPage />} />
         <Route path="/mis-tickets" element={<MisTicketsPage />} />
+        <Route path="/mis-reembolsos" element={<MisReembolsosPage />} />
+        <Route path="/mis-pagos" element={<MisPagosPage />} />
         <Route path="/asignaciones" element={<MisAsignacionesPage />} />
         <Route path="/eventos/:id/checkin" element={<CheckInPage />} />
       </Route>

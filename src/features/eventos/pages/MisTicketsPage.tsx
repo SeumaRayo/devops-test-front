@@ -5,9 +5,10 @@ import { ticketService } from '../services/ticket.service';
 import { TicketResponseDTO } from '../types/ticket.types';
 import {
   Loader2, Ticket, XCircle, CheckCircle, Clock,
-  CreditCard, Ban, ArrowLeft, CalendarDays, QrCode, X, Download,
+  CreditCard, Ban, ArrowLeft, CalendarDays, QrCode, X, Download, RefreshCcw
 } from 'lucide-react';
 import { useAuthStore } from '../../../app/store/auth.store';
+import { SolicitarReembolsoDialog } from '../../reembolsos/components/SolicitarReembolsoDialog';
 
 const estadoIcon = (estado: TicketResponseDTO['estadoTicket']) => {
   switch (estado) {
@@ -31,7 +32,7 @@ const estadoStyle = (estado: TicketResponseDTO['estadoTicket']) => {
   }
 };
 
-// ── QR Modal ─────────────────────────────────────────────────────────────────
+// ── Main Page ─────────────────────────────────────────────────────────────────
 interface QrModalProps {
   ticket: TicketResponseDTO;
   onClose: () => void;
@@ -160,6 +161,7 @@ const MisTicketsPage: React.FC = () => {
   const [cancelling, setCancelling] = useState<number | null>(null);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; msg: string } | null>(null);
   const [qrTicket, setQrTicket] = useState<TicketResponseDTO | null>(null);
+  const [reembolsoTicket, setReembolsoTicket] = useState<TicketResponseDTO | null>(null);
 
   const handleCancelar = (id: number) => {
     if (!confirm('¿Estás seguro de que deseas cancelar este ticket? El cupo será devuelto al evento.')) return;
@@ -302,6 +304,17 @@ const MisTicketsPage: React.FC = () => {
                       Cancelar
                     </button>
                   )}
+
+                  {/* Reembolso — only for PAGADO */}
+                  {ticket.estadoTicket === 'PAGADO' && (
+                    <button
+                      onClick={() => setReembolsoTicket(ticket)}
+                      className="flex items-center gap-2 text-xs bg-purple-500/10 text-purple-400 border border-purple-500/20 px-3 py-2 rounded-xl hover:bg-purple-500/20 transition-all"
+                    >
+                      <RefreshCcw size={12} />
+                      Solicitar Reembolso
+                    </button>
+                  )}
                 </div>
               </div>
             ))}
@@ -312,6 +325,17 @@ const MisTicketsPage: React.FC = () => {
       {/* QR Modal */}
       {qrTicket && (
         <QrModal ticket={qrTicket} onClose={() => setQrTicket(null)} />
+      )}
+
+      {/* Reembolso Dialog */}
+      {reembolsoTicket && (
+        <SolicitarReembolsoDialog
+          ticketId={reembolsoTicket.idTicket}
+          ticketNombre={reembolsoTicket.nombreEvento}
+          montoPagado={reembolsoTicket.montoPagado}
+          moneda={reembolsoTicket.moneda || 'COP'}
+          onClose={() => setReembolsoTicket(null)}
+        />
       )}
     </div>
   );

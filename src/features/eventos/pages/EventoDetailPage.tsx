@@ -9,10 +9,12 @@ import { Badge } from '../../../components/ui/Badge';
 import { useEvento } from '../hooks/useEvento';
 import { EventoForm } from '../components/EventoForm';
 import { EventoStaffTab } from '../components/EventoStaffTab';
+import { EventoReembolsosTab } from '../components/EventoReembolsosTab';
+import { EventoPagosTab } from '../components/EventoPagosTab';
 import { eventoService } from '../services/evento.service';
 import { TicketResponseDTO } from '../types/ticket.types';
 
-type Tab = 'info' | 'historial' | 'tickets' | 'staff';
+type Tab = 'info' | 'historial' | 'tickets' | 'staff' | 'reembolsos' | 'pagos';
 
 const ticketEstadoStyle = (estado: TicketResponseDTO['estadoTicket']) => {
   switch (estado) {
@@ -129,6 +131,12 @@ export default function EventoDetailPage() {
               </span>
             )}
           </span>
+        </button>
+        <button className={tabClass('reembolsos')} onClick={() => setActiveTab('reembolsos')}>
+          <span className="flex items-center gap-2"><Clock size={14} /> Reembolsos</span>
+        </button>
+        <button className={tabClass('pagos')} onClick={() => setActiveTab('pagos')}>
+          <span className="flex items-center gap-2"><CreditCard size={14} /> Pagos</span>
         </button>
         <button className={tabClass('staff')} onClick={() => setActiveTab('staff')}>
           <span className="flex items-center gap-2"><Users size={14} /> Staff</span>
@@ -337,6 +345,32 @@ export default function EventoDetailPage() {
             </h3>
           </div>
           <EventoStaffTab idEvento={Number(id)} />
+        </div>
+      )}
+
+      {/* ── REEMBOLSOS TAB ── */}
+      {activeTab === 'reembolsos' && (
+        <div className="rounded-2xl border border-white/5 bg-gray-900/30 p-6 backdrop-blur-xl">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+              <Clock size={18} className="text-indigo-400" />
+              Solicitudes de Reembolso
+            </h3>
+          </div>
+          <EventoReembolsosTab idEvento={Number(id)} />
+        </div>
+      )}
+
+      {/* ── PAGOS TAB ── */}
+      {activeTab === 'pagos' && (
+        <div className="rounded-2xl border border-white/5 bg-gray-900/30 p-6 backdrop-blur-xl">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+              <CreditCard size={18} className="text-indigo-400" />
+              Historial de Transacciones
+            </h3>
+          </div>
+          <EventoPagosTab idEvento={Number(id)} />
         </div>
       )}
     </div>
