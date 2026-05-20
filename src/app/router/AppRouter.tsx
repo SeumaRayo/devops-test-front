@@ -99,6 +99,10 @@ const AppRouter = () => {
             </Route>
 
             {/* Rutas compartidas (ADMIN y ORGANIZER) */}
+            {/* Portal Embebido */}
+            <Route path="portal" element={<PortalPage />} />
+            <Route path="portal/eventos/:id" element={<PortalEventoDetailPage />} />
+
             {/* Eventos */}
             <Route path="eventos" element={<EventosListPage />} />
             <Route path="eventos/historial" element={<EventosHistorialPage />} />

@@ -5,6 +5,7 @@ import { useEventos } from '../hooks/useEventos';
 import { EventoPublicoCard } from '../components/EventoPublicoCard';
 import { eventoService } from '../services/evento.service';
 import { Loader2, Search, SlidersHorizontal, X, Ticket, QrCode } from 'lucide-react';
+import { LoadingSpinner } from '../../../components/ui/LoadingSpinner';
 
 const PortalPage = () => {
   const { user } = useAuthStore();
@@ -62,7 +63,7 @@ const PortalPage = () => {
     <div className="min-h-screen bg-gray-950 p-4 pb-20">
 
       {/* ── HEADER (same style as original) ── */}
-      <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between mt-8 mb-8 bg-gray-900/30 border border-white/10 backdrop-blur-xl p-6 rounded-2xl shadow-xl">
+      <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between mt-8 mb-8 bg-gray-900/30 border border-white/10 backdrop-blur-xl p-4 md:p-6 rounded-2xl shadow-xl">
         <div>
           <h1 className="text-3xl font-bold text-white mb-2">Catálogo de Eventos</h1>
           <p className="text-gray-400">
@@ -109,8 +110,8 @@ const PortalPage = () => {
 
       {/* ── SEARCH & FILTER BAR ── */}
       <div className="max-w-6xl mx-auto mb-6 bg-gray-900/30 border border-white/10 rounded-2xl p-4 space-y-3 backdrop-blur-xl">
-        <div className="flex items-center gap-3 flex-wrap">
-          <div className="flex-1 min-w-[180px] flex items-center gap-2 bg-gray-900/60 border border-white/10 rounded-xl px-3 py-2">
+        <div className="flex flex-col md:flex-row items-center gap-3 w-full">
+          <div className="w-full md:flex-1 min-w-[180px] flex items-center gap-2 bg-gray-900/60 border border-white/10 rounded-xl px-3 py-2">
             <Search size={14} className="text-gray-500 shrink-0" />
             <input
               type="text"
@@ -121,34 +122,36 @@ const PortalPage = () => {
               className="bg-transparent text-sm text-gray-200 placeholder-gray-600 outline-none w-full"
             />
           </div>
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm border transition-all ${
-              showFilters
-                ? 'bg-indigo-600/20 text-indigo-400 border-indigo-500/30'
-                : 'text-gray-400 border-white/10 hover:bg-white/5'
-            }`}
-          >
-            <SlidersHorizontal size={14} />
-            Filtros
-          </button>
-          <button
-            onClick={handleSearch}
-            className="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold transition-all"
-          >
-            Buscar
-          </button>
-          <button
-            onClick={handleClearFilters}
-            className="flex items-center gap-1 text-xs text-gray-500 hover:text-gray-300 transition-colors"
-          >
-            <X size={12} /> Limpiar
-          </button>
+          <div className="flex items-center gap-3 w-full md:w-auto justify-between md:justify-end">
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm border transition-all ${
+                showFilters
+                  ? 'bg-indigo-600/20 text-indigo-400 border-indigo-500/30'
+                  : 'text-gray-400 border-white/10 hover:bg-white/5'
+              }`}
+            >
+              <SlidersHorizontal size={14} />
+              Filtros
+            </button>
+            <button
+              onClick={handleSearch}
+              className="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold transition-all shrink-0"
+            >
+              Buscar
+            </button>
+            <button
+              onClick={handleClearFilters}
+              className="flex items-center gap-1 text-xs text-gray-500 hover:text-gray-300 transition-colors shrink-0"
+            >
+              <X size={12} /> Limpiar
+            </button>
+          </div>
         </div>
 
         {showFilters && (
-          <div className="flex flex-wrap gap-3 pt-2 border-t border-white/5 animate-in fade-in slide-in-from-top-2 duration-200">
-            <div className="flex-1 min-w-[160px] flex items-center gap-2 bg-gray-900/60 border border-white/10 rounded-xl px-3 py-2">
+          <div className="flex flex-col md:flex-row flex-wrap gap-3 pt-4 mt-2 border-t border-white/5 animate-in fade-in slide-in-from-top-2 duration-200 w-full">
+            <div className="w-full md:flex-1 min-w-[160px] flex items-center gap-2 bg-gray-900/60 border border-white/10 rounded-xl px-3 py-2">
               <Search size={14} className="text-gray-500 shrink-0" />
               <input
                 type="text"
@@ -161,7 +164,7 @@ const PortalPage = () => {
             <select
               value={filterPago}
               onChange={(e) => setFilterPago(e.target.value as '' | 'true' | 'false')}
-              className="bg-gray-900/60 border border-white/10 rounded-xl px-3 py-2 text-sm text-gray-300 outline-none"
+              className="w-full md:w-auto bg-gray-900/60 border border-white/10 rounded-xl px-3 py-2 text-sm text-gray-300 outline-none"
             >
               <option value="">Todos (gratis y de pago)</option>
               <option value="false">Solo gratuitos</option>
@@ -192,12 +195,11 @@ const PortalPage = () => {
       {/* ── EVENT GRID ── */}
       <div className="max-w-6xl mx-auto">
         {isLoadingEventos ? (
-          <div className="flex flex-col items-center justify-center py-20 text-gray-400">
-            <Loader2 className="w-10 h-10 animate-spin text-blue-500 mb-4" />
-            <p>Cargando eventos disponibles...</p>
+          <div className="flex justify-center py-20">
+            <LoadingSpinner size="lg" text="Cargando eventos disponibles..." />
           </div>
         ) : eventos.length === 0 ? (
-          <div className="text-center py-20 bg-gray-900/20 border border-white/5 rounded-2xl">
+          <div className="text-center py-20 bg-gray-900/20 border border-white/5 rounded-2xl flex flex-col items-center justify-center">
             <p className="text-gray-400 text-lg">No hay eventos publicados en este momento.</p>
           </div>
         ) : (

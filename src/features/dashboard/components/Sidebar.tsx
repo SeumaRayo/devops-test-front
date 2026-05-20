@@ -15,7 +15,7 @@ const NAV_MENU: NavItemType[] = [
     id: 'catalogo',
     title: 'Catálogo de Eventos',
     icon: Home,
-    path: '/portal',
+    path: '/dashboard/portal',
     roles: [ROLES.ADMIN, ROLES.ORGANIZER, ROLES.USER],
   },
   {

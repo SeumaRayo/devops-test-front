@@ -2,7 +2,7 @@ import React from 'react';
 import { EventoResponse } from '../types/evento.types';
 import { MapPin, Calendar, Clock, Loader2 } from 'lucide-react';
 
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 interface Props {
   evento: EventoResponse;
@@ -10,9 +10,11 @@ interface Props {
 
 export const EventoPublicoCard: React.FC<Props> = ({ evento }) => {
   const isFree = !evento.esDePago || evento.precio === 0;
+  const location = useLocation();
+  const basePath = location.pathname.startsWith('/dashboard') ? '/dashboard/portal' : '/portal';
 
   return (
-    <div className="bg-gray-900/60 backdrop-blur-md border border-white/10 rounded-2xl p-6 flex flex-col justify-between hover:border-blue-500/50 transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:-translate-y-1">
+    <div className="w-full bg-gray-900/30 backdrop-blur-xl border border-white/10 rounded-2xl p-6 flex flex-col justify-between hover:border-indigo-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-indigo-500/25 hover:-translate-y-1">
       <div>
         <h3 className="text-xl font-bold text-blue-400 mb-2">{evento.nombreEvento}</h3>
         <p className="text-gray-400 text-sm mb-4 line-clamp-2">{evento.descripcionEvento}</p>
@@ -46,8 +48,8 @@ export const EventoPublicoCard: React.FC<Props> = ({ evento }) => {
         </div>
 
         <Link
-          to={`/portal/eventos/${evento.idEvento}`}
-          className={`flex items-center justify-center px-6 py-2.5 rounded-xl font-medium transition-colors bg-blue-600 hover:bg-blue-700 text-white`}
+          to={`${basePath}/eventos/${evento.idEvento}`}
+          className={`flex items-center justify-center px-6 py-2.5 rounded-xl font-medium transition-colors bg-indigo-600 hover:bg-indigo-700 text-white`}
         >
           Ver Detalles
         </Link>
