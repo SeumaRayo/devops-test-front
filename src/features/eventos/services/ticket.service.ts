@@ -1,12 +1,28 @@
 import axiosInstance from '../../../lib/axios';
 import { API_ENDPOINTS } from '../../../config/apiEndpoints';
-import { InscripcionResponse, TicketResponseDTO } from '../types/ticket.types';
+import { CheckoutPendienteResponse, InscripcionResponse, MiEstadoEventoResponse, TicketResponseDTO } from '../types/ticket.types';
 
 export const ticketService = {
   // POST /api/v1/tickets/evento/{eventoId}  — Any authenticated user
   inscribirse: async (eventoId: number): Promise<InscripcionResponse> => {
     const { data } = await axiosInstance.post<InscripcionResponse>(
       API_ENDPOINTS.TICKETS.INSCRIBIR(eventoId)
+    );
+    return data;
+  },
+
+  // GET /api/v1/tickets/evento/{eventoId}/mi-estado  — Any authenticated user
+  getMiEstadoEvento: async (eventoId: number): Promise<MiEstadoEventoResponse> => {
+    const { data } = await axiosInstance.get<MiEstadoEventoResponse>(
+      API_ENDPOINTS.TICKETS.MI_ESTADO_BY_EVENTO(eventoId)
+    );
+    return data;
+  },
+
+  // GET /api/v1/tickets/checkout/evento/{eventoId}  — Any authenticated user
+  getCheckoutPendiente: async (eventoId: number): Promise<CheckoutPendienteResponse> => {
+    const { data } = await axiosInstance.get<CheckoutPendienteResponse>(
+      API_ENDPOINTS.TICKETS.CHECKOUT_BY_EVENTO(eventoId)
     );
     return data;
   },

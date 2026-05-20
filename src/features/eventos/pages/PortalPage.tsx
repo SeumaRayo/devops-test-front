@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useAuthStore } from '../../../app/store/auth.store';
 import { useNavigate, Link } from 'react-router-dom';
 import { useEventos } from '../hooks/useEventos';
+import { useMisTickets } from '../hooks/ticket.queries';
 import { EventoPublicoCard } from '../components/EventoPublicoCard';
 import { eventoService } from '../services/evento.service';
 import { Loader2, Search, SlidersHorizontal, X, Ticket, QrCode } from 'lucide-react';
@@ -28,6 +29,17 @@ const PortalPage = () => {
 
   // Staff state
   const [isStaff, setIsStaff] = useState(false);
+
+  // User tickets to detect already-inscribed events
+  const { data: misTickets } = useMisTickets();
+  const eventosInscritos = useMemo(() => {
+    if (!misTickets) return new Set<number>();
+    return new Set(
+      misTickets
+        .filter((t) => t.estadoTicket === 'GRATIS' || t.estadoTicket === 'PAGADO' || t.estadoTicket === 'PENDIENTE')
+        .map((t) => t.idEvento)
+    );
+  }, [misTickets]);
 
   // Load disponibles on mount (backend filters PUBLICADO + ACTIVO automatically)
   useEffect(() => {
@@ -230,6 +242,7 @@ const PortalPage = () => {
               <EventoPublicoCard
                 key={ev.idEvento}
                 evento={ev}
+                yaInscrito={eventosInscritos.has(ev.idEvento)}
               />
             ))}
           </div>

@@ -1,18 +1,24 @@
 import React from 'react';
 import { EventoResponse } from '../types/evento.types';
-import { MapPin, Calendar, Clock, Loader2 } from 'lucide-react';
-
+import { MapPin, Calendar, Clock, CheckCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 interface Props {
   evento: EventoResponse;
+  yaInscrito?: boolean;
 }
 
-export const EventoPublicoCard: React.FC<Props> = ({ evento }) => {
+export const EventoPublicoCard: React.FC<Props> = ({ evento, yaInscrito = false }) => {
   const isFree = !evento.esDePago || evento.precio === 0;
 
   return (
-    <div className="bg-gray-900/60 backdrop-blur-md border border-white/10 rounded-2xl p-6 flex flex-col justify-between hover:border-blue-500/50 transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:-translate-y-1">
+    <div className="bg-gray-900/60 backdrop-blur-md border border-white/10 rounded-2xl p-6 flex flex-col justify-between hover:border-blue-500/50 transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:-translate-y-1 relative">
+      {yaInscrito && (
+        <span className="absolute top-3 right-3 inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full font-medium bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+          <CheckCircle size={12} />
+          Ya inscrito
+        </span>
+      )}
       <div>
         <h3 className="text-xl font-bold text-blue-400 mb-2">{evento.nombreEvento}</h3>
         <p className="text-gray-400 text-sm mb-4 line-clamp-2">{evento.descripcionEvento}</p>

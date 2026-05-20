@@ -82,6 +82,8 @@ export const API_ENDPOINTS = {
   },
   TICKETS: {
     INSCRIBIR: (eventoId: number) => `/api/v1/tickets/evento/${eventoId}`,
+    MI_ESTADO_BY_EVENTO: (eventoId: number) => `/api/v1/tickets/evento/${eventoId}/mi-estado`,
+    CHECKOUT_BY_EVENTO: (eventoId: number) => `/api/v1/tickets/checkout/evento/${eventoId}`,
     MIS_TICKETS: '/api/v1/tickets/mis-tickets',
     BY_ID: (id: number) => `/api/v1/tickets/${id}`,
     CANCELAR: (id: number) => `/api/v1/tickets/${id}/cancelar`,

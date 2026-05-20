@@ -33,8 +33,9 @@ const StripeCheckoutForm: React.FC<StripeCheckoutFormProps> = ({ onSuccess, onCa
     setIsLoading(true);
     setErrorMessage(null);
 
-    const { error } = await stripe.confirmPayment({
+    const { error, paymentIntent } = await stripe.confirmPayment({
       elements,
+      redirect: 'if_required',
       confirmParams: {
         // Redirigir a una ruta de éxito, o manejar dinámicamente
         return_url: window.location.origin + '/portal?payment_intent=success',
@@ -44,7 +45,15 @@ const StripeCheckoutForm: React.FC<StripeCheckoutFormProps> = ({ onSuccess, onCa
     if (error) {
       setErrorMessage(error.message || 'Ocurrió un error inesperado al procesar el pago.');
       setIsLoading(false);
+      return;
     }
+
+    if (!paymentIntent || paymentIntent.status === 'succeeded') {
+      onSuccess();
+      return;
+    }
+
+    setIsLoading(false);
   };
 
   return (
@@ -111,7 +120,7 @@ export const StripeCheckoutDialog: React.FC<StripeCheckoutDialogProps> = ({
       <div className="bg-gray-900 border border-white/10 rounded-2xl w-full max-w-md p-6 shadow-2xl relative animate-in fade-in zoom-in duration-200">
         <h2 className="text-xl font-bold text-white mb-6 text-center">Completa tu pago</h2>
 
-        <Elements stripe={stripePromise} options={{ clientSecret, appearance }}>
+        <Elements key={clientSecret} stripe={stripePromise} options={{ clientSecret, appearance }}>
           <StripeCheckoutForm onSuccess={onSuccess} onCancel={onClose} />
         </Elements>
       </div>
