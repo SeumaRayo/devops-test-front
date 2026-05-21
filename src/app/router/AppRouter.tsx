@@ -45,7 +45,7 @@ const RootRedirect = () => {
     if (user?.roles.includes(ROLES.ORGANIZER)) {
       return <Navigate to="/dashboard/eventos" replace />;
     }
-    return <Navigate to="/portal" replace />;
+    return <Navigate to="/dashboard/portal" replace />;
   }
 
   return <Navigate to="/login" replace />;
@@ -64,21 +64,19 @@ const AppRouter = () => {
       <Route path="/unlock-account" element={<UnlockAccountPage />} />
       <Route path="/unauthorized" element={<UnauthorizedPage />} />
 
-      {/* Protected Portal Routes — accessible by all authenticated roles */}
-      <Route element={<ProtectedRoute />}>
-        <Route path="/portal" element={<PortalPage />} />
-        <Route path="/portal/eventos/:id" element={<PortalEventoDetailPage />} />
-        <Route path="/mis-tickets" element={<MisTicketsPage />} />
-        <Route path="/asignaciones" element={<MisAsignacionesPage />} />
-        <Route path="/eventos/:id/checkin" element={<CheckInPage />} />
-      </Route>
+
 
       {/* Protected Dashboard Routes */}
       <Route element={<ProtectedRoute />}>
         <Route path="/dashboard" element={<DashboardLayout />}>
 
-          {/* Perfil - accesible por todos los roles autenticados */}
+          {/* Accesibles por todos los roles autenticados (ADMIN, ORGANIZER, USER) */}
           <Route path="profile" element={<ProfilePage />} />
+          <Route path="portal" element={<PortalPage />} />
+          <Route path="portal/eventos/:id" element={<PortalEventoDetailPage />} />
+          <Route path="mis-tickets" element={<MisTicketsPage />} />
+          <Route path="asignaciones" element={<MisAsignacionesPage />} />
+          <Route path="eventos/:id/checkin" element={<CheckInPage />} />
 
           {/* Permite a ADMIN y ORGANIZER entrar al resto del dashboard */}
           <Route element={<RoleGuard allowedRoles={[ROLES.ADMIN, ROLES.ORGANIZER]} />}>
@@ -97,11 +95,6 @@ const AppRouter = () => {
               {/* Sesiones */}
               <Route path="sesiones" element={<SesionesListPage />} />
             </Route>
-
-            {/* Rutas compartidas (ADMIN y ORGANIZER) */}
-            {/* Portal Embebido */}
-            <Route path="portal" element={<PortalPage />} />
-            <Route path="portal/eventos/:id" element={<PortalEventoDetailPage />} />
 
             {/* Eventos */}
             <Route path="eventos" element={<EventosListPage />} />

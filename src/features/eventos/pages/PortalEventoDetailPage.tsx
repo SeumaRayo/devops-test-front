@@ -10,8 +10,6 @@ import { LoadingSpinner } from '../../../components/ui/LoadingSpinner';
 
 export default function PortalEventoDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const location = useLocation();
-  const basePath = location.pathname.startsWith('/dashboard') ? '/dashboard/portal' : '/portal';
 
   const [evento, setEvento] = useState<EventoResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -107,7 +105,7 @@ export default function PortalEventoDetailPage() {
           title="Detalles del Evento" 
           action={
             <Link
-              to={basePath}
+              to="/dashboard/portal"
               className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors bg-gray-900/50 hover:bg-gray-800/50 px-4 py-2 rounded-xl border border-white/5"
             >
               <ArrowLeft size={16} /> Volver al catálogo

@@ -6,6 +6,7 @@ import { EventoPublicoCard } from '../components/EventoPublicoCard';
 import { eventoService } from '../services/evento.service';
 import { Loader2, Search, SlidersHorizontal, X, Ticket, QrCode } from 'lucide-react';
 import { LoadingSpinner } from '../../../components/ui/LoadingSpinner';
+import { PageHeader } from '../../../components/ui/PageHeader';
 
 const PortalPage = () => {
   const { user } = useAuthStore();
@@ -60,53 +61,13 @@ const PortalPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-950 p-4 pb-20">
+    <div className="animate-in slide-in-from-bottom-4 fade-in duration-500 max-w-6xl mx-auto">
 
-      {/* ── HEADER (same style as original) ── */}
-      <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between mt-8 mb-8 bg-gray-900/30 border border-white/10 backdrop-blur-xl p-4 md:p-6 rounded-2xl shadow-xl">
-        <div>
-          <h1 className="text-3xl font-bold text-white mb-2">Catálogo de Eventos</h1>
-          <p className="text-gray-400">
-            Bienvenido, <span className="text-blue-400 font-semibold">{user?.username}</span>. Explora los próximos eventos.
-          </p>
-        </div>
-        <div className="flex flex-wrap items-center justify-center md:justify-end gap-3 mt-4 md:mt-0">
-          {isStaff ? (
-            <Link
-              to="/asignaciones"
-              className="flex items-center gap-2 bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 font-medium py-2 px-5 rounded-xl transition-all duration-300"
-            >
-              <QrCode size={16} />
-              Panel Staff
-            </Link>
-          ) : (
-            <button
-              disabled
-              title="Aún no has sido seleccionado como staff en ningún evento"
-              className="flex items-center gap-2 bg-gray-800/30 text-gray-500 border border-gray-700/50 font-medium py-2 px-5 rounded-xl cursor-not-allowed"
-            >
-              <QrCode size={16} />
-              Panel Staff
-            </button>
-          )}
-          <Link
-            to="/mis-tickets"
-            className="flex items-center gap-2 bg-indigo-600/10 hover:bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 font-medium py-2 px-5 rounded-xl transition-all duration-300"
-          >
-            <Ticket size={16} />
-            Mis Tickets
-          </Link>
-          <button
-            onClick={() => {
-              useAuthStore.getState().clearCredentials();
-              navigate('/login');
-            }}
-            className="bg-red-600/10 hover:bg-red-600 text-red-500 hover:text-white border border-red-600/50 font-medium py-2 px-6 rounded-xl transition-all duration-300"
-          >
-            Cerrar Sesión
-          </button>
-        </div>
-      </div>
+      {/* ── HEADER ── */}
+      <PageHeader
+        title="Catálogo de Eventos"
+        subtitle={`Bienvenido, ${user?.username}. Explora los próximos eventos.`}
+      />
 
       {/* ── SEARCH & FILTER BAR ── */}
       <div className="max-w-6xl mx-auto mb-6 bg-gray-900/30 border border-white/10 rounded-2xl p-4 space-y-3 backdrop-blur-xl">

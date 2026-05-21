@@ -36,8 +36,7 @@ const StripeCheckoutForm: React.FC<StripeCheckoutFormProps> = ({ onSuccess, onCa
     const { error } = await stripe.confirmPayment({
       elements,
       confirmParams: {
-        // Redirigir a una ruta de éxito, o manejar dinámicamente
-        return_url: window.location.origin + '/portal?payment_intent=success',
+        return_url: window.location.origin + '/dashboard/portal?payment_intent=success',
       },
     });
 

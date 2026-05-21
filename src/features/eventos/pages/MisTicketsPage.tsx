@@ -9,6 +9,7 @@ import {
   Ban, ArrowLeft, CalendarDays, QrCode, X, Download,
 } from 'lucide-react';
 import { useAuthStore } from '../../../app/store/auth.store';
+import { PageHeader } from '../../../components/ui/PageHeader';
 
 interface QrModalProps {
   ticket: TicketResponseDTO;
@@ -157,29 +158,23 @@ export default function MisTicketsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-950 p-4 pb-20">
-
+    <div className="animate-in slide-in-from-bottom-4 fade-in duration-500 max-w-6xl mx-auto">
       {/* ── HEADER ── */}
-      <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-between mt-8 mb-8 bg-gray-900/30 border border-white/10 backdrop-blur-xl p-6 rounded-2xl shadow-xl">
-        <div>
-          <h1 className="text-3xl font-bold text-white mb-2 flex items-center gap-3">
-            <Ticket className="text-indigo-400" size={28} />
-            Mis Tickets
-          </h1>
-          <p className="text-gray-400">
-            Bienvenido, <span className="text-blue-400 font-semibold">{user?.username}</span>. Gestiona tus inscripciones.
-          </p>
-        </div>
-        <Link
-          to="/portal"
-          className="mt-4 md:mt-0 flex items-center gap-2 bg-gray-800/60 hover:bg-gray-700/60 text-gray-300 border border-white/10 font-medium py-2 px-5 rounded-xl transition-all duration-300"
-        >
-          <ArrowLeft size={16} />
-          Volver al Catálogo
-        </Link>
-      </div>
+      <PageHeader
+        title="Mis Tickets"
+        subtitle={`Bienvenido, ${user?.username}. Gestiona tus inscripciones.`}
+        action={
+          <Link
+            to="/dashboard/portal"
+            className="flex items-center gap-2 bg-gray-800/60 hover:bg-gray-700/60 text-gray-300 border border-white/10 font-medium py-2 px-5 rounded-xl transition-all duration-300"
+          >
+            <ArrowLeft size={16} />
+            Volver al Catálogo
+          </Link>
+        }
+      />
 
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-6xl mx-auto mt-4">
 
         {/* Feedback banner */}
         {feedback && (
@@ -210,7 +205,7 @@ export default function MisTicketsPage() {
             <p className="text-gray-400 text-lg">Aún no tienes tickets.</p>
             <p className="text-gray-600 text-sm mt-1">¡Inscríbete a un evento para comenzar!</p>
             <Link
-              to="/portal"
+              to="/dashboard/portal"
               className="inline-flex items-center gap-2 mt-6 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-sm font-semibold transition-all"
             >
               <CalendarDays size={16} />
@@ -237,7 +232,7 @@ export default function MisTicketsPage() {
                     <span>Ticket <span className="text-gray-400 font-mono">#{ticket.idTicket}</span></span>
                     <span>Evento <span className="text-gray-400 font-mono">#{ticket.idEvento}</span></span>
                     {ticket.montoPagado > 0 && (
-                      <span className="text-blue-400 font-medium">Pagado: {ticket.montoPagado} {ticket.moneda}</span>
+                      <span className="text-emerald-400 font-medium">Pagado: {ticket.montoPagado} {ticket.moneda}</span>
                     )}
                   </div>
                   <p className="text-xs text-gray-600">
