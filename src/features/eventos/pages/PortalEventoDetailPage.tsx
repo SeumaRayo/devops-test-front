@@ -136,58 +136,59 @@ export default function PortalEventoDetailPage() {
 
         {/* Hero Card */}
         <div className="bg-gray-900/40 border border-white/10 rounded-3xl overflow-hidden backdrop-blur-xl shadow-2xl">
-          <div className="p-6 md:p-10">
-            <div className="flex flex-col md:flex-row gap-8">
-              {/* Info Column (Left) */}
-              <div className="flex-1 min-w-0 space-y-6">
-                <div className="space-y-4">
-                  <h1 className="text-3xl md:text-4xl font-bold text-white leading-tight break-words">
-                    {evento.nombreEvento}
-                  </h1>
-                  <p className="text-lg text-gray-400 leading-relaxed">
-                    {evento.descripcionEvento || 'Sin descripción disponible.'}
-                  </p>
+          <div className="p-6 md:p-10 space-y-8">
+            {/* Header section: Title and description */}
+            <div className="flex flex-col md:flex-row justify-between items-start gap-6 border-b border-white/10 pb-8">
+              <div className="flex-1 space-y-4">
+                <h1 className="text-3xl md:text-4xl font-bold text-white leading-tight break-words">
+                  {evento.nombreEvento}
+                </h1>
+                <p className="text-lg text-gray-400 leading-relaxed max-w-3xl">
+                  {evento.descripcionEvento || 'Sin descripción disponible.'}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-col md:flex-row gap-8 items-start">
+              {/* Info Grid (Left) */}
+              <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
+                <div className="flex items-center gap-4 bg-gray-950/50 p-4 rounded-xl border border-white/5">
+                  <div className="w-12 h-12 rounded-full bg-indigo-500/20 flex items-center justify-center shrink-0">
+                    <Calendar className="text-indigo-400" size={24} />
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Fecha</p>
+                    <p className="text-white font-medium">{new Date(evento.fechaEvento + 'T00:00:00').toLocaleDateString('es-CO', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-4 bg-gray-950/50 p-4 rounded-xl border border-white/5">
+                  <div className="w-12 h-12 rounded-full bg-amber-500/20 flex items-center justify-center shrink-0">
+                    <Clock className="text-amber-400" size={24} />
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Hora</p>
+                    <p className="text-white font-medium">{evento.horaEvento.substring(0, 5)} hrs</p>
+                  </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 py-6 border-y border-white/10">
-                  <div className="flex items-center gap-4 bg-gray-950/50 p-4 rounded-xl border border-white/5">
-                    <div className="w-12 h-12 rounded-full bg-indigo-500/20 flex items-center justify-center shrink-0">
-                      <Calendar className="text-indigo-400" size={24} />
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Fecha</p>
-                      <p className="text-white font-medium">{new Date(evento.fechaEvento + 'T00:00:00').toLocaleDateString('es-CO', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
-                    </div>
+                <div className="flex items-center gap-4 bg-gray-950/50 p-4 rounded-xl border border-white/5">
+                  <div className="w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center shrink-0">
+                    <MapPin className="text-emerald-400" size={24} />
                   </div>
-                  
-                  <div className="flex items-center gap-4 bg-gray-950/50 p-4 rounded-xl border border-white/5">
-                    <div className="w-12 h-12 rounded-full bg-amber-500/20 flex items-center justify-center shrink-0">
-                      <Clock className="text-amber-400" size={24} />
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Hora</p>
-                      <p className="text-white font-medium">{evento.horaEvento.substring(0, 5)} hrs</p>
-                    </div>
+                  <div>
+                    <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Lugar</p>
+                    <p className="text-white font-medium break-words max-w-[150px]">{evento.lugarEvento}</p>
                   </div>
+                </div>
 
-                  <div className="flex items-center gap-4 bg-gray-950/50 p-4 rounded-xl border border-white/5">
-                    <div className="w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center shrink-0">
-                      <MapPin className="text-emerald-400" size={24} />
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Lugar</p>
-                      <p className="text-white font-medium break-words max-w-[150px]">{evento.lugarEvento}</p>
-                    </div>
+                <div className="flex items-center gap-4 bg-gray-950/50 p-4 rounded-xl border border-white/5">
+                  <div className="w-12 h-12 rounded-full bg-pink-500/20 flex items-center justify-center shrink-0">
+                    <Users className="text-pink-400" size={24} />
                   </div>
-
-                  <div className="flex items-center gap-4 bg-gray-950/50 p-4 rounded-xl border border-white/5">
-                    <div className="w-12 h-12 rounded-full bg-pink-500/20 flex items-center justify-center shrink-0">
-                      <Users className="text-pink-400" size={24} />
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Disponibilidad</p>
-                      <p className="text-white font-medium">{evento.capacidadDisponible} cupos</p>
-                    </div>
+                  <div>
+                    <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Disponibilidad</p>
+                    <p className="text-white font-medium">{evento.capacidadDisponible} cupos</p>
                   </div>
                 </div>
               </div>
