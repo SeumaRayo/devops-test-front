@@ -14,9 +14,9 @@ export const EventoPublicoCard: React.FC<Props> = ({ evento }) => {
   const basePath = location.pathname.startsWith('/dashboard') ? '/dashboard/portal' : '/portal';
 
   return (
-    <div className="w-full bg-gray-900/30 backdrop-blur-xl border border-white/10 rounded-2xl p-6 flex flex-col justify-between hover:border-indigo-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-indigo-500/25 hover:-translate-y-1">
-      <div>
-        <h3 className="text-xl font-bold text-blue-400 mb-2">{evento.nombreEvento}</h3>
+    <div className="w-full min-w-0 bg-gray-900/30 backdrop-blur-xl border border-white/10 rounded-2xl p-6 flex flex-col justify-between hover:border-indigo-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-indigo-500/25 hover:-translate-y-1 overflow-hidden">
+      <div className="min-w-0">
+        <h3 className="text-xl font-bold text-blue-400 mb-2 break-words">{evento.nombreEvento}</h3>
         <p className="text-gray-400 text-sm mb-4 line-clamp-2">{evento.descripcionEvento}</p>
 
         <div className="space-y-2 mb-6">

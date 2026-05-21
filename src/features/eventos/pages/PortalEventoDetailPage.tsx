@@ -141,9 +141,9 @@ export default function PortalEventoDetailPage() {
           <div className="p-6 md:p-10">
             <div className="flex flex-col md:flex-row gap-8">
               {/* Info Column (Left) */}
-              <div className="flex-1 space-y-6">
+              <div className="flex-1 min-w-0 space-y-6">
                 <div className="space-y-4">
-                  <h1 className="text-3xl md:text-4xl font-bold text-white leading-tight">
+                  <h1 className="text-3xl md:text-4xl font-bold text-white leading-tight break-words">
                     {evento.nombreEvento}
                   </h1>
                   <p className="text-lg text-gray-400 leading-relaxed">
