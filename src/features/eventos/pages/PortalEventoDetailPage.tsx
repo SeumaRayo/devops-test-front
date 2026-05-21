@@ -149,7 +149,7 @@ export default function PortalEventoDetailPage() {
               </div>
             </div>
 
-            <div className="flex flex-col md:flex-row gap-8 items-start">
+            <div className="flex flex-col md:flex-row gap-8 items-center">
               {/* Info Grid (Left) */}
               <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
                 <div className="flex items-center gap-4 bg-gray-950/50 p-4 rounded-xl border border-white/5">
