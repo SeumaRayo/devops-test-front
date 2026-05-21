@@ -98,9 +98,9 @@ export default function PortalEventoDetailPage() {
   const isFree = !evento.esDePago || evento.precio === 0;
 
   return (
-    <div className="min-h-screen bg-gray-950 p-4 pb-20">
+    <div className="animate-in slide-in-from-bottom-4 fade-in duration-500 max-w-6xl mx-auto">
       {/* ── HEADER ── */}
-      <div className="max-w-5xl mx-auto mt-8 mb-4">
+      <div className="mt-8 mb-4">
         <PageHeader 
           title="Detalles del Evento" 
           action={
@@ -114,14 +114,14 @@ export default function PortalEventoDetailPage() {
         />
       </div>
 
-      <div className="max-w-5xl mx-auto">
+      <div className="w-full">
         {/* Messages */}
         {successMessage && (
           <div className="mb-6 bg-green-500/10 border border-green-500/20 text-green-400 px-6 py-4 rounded-xl font-medium shadow-lg flex items-start gap-3">
             <CheckCircle className="shrink-0 mt-0.5" size={20} />
             <div>
               <p>{successMessage}</p>
-              <Link to="/mis-tickets" className="underline text-indigo-400 hover:text-indigo-300 text-sm mt-1 inline-block">
+              <Link to="/dashboard/mis-tickets" className="underline text-indigo-400 hover:text-indigo-300 text-sm mt-1 inline-block">
                 Ver mis tickets →
               </Link>
             </div>
