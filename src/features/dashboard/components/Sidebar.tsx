@@ -151,7 +151,7 @@ export const Sidebar: React.FC = () => {
       id: 'asignaciones',
       title: 'Operación / Check-in',
       icon: QrCode,
-      path: '/asignaciones',
+      path: '/dashboard/asignaciones',
     });
   }
 
