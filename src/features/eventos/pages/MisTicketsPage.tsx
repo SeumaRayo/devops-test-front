@@ -6,10 +6,11 @@ import { TicketResponseDTO } from '../types/ticket.types';
 import { ticketEstadoIcon, ticketEstadoStyle } from '../utils/ticketDisplay';
 import {
   Loader2, Ticket, XCircle, CreditCard,
-  Ban, ArrowLeft, CalendarDays, QrCode, X, Download,
+  Ban, CalendarDays, QrCode, X, Download, AlertTriangle,
 } from 'lucide-react';
 import { useAuthStore } from '../../../app/store/auth.store';
 import { PageHeader } from '../../../components/ui/PageHeader';
+import { Modal } from '../../../components/ui/Modal';
 
 interface QrModalProps {
   ticket: TicketResponseDTO;
@@ -135,9 +136,10 @@ export default function MisTicketsPage() {
   const [cancelling, setCancelling] = useState<number | null>(null);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; msg: string } | null>(null);
   const [qrTicket, setQrTicket] = useState<TicketResponseDTO | null>(null);
+  const [confirmCancel, setConfirmCancel] = useState<number | null>(null);
 
   const handleCancelar = (id: number) => {
-    if (!confirm('¿Estás seguro de que deseas cancelar este ticket? El cupo será devuelto al evento.')) return;
+    setConfirmCancel(null);
     setCancelling(id);
     setFeedback(null);
     cancelar(id, {
@@ -163,15 +165,6 @@ export default function MisTicketsPage() {
       <PageHeader
         title="Mis Tickets"
         subtitle={`Bienvenido, ${user?.username}. Gestiona tus inscripciones.`}
-        action={
-          <Link
-            to="/dashboard/portal"
-            className="flex items-center gap-2 bg-gray-800/60 hover:bg-gray-700/60 text-gray-300 border border-white/10 font-medium py-2 px-5 rounded-xl transition-all duration-300"
-          >
-            <ArrowLeft size={16} />
-            Volver al Catálogo
-          </Link>
-        }
       />
 
       <div className="max-w-6xl mx-auto mt-4">
@@ -259,7 +252,7 @@ export default function MisTicketsPage() {
                   {/* Cancel — only for active tickets */}
                   {(ticket.estadoTicket === 'GRATIS' || ticket.estadoTicket === 'PAGADO') && (
                     <button
-                      onClick={() => handleCancelar(ticket.idTicket)}
+                      onClick={() => setConfirmCancel(ticket.idTicket)}
                       disabled={isCancelling && cancelling === ticket.idTicket}
                       className="flex items-center gap-2 text-xs bg-red-500/10 text-red-400 border border-red-500/20 px-3 py-2 rounded-xl hover:bg-red-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                     >
@@ -282,6 +275,32 @@ export default function MisTicketsPage() {
       {qrTicket && (
         <QrModal ticket={qrTicket} onClose={() => setQrTicket(null)} />
       )}
+
+      <Modal isOpen={confirmCancel !== null} onClose={() => setConfirmCancel(null)} title="Cancelar Ticket" size="sm">
+        <div className="space-y-4">
+          <div className="flex items-center gap-3 p-3 rounded-xl bg-red-500/10 border border-red-500/20">
+            <AlertTriangle size={20} className="text-red-400 shrink-0" />
+            <p className="text-sm text-red-300">
+              ¿Estás seguro de que deseas cancelar este ticket? El cupo será devuelto al evento.
+            </p>
+          </div>
+          <div className="flex justify-end gap-3">
+            <button
+              onClick={() => setConfirmCancel(null)}
+              className="rounded-xl bg-white/5 border border-white/10 px-4 py-2 text-sm text-gray-300 hover:bg-white/10 transition-colors"
+            >
+              Mantener Ticket
+            </button>
+            <button
+              onClick={() => confirmCancel && handleCancelar(confirmCancel)}
+              disabled={isCancelling}
+              className="rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-500 transition-colors disabled:opacity-50"
+            >
+              {isCancelling ? 'Cancelando...' : 'Sí, Cancelar'}
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }
