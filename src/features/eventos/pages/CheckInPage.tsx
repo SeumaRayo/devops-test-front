@@ -104,7 +104,7 @@ export default function CheckInPage() {
           </p>
         </div>
         <Link
-          to="/asignaciones"
+          to="/dashboard/asignaciones"
           className="mt-4 md:mt-0 flex items-center gap-2 bg-gray-800/60 hover:bg-gray-700/60 text-gray-300 border border-white/10 font-medium py-2 px-5 rounded-xl transition-all duration-300"
         >
           <ArrowLeft size={16} />

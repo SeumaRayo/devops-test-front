@@ -39,7 +39,7 @@ export const OAuth2SuccessPage: React.FC = () => {
       } else if (roles.includes('ROLE_ORGANIZER')) {
         navigate('/dashboard/eventos', { replace: true });
       } else {
-        navigate('/portal', { replace: true });
+        navigate('/dashboard/portal', { replace: true });
       }
     } catch (error) {
       console.error('Error procesando token OAuth2:', error);

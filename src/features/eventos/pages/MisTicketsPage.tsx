@@ -6,9 +6,11 @@ import { TicketResponseDTO } from '../types/ticket.types';
 import { ticketEstadoIcon, ticketEstadoStyle } from '../utils/ticketDisplay';
 import {
   Loader2, Ticket, XCircle, CreditCard,
-  Ban, ArrowLeft, CalendarDays, QrCode, X, Download,
+  Ban, CalendarDays, QrCode, X, Download, AlertTriangle,
 } from 'lucide-react';
 import { useAuthStore } from '../../../app/store/auth.store';
+import { PageHeader } from '../../../components/ui/PageHeader';
+import { Modal } from '../../../components/ui/Modal';
 
 interface QrModalProps {
   ticket: TicketResponseDTO;
@@ -134,9 +136,10 @@ export default function MisTicketsPage() {
   const [cancelling, setCancelling] = useState<number | null>(null);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; msg: string } | null>(null);
   const [qrTicket, setQrTicket] = useState<TicketResponseDTO | null>(null);
+  const [confirmCancel, setConfirmCancel] = useState<number | null>(null);
 
   const handleCancelar = (id: number) => {
-    if (!confirm('¿Estás seguro de que deseas cancelar este ticket? El cupo será devuelto al evento.')) return;
+    setConfirmCancel(null);
     setCancelling(id);
     setFeedback(null);
     cancelar(id, {
@@ -157,29 +160,14 @@ export default function MisTicketsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-950 p-4 pb-20">
-
+    <div className="animate-in slide-in-from-bottom-4 fade-in duration-500 max-w-6xl mx-auto">
       {/* ── HEADER ── */}
-      <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-between mt-8 mb-8 bg-gray-900/30 border border-white/10 backdrop-blur-xl p-6 rounded-2xl shadow-xl">
-        <div>
-          <h1 className="text-3xl font-bold text-white mb-2 flex items-center gap-3">
-            <Ticket className="text-indigo-400" size={28} />
-            Mis Tickets
-          </h1>
-          <p className="text-gray-400">
-            Bienvenido, <span className="text-blue-400 font-semibold">{user?.username}</span>. Gestiona tus inscripciones.
-          </p>
-        </div>
-        <Link
-          to="/portal"
-          className="mt-4 md:mt-0 flex items-center gap-2 bg-gray-800/60 hover:bg-gray-700/60 text-gray-300 border border-white/10 font-medium py-2 px-5 rounded-xl transition-all duration-300"
-        >
-          <ArrowLeft size={16} />
-          Volver al Catálogo
-        </Link>
-      </div>
+      <PageHeader
+        title="Mis Tickets"
+        subtitle={`Bienvenido, ${user?.username}. Gestiona tus inscripciones.`}
+      />
 
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-6xl mx-auto mt-4">
 
         {/* Feedback banner */}
         {feedback && (
@@ -210,7 +198,7 @@ export default function MisTicketsPage() {
             <p className="text-gray-400 text-lg">Aún no tienes tickets.</p>
             <p className="text-gray-600 text-sm mt-1">¡Inscríbete a un evento para comenzar!</p>
             <Link
-              to="/portal"
+              to="/dashboard/portal"
               className="inline-flex items-center gap-2 mt-6 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-sm font-semibold transition-all"
             >
               <CalendarDays size={16} />
@@ -237,7 +225,7 @@ export default function MisTicketsPage() {
                     <span>Ticket <span className="text-gray-400 font-mono">#{ticket.idTicket}</span></span>
                     <span>Evento <span className="text-gray-400 font-mono">#{ticket.idEvento}</span></span>
                     {ticket.montoPagado > 0 && (
-                      <span className="text-blue-400 font-medium">Pagado: {ticket.montoPagado} {ticket.moneda}</span>
+                      <span className="text-emerald-400 font-medium">Pagado: {ticket.montoPagado} {ticket.moneda}</span>
                     )}
                   </div>
                   <p className="text-xs text-gray-600">
@@ -264,7 +252,7 @@ export default function MisTicketsPage() {
                   {/* Cancel — only for active tickets */}
                   {(ticket.estadoTicket === 'GRATIS' || ticket.estadoTicket === 'PAGADO') && (
                     <button
-                      onClick={() => handleCancelar(ticket.idTicket)}
+                      onClick={() => setConfirmCancel(ticket.idTicket)}
                       disabled={isCancelling && cancelling === ticket.idTicket}
                       className="flex items-center gap-2 text-xs bg-red-500/10 text-red-400 border border-red-500/20 px-3 py-2 rounded-xl hover:bg-red-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                     >
@@ -287,6 +275,32 @@ export default function MisTicketsPage() {
       {qrTicket && (
         <QrModal ticket={qrTicket} onClose={() => setQrTicket(null)} />
       )}
+
+      <Modal isOpen={confirmCancel !== null} onClose={() => setConfirmCancel(null)} title="Cancelar Ticket" size="sm">
+        <div className="space-y-4">
+          <div className="flex items-center gap-3 p-3 rounded-xl bg-red-500/10 border border-red-500/20">
+            <AlertTriangle size={20} className="text-red-400 shrink-0" />
+            <p className="text-sm text-red-300">
+              ¿Estás seguro de que deseas cancelar este ticket? El cupo será devuelto al evento.
+            </p>
+          </div>
+          <div className="flex justify-end gap-3">
+            <button
+              onClick={() => setConfirmCancel(null)}
+              className="rounded-xl bg-white/5 border border-white/10 px-4 py-2 text-sm text-gray-300 hover:bg-white/10 transition-colors"
+            >
+              Mantener Ticket
+            </button>
+            <button
+              onClick={() => confirmCancel && handleCancelar(confirmCancel)}
+              disabled={isCancelling}
+              className="rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-500 transition-colors disabled:opacity-50"
+            >
+              {isCancelling ? 'Cancelando...' : 'Sí, Cancelar'}
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }

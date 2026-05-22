@@ -15,7 +15,14 @@ const NAV_MENU: NavItemType[] = [
     id: 'catalogo',
     title: 'Catálogo de Eventos',
     icon: Home,
-    path: '/portal',
+    path: '/dashboard/portal',
+    roles: [ROLES.ADMIN, ROLES.ORGANIZER, ROLES.USER],
+  },
+  {
+    id: 'mis-tickets',
+    title: 'Mis Tickets',
+    icon: Ticket,
+    path: '/dashboard/mis-tickets',
     roles: [ROLES.ADMIN, ROLES.ORGANIZER, ROLES.USER],
   },
   {
@@ -68,7 +75,7 @@ const NAV_MENU: NavItemType[] = [
     title: 'Perfil',
     icon: UserCircle,
     path: '/dashboard/profile',
-    roles: [ROLES.ADMIN, ROLES.ORGANIZER, ROLES.USER],
+    roles: [ROLES.ADMIN, ROLES.ORGANIZER],
   },
 ];
 
@@ -88,18 +95,13 @@ const SidebarNavItem: React.FC<SidebarItemProps> = ({ item, isExpanded }) => {
     ${isActive ? 'bg-indigo-600/10 text-indigo-400 font-medium' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`;
 
   const content = (
-    <div onClick={() => hasSubModules && isExpanded && setIsOpen(!isOpen)} className={baseClasses}>
+    <div onClick={() => hasSubModules && isExpanded && setIsOpen(!isOpen)} className={baseClasses} title={!isExpanded ? item.title : undefined}>
       <div className="flex items-center gap-3 w-full">
         <Icon size={20} className={`${isActive ? 'text-indigo-500' : 'text-gray-500 group-hover:text-indigo-400'} transition-colors shrink-0`} />
         {isExpanded && <span className="text-sm truncate whitespace-nowrap">{item.title}</span>}
       </div>
       {isExpanded && hasSubModules && (
         <ChevronRight size={16} className={`${isOpen ? 'rotate-90' : ''} transition-transform text-gray-500 shrink-0`} />
-      )}
-      {!isExpanded && (
-        <div className="absolute left-14 opacity-0 group-hover:opacity-100 bg-gray-800 text-white text-xs px-2 py-1 rounded shadow-xl whitespace-nowrap z-50 pointer-events-none transition-opacity">
-          {item.title}
-        </div>
       )}
     </div>
   );
@@ -149,7 +151,7 @@ export const Sidebar: React.FC = () => {
       id: 'asignaciones',
       title: 'Operación / Check-in',
       icon: QrCode,
-      path: '/asignaciones',
+      path: '/dashboard/asignaciones',
     });
   }
 
@@ -176,6 +178,7 @@ export const Sidebar: React.FC = () => {
       <div className="p-4 border-t border-white/5 shrink-0">
         <button
           onClick={logout}
+          title={!isExpanded ? 'Cerrar Sesión' : undefined}
           className={`w-full flex items-center justify-center gap-3 py-3 rounded-xl bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-all font-medium border border-transparent hover:border-red-500/30 group`}
         >
           <LogOut size={20} className="group-hover:-translate-x-1 transition-transform shrink-0" />
