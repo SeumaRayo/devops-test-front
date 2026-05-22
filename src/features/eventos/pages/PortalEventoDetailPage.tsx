@@ -10,6 +10,8 @@ import { LoadingSpinner } from '../../../components/ui/LoadingSpinner';
 
 export default function PortalEventoDetailPage() {
   const { id } = useParams<{ id: string }>();
+  const location = useLocation();
+  const basePath = location.pathname.startsWith('/dashboard') ? '/dashboard/portal' : '/portal';
 
   const [evento, setEvento] = useState<EventoResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -75,8 +77,9 @@ export default function PortalEventoDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-950 flex justify-center items-center">
-        <LoadingSpinner size="lg" text="Cargando detalles..." />
+      <div className="min-h-screen bg-gray-950 flex flex-col justify-center items-center gap-4">
+        <LoadingSpinner size="lg" />
+        <p className="text-gray-400 text-sm">Cargando detalles...</p>
       </div>
     );
   }

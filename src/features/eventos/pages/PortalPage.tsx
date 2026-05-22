@@ -1,16 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useAuthStore } from '../../../app/store/auth.store';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useEventos } from '../hooks/useEventos';
 import { EventoPublicoCard } from '../components/EventoPublicoCard';
-import { eventoService } from '../services/evento.service';
-import { Loader2, Search, SlidersHorizontal, X, Ticket, QrCode } from 'lucide-react';
+import { Search, SlidersHorizontal, X } from 'lucide-react';
 import { LoadingSpinner } from '../../../components/ui/LoadingSpinner';
 import { PageHeader } from '../../../components/ui/PageHeader';
 
-const PortalPage = () => {
+export default function PortalPage() {
   const { user } = useAuthStore();
-  const navigate = useNavigate();
 
   const {
     eventos,
@@ -26,21 +24,8 @@ const PortalPage = () => {
   const [filterCupos, setFilterCupos] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
 
-  const [isStaff, setIsStaff] = useState(false);
-
   useEffect(() => {
     fetchEventos();
-
-    // Check if the user is staff for any event
-    const checkStaff = async () => {
-      try {
-        const isStaff = await eventoService.tieneAsignacionesStaff();
-        setIsStaff(isStaff);
-      } catch {
-        // ignore
-      }
-    };
-    checkStaff();
   }, [fetchEventos]);
 
   const handleSearch = () => {
@@ -157,7 +142,8 @@ const PortalPage = () => {
       <div className="max-w-6xl mx-auto">
         {isLoadingEventos ? (
           <div className="flex justify-center py-20">
-            <LoadingSpinner size="lg" text="Cargando eventos disponibles..." />
+            <LoadingSpinner size="lg" />
+            <p className="text-gray-400 text-sm mt-4">Cargando eventos disponibles...</p>
           </div>
         ) : eventos.length === 0 ? (
           <div className="text-center py-20 bg-gray-900/20 border border-white/5 rounded-2xl flex flex-col items-center justify-center">
@@ -176,6 +162,4 @@ const PortalPage = () => {
       </div>
     </div>
   );
-};
-
-export default PortalPage;
+}

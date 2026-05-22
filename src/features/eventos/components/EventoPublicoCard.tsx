@@ -1,8 +1,7 @@
 import React from 'react';
 import { EventoResponse } from '../types/evento.types';
 import { MapPin, Calendar, Clock, Loader2 } from 'lucide-react';
-
-import { Link, useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 interface Props {
   evento: EventoResponse;
