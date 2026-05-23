@@ -24,6 +24,8 @@ import AccesosListPage from '../../features/accesos/pages/AccesosListPage';
 import AccesoDetailPage from '../../features/accesos/pages/AccesoDetailPage';
 import UsuariosListPage from '../../features/usuarios/pages/UsuariosListPage';
 import UsuarioDetailPage from '../../features/usuarios/pages/UsuarioDetailPage';
+import SolicitudesReembolsoPage from '../../features/reembolsos/pages/SolicitudesReembolsoPage';
+import MisReembolsosPage from '../../features/reembolsos/pages/MisReembolsosPage';
 import UnauthorizedPage from '../../pages/UnauthorizedPage';
 import NotFoundPage from '../../pages/NotFoundPage';
 import { RoleGuard } from '../../components/common/RoleGuard';
@@ -75,6 +77,7 @@ const AppRouter = () => {
           <Route path="portal" element={<PortalPage />} />
           <Route path="portal/eventos/:id" element={<PortalEventoDetailPage />} />
           <Route path="mis-tickets" element={<MisTicketsPage />} />
+          <Route path="mis-reembolsos" element={<MisReembolsosPage />} />
           <Route path="asignaciones" element={<MisAsignacionesPage />} />
           <Route path="eventos/:id/checkin" element={<CheckInPage />} />
 
@@ -100,6 +103,7 @@ const AppRouter = () => {
             <Route path="eventos" element={<EventosListPage />} />
             <Route path="eventos/historial" element={<EventosHistorialPage />} />
             <Route path="eventos/:id" element={<EventoDetailPage />} />
+            <Route path="eventos/:id/reembolsos" element={<SolicitudesReembolsoPage />} />
 
             {/* Fallback index para ROLE_ORGANIZER: redirige a eventos */}
             <Route element={<RoleGuard allowedRoles={[ROLES.ORGANIZER]} redirectTo="/unauthorized" />}>
