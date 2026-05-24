@@ -106,6 +106,22 @@ export interface EventoDisponiblesFilterRequest {
   conCupos?: boolean;
 }
 
+export type EstadoPago = 'EXITOSO' | 'FALLIDO' | 'PENDIENTE';
+
+export interface PagoResponse {
+  idPago: number;
+  idTicket: number;
+  eventoId: number;
+  usuarioId: number;
+  stripeChargeId: string | null;
+  stripeRefundId: string | null;
+  monto: number;
+  moneda: string;
+  tipoPago: string;
+  estadoPago: EstadoPago;
+  creadoEn: string;
+}
+
 // For GET /eventos/mis-eventos (ROLE_ORGANIZER, ADMIN)
 export interface MisEventosFilterRequest {
   page?: number;

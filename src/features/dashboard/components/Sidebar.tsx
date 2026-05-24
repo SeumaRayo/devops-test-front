@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import {
   Menu, LogOut, LayoutDashboard, Users, ShieldCheck,
-  CalendarDays, Puzzle, MonitorDot, ChevronRight, UserCircle, QrCode, Ticket, Home
+  CalendarDays, Puzzle, MonitorDot, ChevronRight, UserCircle, QrCode, Ticket, Home, RefreshCcw
 } from 'lucide-react';
 import { NavItemType } from '../types/sidebar.types';
 import { ROLES } from '../../../config/roles';
@@ -23,7 +23,14 @@ const NAV_MENU: NavItemType[] = [
     title: 'Mis Tickets',
     icon: Ticket,
     path: '/dashboard/mis-tickets',
-    roles: [ROLES.ADMIN, ROLES.ORGANIZER, ROLES.USER],
+    roles: [ROLES.USER],
+  },
+  {
+    id: 'mis-reembolsos',
+    title: 'Mis Reembolsos',
+    icon: RefreshCcw,
+    path: '/dashboard/mis-reembolsos',
+    roles: [ROLES.USER],
   },
   {
     id: 'dashboard',
@@ -50,11 +57,8 @@ const NAV_MENU: NavItemType[] = [
     id: 'eventos',
     title: 'Eventos',
     icon: CalendarDays,
+    path: '/dashboard/eventos',
     roles: [ROLES.ADMIN, ROLES.ORGANIZER],
-    subModules: [
-      { id: 'eventos-list', title: 'Listado', path: '/dashboard/eventos', icon: CalendarDays },
-      { id: 'eventos-historial', title: 'Historial', path: '/dashboard/eventos/historial', icon: MonitorDot },
-    ],
   },
   {
     id: 'funcionalidades',

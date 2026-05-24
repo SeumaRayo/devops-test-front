@@ -2,17 +2,19 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   ArrowLeft, CalendarDays, MapPin, Pencil, X, Ticket,
-  Loader2, CheckCircle, CreditCard, Clock, Ban, XCircle, Users,
+  Loader2, CheckCircle, CreditCard, Clock, Ban, XCircle, Users, RefreshCcw, DollarSign,
 } from 'lucide-react';
 import { PageHeader } from '../../../components/ui/PageHeader';
 import { Badge } from '../../../components/ui/Badge';
 import { useEvento } from '../hooks/useEvento';
 import { EventoForm } from '../components/EventoForm';
 import { EventoStaffTab } from '../components/EventoStaffTab';
+import { EventoReembolsosTab } from '../components/EventoReembolsosTab';
+import { EventoPagosTab } from '../components/EventoPagosTab';
 import { eventoService } from '../services/evento.service';
 import { TicketResponseDTO } from '../types/ticket.types';
 
-type Tab = 'info' | 'historial' | 'tickets' | 'staff';
+type Tab = 'info' | 'historial' | 'tickets' | 'staff' | 'reembolsos' | 'pagos';
 
 const ticketEstadoStyle = (estado: TicketResponseDTO['estadoTicket']) => {
   switch (estado) {
@@ -132,6 +134,12 @@ export default function EventoDetailPage() {
         </button>
         <button className={tabClass('staff')} onClick={() => setActiveTab('staff')}>
           <span className="flex items-center gap-2"><Users size={14} /> Staff</span>
+        </button>
+        <button className={tabClass('reembolsos')} onClick={() => setActiveTab('reembolsos')}>
+          <span className="flex items-center gap-2"><RefreshCcw size={14} /> Reembolsos</span>
+        </button>
+        <button className={tabClass('pagos')} onClick={() => setActiveTab('pagos')}>
+          <span className="flex items-center gap-2"><DollarSign size={14} /> Pagos</span>
         </button>
       </div>
 
@@ -337,6 +345,30 @@ export default function EventoDetailPage() {
             </h3>
           </div>
           <EventoStaffTab idEvento={Number(id)} />
+        </div>
+      )}
+
+      {activeTab === 'reembolsos' && (
+        <div className="rounded-2xl border border-white/5 bg-gray-900/30 p-6 backdrop-blur-xl">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+              <RefreshCcw size={18} className="text-indigo-400" />
+              Solicitudes de Reembolso
+            </h3>
+          </div>
+          <EventoReembolsosTab idEvento={Number(id)} />
+        </div>
+      )}
+
+      {activeTab === 'pagos' && (
+        <div className="rounded-2xl border border-white/5 bg-gray-900/30 p-6 backdrop-blur-xl">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+              <DollarSign size={18} className="text-indigo-400" />
+              Pagos del Evento
+            </h3>
+          </div>
+          <EventoPagosTab idEvento={Number(id)} />
         </div>
       )}
     </div>
