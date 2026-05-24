@@ -57,7 +57,7 @@ export const EventoPagosTab: React.FC<EventoPagosTabProps> = ({ idEvento }) => {
                 </div>
                 <div>
                   <span className="text-gray-500">Usuario</span>
-                  <p className="text-gray-300">#{pago.usuarioId}</p>
+                  <p className="text-gray-300 font-mono text-sm">#{pago.usuarioId}</p>
                 </div>
                 <div>
                   <span className="text-gray-500">Fecha</span>
