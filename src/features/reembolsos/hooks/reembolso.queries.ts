@@ -20,6 +20,7 @@ export const useSolicitarReembolso = () => {
     mutationFn: ({ ticketId, values }) => reembolsoService.solicitarReembolso(ticketId, values),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['reembolsos'] });
+      queryClient.invalidateQueries({ queryKey: ['tickets'] });
     },
   });
 };
@@ -46,8 +47,8 @@ export const useRevisarSolicitud = () => {
   const queryClient = useQueryClient();
   return useMutation<SolicitudReembolsoResponse, Error, { eventoId: number; solicitudId: number }>({
     mutationFn: ({ eventoId, solicitudId }) => reembolsoService.revisarSolicitud(eventoId, solicitudId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['reembolsos'] });
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['reembolsos', 'evento', variables.eventoId] });
     },
   });
 };
@@ -56,8 +57,8 @@ export const useAprobarSolicitud = () => {
   const queryClient = useQueryClient();
   return useMutation<SolicitudReembolsoResponse, Error, { eventoId: number; solicitudId: number; payload: AprobarReembolsoRequest }>({
     mutationFn: ({ eventoId, solicitudId, payload }) => reembolsoService.aprobarSolicitud(eventoId, solicitudId, payload),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['reembolsos'] });
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['reembolsos', 'evento', variables.eventoId] });
     },
   });
 };
@@ -66,18 +67,8 @@ export const useRechazarSolicitud = () => {
   const queryClient = useQueryClient();
   return useMutation<SolicitudReembolsoResponse, Error, { eventoId: number; solicitudId: number; payload: RechazarReembolsoRequest }>({
     mutationFn: ({ eventoId, solicitudId, payload }) => reembolsoService.rechazarSolicitud(eventoId, solicitudId, payload),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['reembolsos'] });
-    },
-  });
-};
-
-export const useMarcarReembolsada = () => {
-  const queryClient = useQueryClient();
-  return useMutation<SolicitudReembolsoResponse, Error, { eventoId: number; solicitudId: number }>({
-    mutationFn: ({ eventoId, solicitudId }) => reembolsoService.marcarComoReembolsada(eventoId, solicitudId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['reembolsos'] });
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['reembolsos', 'evento', variables.eventoId] });
     },
   });
 };
