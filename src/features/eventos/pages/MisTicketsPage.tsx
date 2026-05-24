@@ -5,7 +5,7 @@ import { ticketService } from '../services/ticket.service';
 import { TicketResponseDTO } from '../types/ticket.types';
 import {
   Loader2, Ticket, XCircle, CheckCircle, Clock,
-  CreditCard, Ban, ArrowLeft, CalendarDays, QrCode, X, Download, RefreshCcw
+  CreditCard, Ban, ArrowLeft, CalendarDays, QrCode, X, Download, RefreshCcw, DoorOpen
 } from 'lucide-react';
 import { useAuthStore } from '../../../app/store/auth.store';
 import { SolicitarReembolsoDialog } from '../../reembolsos/components/SolicitarReembolsoDialog';
@@ -260,6 +260,12 @@ const MisTicketsPage: React.FC = () => {
                       {estadoIcon(ticket.estadoTicket)}
                       {ticket.estadoTicket}
                     </span>
+                    {ticket.checkinRealizado && (
+                      <span className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full border font-medium bg-emerald-500/10 text-emerald-400 border-emerald-500/30">
+                        <DoorOpen size={12} />
+                        Ingreso registrado
+                      </span>
+                    )}
                   </div>
                   <div className="flex flex-wrap gap-x-4 gap-y-0.5 text-xs text-gray-500">
                     <span>Ticket <span className="text-gray-400 font-mono">#{ticket.idTicket}</span></span>
