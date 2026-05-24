@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Loader2, CheckCircle, XCircle, RefreshCcw, DollarSign } from 'lucide-react';
 import { PageHeader } from '../../../components/ui/PageHeader';
 import { Modal } from '../../../components/ui/Modal';
-import { useReembolsosPorEvento, useRevisarSolicitud, useAprobarSolicitud, useRechazarSolicitud, useMarcarReembolsada } from '../hooks/reembolso.queries';
+import { useReembolsosPorEvento, useRevisarSolicitud, useAprobarSolicitud, useRechazarSolicitud } from '../hooks/reembolso.queries';
 import { ReembolsoStatusBadge } from '../components/ReembolsoStatusBadge';
 import { SolicitudReembolsoResponse } from '../types/reembolso.types';
 
@@ -16,18 +16,11 @@ export default function SolicitudesReembolsoPage() {
   const { mutate: revisar } = useRevisarSolicitud();
   const { mutate: aprobar } = useAprobarSolicitud();
   const { mutate: rechazar } = useRechazarSolicitud();
-  const { mutate: marcarReembolsada } = useMarcarReembolsada();
 
-  const [actionDialog, setActionDialog] = useState<{
-    type: 'revisar' | 'aprobar' | 'rechazar' | 'marcar';
-    solicitudId: number;
-  } | null>(null);
+  const [actionDialog, setActionDialog] = useState<{ type: 'revisar' | 'aprobar' | 'rechazar'; solicitudId: number } | null>(null);
   const [comentario, setComentario] = useState('');
+  const [montoAprobado, setMontoAprobado] = useState('');
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; msg: string } | null>(null);
-
-  useEffect(() => {
-    setFeedback(null);
-  }, [solicitudes]);
 
   const executeAction = () => {
     if (!actionDialog) return;
@@ -41,8 +34,8 @@ export default function SolicitudesReembolsoPage() {
         });
         break;
       case 'aprobar':
-        aprobar({ eventoId, solicitudId, payload: { comentario: comentario || undefined } }, {
-          onSuccess: () => { setFeedback({ type: 'success', msg: 'Solicitud aprobada.' }); setActionDialog(null); setComentario(''); },
+        aprobar({ eventoId, solicitudId, payload: { montoAprobado: Number(montoAprobado), comentario: comentario || undefined } }, {
+          onSuccess: () => { setFeedback({ type: 'success', msg: 'Solicitud aprobada.' }); setActionDialog(null); setMontoAprobado(''); setComentario(''); },
           onError: (err: any) => { setFeedback({ type: 'error', msg: err.response?.data?.message || 'Error al aprobar.' }); },
         });
         break;
@@ -50,12 +43,6 @@ export default function SolicitudesReembolsoPage() {
         rechazar({ eventoId, solicitudId, payload: { comentario } }, {
           onSuccess: () => { setFeedback({ type: 'success', msg: 'Solicitud rechazada.' }); setActionDialog(null); setComentario(''); },
           onError: (err: any) => { setFeedback({ type: 'error', msg: err.response?.data?.message || 'Error al rechazar.' }); },
-        });
-        break;
-      case 'marcar':
-        marcarReembolsada({ eventoId, solicitudId }, {
-          onSuccess: () => { setFeedback({ type: 'success', msg: 'Solicitud marcada como reembolsada.' }); setActionDialog(null); },
-          onError: (err: any) => { setFeedback({ type: 'error', msg: err.response?.data?.message || 'Error al marcar.' }); },
         });
         break;
     }
@@ -79,11 +66,6 @@ export default function SolicitudesReembolsoPage() {
               <XCircle size={12} /> Rechazar
             </button>
           </>
-        )}
-        {estado === 'APROBADA' && (
-          <button onClick={() => setActionDialog({ type: 'marcar', solicitudId: idSolicitud })} className="flex items-center gap-1 text-xs bg-green-500/10 text-green-400 border border-green-500/20 px-2 py-1 rounded-md hover:bg-green-500/20 transition-colors">
-            <DollarSign size={12} /> Marcar Reembolsado
-          </button>
         )}
       </div>
     );
@@ -131,29 +113,19 @@ export default function SolicitudesReembolsoPage() {
                 <ReembolsoStatusBadge estado={solicitud.estado} />
               </div>
 
-              <div className="grid grid-cols-2 gap-2 text-sm mb-3">
-                <div>
-                  <p className="text-xs text-gray-500">Motivo</p>
-                  <p className="text-gray-300 line-clamp-2">{solicitud.motivo}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500">Monto</p>
-                  <p className="text-gray-300">${solicitud.montoSolicitado?.toLocaleString()}</p>
-                </div>
+              <div className="mb-3 rounded-lg bg-gray-950/50 p-3 text-sm text-gray-300">
+                {solicitud.motivo}
               </div>
-
-              {solicitud.datosReembolso && (
-                <div className="mb-3 rounded-lg bg-gray-800/50 p-3 text-xs text-gray-400 grid grid-cols-2 gap-1">
-                  <span>Titular: {solicitud.datosReembolso.titularCuenta}</span>
-                  <span>Medio: {solicitud.datosReembolso.medioReembolso}</span>
-                  {solicitud.datosReembolso.numeroCuentaEnmascarado && <span>Cuenta: {solicitud.datosReembolso.numeroCuentaEnmascarado}</span>}
-                  <span>Contacto: {solicitud.datosReembolso.correoContacto}</span>
-                </div>
-              )}
 
               {solicitud.respuestaOrganizador && (
                 <div className="mb-3 rounded-lg bg-gray-800/50 p-2 text-xs text-gray-400">
                   Respuesta: {solicitud.respuestaOrganizador}
+                </div>
+              )}
+
+              {solicitud.montoAprobado != null && (
+                <div className="mb-3 text-xs text-emerald-400">
+                  Monto aprobado: ${solicitud.montoAprobado.toLocaleString()}
                 </div>
               )}
 
@@ -166,12 +138,23 @@ export default function SolicitudesReembolsoPage() {
         </div>
       )}
 
-      <Modal isOpen={actionDialog !== null} onClose={() => { setActionDialog(null); setComentario(''); }} title={
+      <Modal isOpen={actionDialog !== null} onClose={() => { setActionDialog(null); setComentario(''); setMontoAprobado(''); }} title={
         actionDialog?.type === 'revisar' ? 'Revisar Solicitud' :
-        actionDialog?.type === 'aprobar' ? 'Aprobar Solicitud' :
-        actionDialog?.type === 'rechazar' ? 'Rechazar Solicitud' : 'Marcar como Reembolsada'
+        actionDialog?.type === 'aprobar' ? 'Aprobar Solicitud' : 'Rechazar Solicitud'
       } size="sm">
         <div className="space-y-4">
+          {actionDialog?.type === 'aprobar' && (
+            <div>
+              <label className="block text-xs font-medium text-gray-400 mb-1.5">Monto Aprobado</label>
+              <input
+                type="number"
+                value={montoAprobado}
+                onChange={(e) => setMontoAprobado(e.target.value)}
+                className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white outline-none transition focus:border-indigo-500/60"
+                placeholder="0"
+              />
+            </div>
+          )}
           {(actionDialog?.type === 'aprobar' || actionDialog?.type === 'rechazar') && (
             <div>
               <label className="block text-xs font-medium text-gray-400 mb-1.5">
@@ -182,21 +165,12 @@ export default function SolicitudesReembolsoPage() {
                 onChange={(e) => setComentario(e.target.value)}
                 className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white outline-none transition focus:border-indigo-500/60"
                 rows={3}
-                placeholder={actionDialog.type === 'rechazar' ? 'Explica el motivo del rechazo...' : 'Comentario opcional...'}
+                placeholder={actionDialog.type === 'rechazar' ? 'Explica el motivo...' : 'Opcional...'}
               />
-              {actionDialog.type === 'rechazar' && comentario.length === 0 && (
-                <p className="text-xs text-red-400 mt-1">El motivo es requerido para rechazar.</p>
-              )}
             </div>
           )}
-          <p className="text-sm text-gray-400">
-            {actionDialog?.type === 'revisar' && '¿Marcar esta solicitud como en revisión?'}
-            {actionDialog?.type === 'aprobar' && '¿Confirmas la aprobación de esta solicitud?'}
-            {actionDialog?.type === 'rechazar' && '¿Confirmas el rechazo de esta solicitud?'}
-            {actionDialog?.type === 'marcar' && '¿Confirmas que el reembolso ya fue realizado?'}
-          </p>
           <div className="flex justify-end gap-3">
-            <button onClick={() => { setActionDialog(null); setComentario(''); }} className="rounded-xl bg-white/5 border border-white/10 px-4 py-2 text-sm text-gray-300 hover:bg-white/10 transition-colors">
+            <button onClick={() => { setActionDialog(null); setComentario(''); setMontoAprobado(''); }} className="rounded-xl bg-white/5 border border-white/10 px-4 py-2 text-sm text-gray-300 hover:bg-white/10 transition-colors">
               Cancelar
             </button>
             <button
