@@ -19,6 +19,7 @@ export const EventoStaffTab: React.FC<EventoStaffTabProps> = ({ idEvento }) => {
 
   // Search state
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchField, setSearchField] = useState<'nombres' | 'username' | 'correo'>('nombres');
   const [searchResults, setSearchResults] = useState<UsuarioOrganizadorResponse[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
@@ -61,10 +62,9 @@ export const EventoStaffTab: React.FC<EventoStaffTabProps> = ({ idEvento }) => {
     setIsSearching(true);
     setHasSearched(true);
     try {
-      const data = await usuarioService.buscarUsuariosOrganizador({ 
-        nombres: searchQuery, 
-        size: 5
-      });
+      const filters: Record<string, string | number> = { size: 5 };
+      filters[searchField] = searchQuery;
+      const data = await usuarioService.buscarUsuariosOrganizador(filters);
       setSearchResults(data.content);
     } catch (err) {
       setSearchResults([]);
@@ -118,11 +118,26 @@ export const EventoStaffTab: React.FC<EventoStaffTabProps> = ({ idEvento }) => {
         <h3 className="text-sm font-semibold text-white">Buscar y Asignar Staff</h3>
         
         <form onSubmit={handleSearch} className="flex gap-3">
+          <select
+            value={searchField}
+            onChange={(e) => setSearchField(e.target.value as 'nombres' | 'username' | 'correo')}
+            className="bg-gray-950 border border-white/10 rounded-lg px-2.5 py-2 text-xs text-gray-300 outline-none focus:border-indigo-500 shrink-0"
+          >
+            <option value="nombres">Nombre</option>
+            <option value="username">Username</option>
+            <option value="correo">Correo</option>
+          </select>
           <div className="relative flex-1">
             <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
             <input
               type="text"
-              placeholder="Buscar por nombre o apellido..."
+              placeholder={
+                searchField === 'nombres'
+                  ? 'Buscar por nombre o apellido...'
+                  : searchField === 'username'
+                  ? 'Buscar por username...'
+                  : 'Buscar por correo...'
+              }
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full bg-gray-950 border border-white/10 rounded-lg pl-10 pr-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500"
