@@ -107,20 +107,19 @@ export interface EventoDisponiblesFilterRequest {
 }
 
 export type EstadoPago = 'EXITOSO' | 'FALLIDO' | 'PENDIENTE';
-export type TipoTransaccion = 'COBRO' | 'REEMBOLSO';
 
 export interface PagoResponse {
-  id: number;
-  ticketId: number;
-  usuarioId: number;
+  idPago: number;
+  idTicket: number;
   eventoId: number;
+  usuarioId: number;
+  stripeChargeId: string | null;
+  stripeRefundId: string | null;
   monto: number;
   moneda: string;
-  tipoTransaccion: TipoTransaccion;
-  estado: EstadoPago;
-  stripePaymentIntentId: string | null;
-  stripeRefundId: string | null;
-  fechaTransaccion: string;
+  tipoPago: string;
+  estadoPago: EstadoPago;
+  creadoEn: string;
 }
 
 // For GET /eventos/mis-eventos (ROLE_ORGANIZER, ADMIN)

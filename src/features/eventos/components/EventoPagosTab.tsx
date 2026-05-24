@@ -1,5 +1,5 @@
 import React from 'react';
-import { Loader2, CheckCircle, XCircle, Clock, CreditCard, Hash, User, Receipt } from 'lucide-react';
+import { Loader2, CheckCircle, XCircle, Clock, Receipt } from 'lucide-react';
 import { usePagosPorEvento } from '../hooks/pago.queries';
 import { PagoResponse } from '../types/evento.types';
 
@@ -7,7 +7,7 @@ interface EventoPagosTabProps {
   idEvento: number;
 }
 
-const estadoStyle = (estado: PagoResponse['estado']) => {
+const estadoStyle = (estado: string) => {
   switch (estado) {
     case 'EXITOSO': return 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30';
     case 'FALLIDO': return 'text-red-400 bg-red-500/10 border-red-500/30';
@@ -16,7 +16,7 @@ const estadoStyle = (estado: PagoResponse['estado']) => {
   }
 };
 
-const estadoIcon = (estado: PagoResponse['estado']) => {
+const estadoIcon = (estado: string) => {
   switch (estado) {
     case 'EXITOSO': return <CheckCircle size={14} />;
     case 'FALLIDO': return <XCircle size={14} />;
@@ -35,15 +35,15 @@ export const EventoPagosTab: React.FC<EventoPagosTabProps> = ({ idEvento }) => {
   return (
     <div className="space-y-3">
       {pagos.map((pago) => (
-        <div key={pago.id} className="rounded-xl border border-white/5 bg-gray-900/30 p-4">
+        <div key={pago.idPago} className="rounded-xl border border-white/5 bg-gray-900/30 p-4">
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-3 mb-2">
-                <span className="text-sm font-mono text-gray-400">#{pago.id}</span>
-                <span className={`inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full border font-medium ${estadoStyle(pago.estado)}`}>
-                  {estadoIcon(pago.estado)} {pago.estado}
+                <span className="text-sm font-mono text-gray-400">#{pago.idPago}</span>
+                <span className={`inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full border font-medium ${estadoStyle(pago.estadoPago)}`}>
+                  {estadoIcon(pago.estadoPago)} {pago.estadoPago}
                 </span>
-                <span className="text-xs text-gray-500">{pago.tipoTransaccion}</span>
+                <span className="text-xs text-gray-500">{pago.tipoPago}</span>
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-6 gap-y-1 text-xs">
@@ -53,7 +53,7 @@ export const EventoPagosTab: React.FC<EventoPagosTabProps> = ({ idEvento }) => {
                 </div>
                 <div>
                   <span className="text-gray-500">Ticket</span>
-                  <p className="text-gray-300">#{pago.ticketId}</p>
+                  <p className="text-gray-300">#{pago.idTicket}</p>
                 </div>
                 <div>
                   <span className="text-gray-500">Usuario</span>
@@ -61,14 +61,14 @@ export const EventoPagosTab: React.FC<EventoPagosTabProps> = ({ idEvento }) => {
                 </div>
                 <div>
                   <span className="text-gray-500">Fecha</span>
-                  <p className="text-gray-300">{new Date(pago.fechaTransaccion).toLocaleDateString('es-CO')}</p>
+                  <p className="text-gray-300">{new Date(pago.creadoEn).toLocaleDateString('es-CO')}</p>
                 </div>
               </div>
 
-              {pago.stripePaymentIntentId && (
+              {pago.stripeChargeId && (
                 <div className="mt-2 flex items-center gap-2 text-xs text-gray-500">
                   <Receipt size={12} />
-                  <span className="font-mono">{pago.stripePaymentIntentId}</span>
+                  <span className="font-mono">{pago.stripeChargeId}</span>
                 </div>
               )}
             </div>
