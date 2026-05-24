@@ -12,6 +12,7 @@ import { EventoStaffTab } from '../components/EventoStaffTab';
 import { EventoReembolsosTab } from '../components/EventoReembolsosTab';
 import { EventoPagosTab } from '../components/EventoPagosTab';
 import { eventoService } from '../services/evento.service';
+import { useUsuariosOrganizador } from '../../usuarios/hooks/useUsuariosOrganizador';
 import { TicketResponseDTO } from '../types/ticket.types';
 
 type Tab = 'info' | 'historial' | 'tickets' | 'staff' | 'reembolsos' | 'pagos';
@@ -50,6 +51,14 @@ export default function EventoDetailPage() {
   const [tickets, setTickets] = useState<TicketResponseDTO[]>([]);
   const [loadingTickets, setLoadingTickets] = useState(false);
   const [ticketsError, setTicketsError] = useState<string | null>(null);
+
+  const { data: usuariosOrganizador = new Map() } = useUsuariosOrganizador();
+
+  const getUsuarioNombre = (idUsuario: number): string => {
+    const u = usuariosOrganizador.get(idUsuario);
+    if (!u) return `#${idUsuario}`;
+    return `${u.nombres} ${u.apellidos}`;
+  };
 
   useEffect(() => {
     if (id) fetchById(Number(id));
@@ -301,7 +310,7 @@ export default function EventoDetailPage() {
                 <thead>
                   <tr className="text-left text-xs text-gray-500 uppercase tracking-wider border-b border-white/5">
                     <th className="pb-3 pr-4 font-medium">Ticket ID</th>
-                    <th className="pb-3 pr-4 font-medium">Usuario ID</th>
+                    <th className="pb-3 pr-4 font-medium">Usuario</th>
                     <th className="pb-3 pr-4 font-medium">Estado</th>
                     <th className="pb-3 pr-4 font-medium">Monto</th>
                     <th className="pb-3 font-medium">Fecha</th>
@@ -311,7 +320,7 @@ export default function EventoDetailPage() {
                   {tickets.map((t) => (
                     <tr key={t.idTicket} className="hover:bg-white/3 transition-colors">
                       <td className="py-3 pr-4 font-mono text-gray-300">#{t.idTicket}</td>
-                      <td className="py-3 pr-4 text-gray-400">#{t.idUsuario}</td>
+                      <td className="py-3 pr-4 text-gray-400">{getUsuarioNombre(t.idUsuario)}</td>
                       <td className="py-3 pr-4">
                         <span className={`inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full border font-medium ${ticketEstadoStyle(t.estadoTicket)}`}>
                           {ticketEstadoIcon(t.estadoTicket)}

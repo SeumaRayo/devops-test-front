@@ -42,12 +42,26 @@ export interface UsuarioUpdateRequest {
   idRol: number;
 }
 
+// Mirrors UsuarioOrganizadorDTO.java — lightweight DTO for organizer panel
+export interface UsuarioOrganizadorResponse {
+  idUsuario: number;
+  nombres: string;
+  apellidos: string;
+  documento: string;
+  username: string;
+  correo: string;
+  telefono: string;
+  nombreRol: string;
+}
+
 // Mirrors UsuarioFilterRequest.java
 export interface UsuarioFilterRequest {
   documento?: string;
   nombres?: string;
   apellidos?: string;
   nombreRol?: string;
+  username?: string;
+  correo?: string;
   page?: number;
   size?: number;
 }
