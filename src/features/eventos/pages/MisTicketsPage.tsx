@@ -6,11 +6,12 @@ import { TicketResponseDTO } from '../types/ticket.types';
 import { ticketEstadoIcon, ticketEstadoStyle } from '../utils/ticketDisplay';
 import {
   Loader2, Ticket, XCircle, CreditCard,
-  Ban, CalendarDays, QrCode, X, Download, AlertTriangle,
+  Ban, CalendarDays, QrCode, X, Download, AlertTriangle, RefreshCcw,
 } from 'lucide-react';
 import { useAuthStore } from '../../../app/store/auth.store';
 import { PageHeader } from '../../../components/ui/PageHeader';
 import { Modal } from '../../../components/ui/Modal';
+import { SolicitarReembolsoDialog } from '../../reembolsos/components/SolicitarReembolsoDialog';
 
 interface QrModalProps {
   ticket: TicketResponseDTO;
@@ -137,6 +138,7 @@ export default function MisTicketsPage() {
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; msg: string } | null>(null);
   const [qrTicket, setQrTicket] = useState<TicketResponseDTO | null>(null);
   const [confirmCancel, setConfirmCancel] = useState<number | null>(null);
+  const [refundTicket, setRefundTicket] = useState<TicketResponseDTO | null>(null);
 
   const handleCancelar = (id: number) => {
     setConfirmCancel(null);
@@ -165,6 +167,14 @@ export default function MisTicketsPage() {
       <PageHeader
         title="Mis Tickets"
         subtitle={`Bienvenido, ${user?.username}. Gestiona tus inscripciones.`}
+        action={
+          <Link
+            to="/dashboard/mis-reembolsos"
+            className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-gray-300 transition hover:bg-white/10"
+          >
+            Mis Reembolsos
+          </Link>
+        }
       />
 
       <div className="max-w-6xl mx-auto mt-4">
@@ -264,6 +274,16 @@ export default function MisTicketsPage() {
                       Cancelar
                     </button>
                   )}
+
+                  {ticket.estadoTicket === 'PAGADO' && (
+                    <button
+                      onClick={() => setRefundTicket(ticket)}
+                      className="flex items-center gap-2 text-xs bg-amber-500/10 text-amber-400 border border-amber-500/20 px-3 py-2 rounded-xl hover:bg-amber-500/20 transition-all"
+                    >
+                      <RefreshCcw size={12} />
+                      Reembolso
+                    </button>
+                  )}
                 </div>
               </div>
             ))}
@@ -301,6 +321,15 @@ export default function MisTicketsPage() {
           </div>
         </div>
       </Modal>
+
+      <SolicitarReembolsoDialog
+        isOpen={refundTicket !== null}
+        onClose={() => setRefundTicket(null)}
+        ticketId={refundTicket?.idTicket ?? 0}
+        ticketNombre={refundTicket?.nombreEvento ?? ''}
+        montoPagado={refundTicket?.montoPagado ?? 0}
+        moneda={refundTicket?.moneda ?? 'COP'}
+      />
     </div>
   );
 }

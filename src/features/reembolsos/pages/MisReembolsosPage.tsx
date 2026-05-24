@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useMisSolicitudes, useCancelarSolicitud } from '../hooks/reembolso.queries';
 import { SolicitudReembolsoResponse } from '../types/reembolso.types';
 import { reembolsoEstadoIcon, reembolsoEstadoStyle } from '../utils/reembolsoHelpers';
-import { Loader2, Ban, AlertTriangle } from 'lucide-react';
+import { Loader2, Ban, AlertTriangle, RefreshCcw, CalendarDays } from 'lucide-react';
 import { useAuthStore } from '../../../app/store/auth.store';
 import { PageHeader } from '../../../components/ui/PageHeader';
 import { Modal } from '../../../components/ui/Modal';
@@ -51,16 +51,17 @@ export default function MisReembolsosPage() {
         </div>
       ) : !solicitudes || solicitudes.length === 0 ? (
         <div className="text-center py-20 bg-gray-900/20 border border-white/5 rounded-2xl">
-          <p className="text-gray-400 text-lg">No tienes solicitudes de reembolso.</p>
-          <Link to="/mis-tickets" className="inline-block mt-4 text-indigo-400 hover:text-indigo-300 text-sm">
-            Ver mis tickets →
+          <RefreshCcw className="mx-auto text-gray-700 mb-4" size={48} />
+          <p className="text-gray-400 text-lg">Aún no tienes solicitudes de reembolso.</p>
+          <Link to="/dashboard/mis-tickets" className="inline-flex items-center gap-2 mt-4 text-indigo-400 hover:text-indigo-300 text-sm">
+            <CalendarDays size={16} /> Ir a Mis Tickets
           </Link>
         </div>
       ) : (
         <div className="space-y-3">
           {solicitudes.map((solicitud) => (
             <div key={solicitud.idSolicitud} className="rounded-2xl border border-white/5 bg-gray-900/30 p-5 backdrop-blur-xl">
-              <div className="flex items-center justify-between mb-3">
+              <div className="flex items-start justify-between mb-3">
                 <div>
                   <p className="text-sm font-semibold text-white">Solicitud #{solicitud.idSolicitud}</p>
                   <p className="text-xs text-gray-500">Ticket #{solicitud.idTicket} · Evento #{solicitud.idEvento}</p>
@@ -70,26 +71,25 @@ export default function MisReembolsosPage() {
                 </span>
               </div>
 
-              <div className="grid grid-cols-2 gap-2 text-sm mb-3">
-                <div>
-                  <p className="text-xs text-gray-500">Motivo</p>
-                  <p className="text-gray-300 line-clamp-2">{solicitud.motivo}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500">Monto</p>
-                  <p className="text-gray-300">${solicitud.montoSolicitado?.toLocaleString()}</p>
-                </div>
+              <div className="mb-3 rounded-lg bg-gray-950/50 p-3 text-sm text-gray-300">
+                {solicitud.motivo}
               </div>
 
               {solicitud.respuestaOrganizador && (
-                <div className="mb-3 rounded-lg bg-gray-800/50 p-2 text-xs text-gray-400">
+                <div className="mb-3 rounded-lg bg-blue-500/10 border border-blue-500/20 p-2 text-xs text-blue-300">
                   Respuesta: {solicitud.respuestaOrganizador}
+                </div>
+              )}
+
+              {solicitud.montoAprobado != null && (
+                <div className="mb-3 text-xs text-emerald-400">
+                  Monto aprobado: ${solicitud.montoAprobado.toLocaleString()}
                 </div>
               )}
 
               <div className="flex justify-between items-center text-xs text-gray-500">
                 <span>{new Date(solicitud.fechaSolicitud).toLocaleDateString()}</span>
-                {solicitud.estado === 'SOLICITADA' && (
+                {(solicitud.estado === 'SOLICITADA' || solicitud.estado === 'EN_REVISION') && (
                   <button
                     onClick={() => setConfirmCancel(solicitud.idSolicitud)}
                     disabled={isCancelling}
