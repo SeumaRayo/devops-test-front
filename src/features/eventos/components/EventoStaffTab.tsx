@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { eventoService } from '../services/evento.service';
 import { usuarioService } from '../../usuarios/services/usuario.service';
 import { StaffResponseDTO } from '../types/evento.types';
-import { UsuarioResponse } from '../../usuarios/types/usuario.types';
+import { UsuarioOrganizadorResponse } from '../../usuarios/types/usuario.types';
 import { Loader2, UserPlus, Check, X, Search } from 'lucide-react';
 
 interface EventoStaffTabProps {
@@ -19,7 +19,7 @@ export const EventoStaffTab: React.FC<EventoStaffTabProps> = ({ idEvento }) => {
 
   // Search state
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<UsuarioResponse[]>([]);
+  const [searchResults, setSearchResults] = useState<UsuarioOrganizadorResponse[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
 
@@ -61,10 +61,9 @@ export const EventoStaffTab: React.FC<EventoStaffTabProps> = ({ idEvento }) => {
     setIsSearching(true);
     setHasSearched(true);
     try {
-      // Intentar buscar por documento o por nombre
-      const data = await usuarioService.getAll({ 
+      const data = await usuarioService.buscarUsuariosOrganizador({ 
         nombres: searchQuery, 
-        size: 5 // Limitar resultados
+        size: 5
       });
       setSearchResults(data.content);
     } catch (err) {
@@ -154,7 +153,7 @@ export const EventoStaffTab: React.FC<EventoStaffTabProps> = ({ idEvento }) => {
                     <div key={user.idUsuario} className="flex items-center justify-between p-2 hover:bg-white/5 rounded-md group">
                       <div>
                         <p className="text-sm text-gray-300 font-medium">{user.nombres} {user.apellidos}</p>
-                        <p className="text-xs text-gray-500">Doc: {user.documento} • {user.email}</p>
+                         <p className="text-xs text-gray-500">Doc: {user.documento} • {user.correo}</p>
                       </div>
                       <button
                         onClick={() => assignUserFromSearch(user.idUsuario)}

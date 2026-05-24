@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import { useReembolsosPorEvento, useRevisarSolicitudReembolso } from '../../reembolsos/hooks/reembolso.queries';
 import { useReembolsoError } from '../../reembolsos/hooks/useReembolsoError';
 import { SolicitudReembolsoResponse } from '../../reembolsos/types/reembolso.types';
@@ -9,36 +8,16 @@ import { AprobarReembolsoDialog } from '../../reembolsos/components/AprobarReemb
 import { RechazarReembolsoDialog } from '../../reembolsos/components/RechazarReembolsoDialog';
 import { MarcarReembolsadoDialog } from '../../reembolsos/components/MarcarReembolsadoDialog';
 import { formatCurrencyCOP, formatDateTime } from '../../reembolsos/services/reembolso.helpers';
-import { usuarioService } from '../../usuarios/services/usuario.service';
+import { useUsuariosOrganizador } from '../../usuarios/hooks/useUsuariosOrganizador';
 import {
   Loader2, RefreshCcw, Eye, CheckCircle, XCircle, User, ChevronDown, ChevronUp,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
-const UsuarioInfo: React.FC<{ userId: number }> = ({ userId }) => {
-  const { data: usuario, isLoading, isError } = useQuery({
-    queryKey: ['usuario', userId],
-    queryFn: () => usuarioService.getById(userId),
-    staleTime: 5 * 60 * 1000,
-  });
-
-  if (isLoading) {
-    return (
-      <span className="inline-flex items-center gap-1 text-gray-500">
-        <Loader2 size={10} className="animate-spin" />
-      </span>
-    );
-  }
-
-  if (isError || !usuario) {
-    return <span className="font-mono text-gray-400">#{userId}</span>;
-  }
-
-  return (
-    <span className="text-gray-300">
-      {usuario.nombres} {usuario.apellidos}
-    </span>
-  );
+const UsuarioInfo: React.FC<{ userId: number; usuarios: Map<number, { nombres: string; apellidos: string }> }> = ({ userId, usuarios }) => {
+  const u = usuarios.get(userId);
+  if (!u) return <span className="font-mono text-gray-400">#{userId}</span>;
+  return <span className="text-gray-300">{u.nombres} {u.apellidos}</span>;
 };
 
 interface EventoReembolsosTabProps {
@@ -49,6 +28,7 @@ export const EventoReembolsosTab: React.FC<EventoReembolsosTabProps> = ({ idEven
   const { data: reembolsos, isLoading, error } = useReembolsosPorEvento(idEvento);
   const { mutate: revisar, isPending: isRevisando } = useRevisarSolicitudReembolso();
   const { handleError } = useReembolsoError();
+  const { data: usuarios = new Map() } = useUsuariosOrganizador();
 
   const [activeActionId, setActiveActionId] = useState<number | null>(null);
   const [expandedIds, setExpandedIds] = useState<Set<number>>(new Set());
@@ -119,7 +99,7 @@ export const EventoReembolsosTab: React.FC<EventoReembolsosTabProps> = ({ idEven
                 <ReembolsoStatusBadge estado={r.estado} />
                 <span className="text-xs text-gray-400 flex items-center gap-1">
                   <User size={10} className="shrink-0" />
-                  <UsuarioInfo userId={r.idUsuarioSolicitante} />
+                  <UsuarioInfo userId={r.idUsuarioSolicitante} usuarios={usuarios} />
                 </span>
                 <span className="text-xs text-gray-600 font-mono">
                   T:#{r.idTicket}

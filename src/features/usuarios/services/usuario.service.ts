@@ -2,6 +2,7 @@ import axiosInstance from '../../../lib/axios';
 import { API_ENDPOINTS } from '../../../config/apiEndpoints';
 import {
   UsuarioResponse,
+  UsuarioOrganizadorResponse,
   UsuarioCreatedResponse,
   UsuarioCreateRequest,
   UsuarioUpdateRequest,
@@ -61,6 +62,26 @@ export const usuarioService = {
     const { data } = await axiosInstance.put<UsuarioResponse>(
       API_ENDPOINTS.USUARIOS.UPDATE_ADMIN(id),
       payload
+    );
+    return data;
+  },
+
+  // GET /api/v1/usuarios/organizador — solo ROLE_USER, con filtros username/correo
+  buscarUsuariosOrganizador: async (
+    filters: UsuarioFilterRequest = {}
+  ): Promise<PageResponse<UsuarioOrganizadorResponse>> => {
+    const params: Record<string, string | number> = {
+      page: filters.page ?? 0,
+      size: filters.size ?? 10,
+    };
+    if (filters.documento) params.documento = filters.documento;
+    if (filters.nombres) params.nombres = filters.nombres;
+    if (filters.apellidos) params.apellidos = filters.apellidos;
+    if (filters.username) params.username = filters.username;
+    if (filters.correo) params.correo = filters.correo;
+    const { data } = await axiosInstance.get<PageResponse<UsuarioOrganizadorResponse>>(
+      API_ENDPOINTS.USUARIOS.ORGANIZADOR,
+      { params }
     );
     return data;
   },
