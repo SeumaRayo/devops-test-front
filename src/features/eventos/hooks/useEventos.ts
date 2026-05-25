@@ -67,7 +67,7 @@ export const useEventos = (mode: EventosFetchMode = 'admin') => {
 
   const changePage = useCallback(
     (page: number) => {
-      const updated = { ...filters, page };
+      const updated = { ...filters, page: page - 1 };
       setFilters(updated);
       fetch(updated);
     },

@@ -36,11 +36,9 @@ export interface UsuarioCreateRequest {
   nombres: string;
   apellidos: string;
   genero: 'masculino' | 'femenino';
-  fechaNacimiento: string; // ISO-8601
+  fechaNacimiento: string;
   telefono: string;
-  username: string;
-  correoAcceso: string;
-  claveAcceso: string;
+  nombreRol: string;
 }
 
 // Mirrors UpdateUsuarioRequest.java

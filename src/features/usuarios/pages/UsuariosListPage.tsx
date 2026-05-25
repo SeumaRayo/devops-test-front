@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Plus, Eye } from 'lucide-react';
+import { Plus, Eye, Search } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { PageHeader } from '../../../components/ui/PageHeader';
 import { DataTable, ColumnDef } from '../../../components/ui/DataTable';
@@ -8,8 +8,7 @@ import { StatusToggle } from '../../../components/ui/StatusToggle';
 import { Modal } from '../../../components/ui/Modal';
 import { UsuarioForm } from '../components/UsuarioForm';
 import { useUsuarios } from '../hooks/useUsuarios';
-import { usuarioService } from '../services/usuario.service';
-import { UsuarioResponse, UsuarioCreateRequest } from '../types/usuario.types';
+import { UsuarioResponse } from '../types/usuario.types';
 
 const columns: ColumnDef<UsuarioResponse>[] = [
   {
@@ -43,23 +42,27 @@ const columns: ColumnDef<UsuarioResponse>[] = [
 ];
 
 export default function UsuariosListPage() {
-  const { usuarios, pagination, isLoading, error, fetch, patchStatus } = useUsuarios();
+  const { usuarios, pagination, isLoading, error, fetch, patchStatus, applyFilters } = useUsuarios();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isCreating, setIsCreating] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     fetch();
   }, []);
 
-  const handleCreate = async (data: UsuarioCreateRequest) => {
-    setIsCreating(true);
-    try {
-      await usuarioService.create(data);
-      setIsModalOpen(false);
-      fetch();
-    } finally {
-      setIsCreating(false);
-    }
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    applyFilters({ nombres: searchQuery || undefined, page: 0 } as any);
+  };
+
+  const handleClearSearch = () => {
+    setSearchQuery('');
+    fetch({ page: 0, size: 10 });
+  };
+
+  const handleCreateSuccess = () => {
+    setIsModalOpen(false);
+    fetch();
   };
 
   const columnsWithActions: ColumnDef<UsuarioResponse>[] = [
@@ -70,7 +73,7 @@ export default function UsuariosListPage() {
       render: (_, row) => (
         <div className="flex items-center gap-4">
           <StatusToggle
-            status={row.estado}
+            status={row.estado ?? 'ACTIVO'}
             onActivate={() => patchStatus(row.idUsuario, 'activar')}
             onDeactivate={() => patchStatus(row.idUsuario, 'desactivar')}
             onBlock={() => patchStatus(row.idUsuario, 'bloquear')}
@@ -105,6 +108,31 @@ export default function UsuariosListPage() {
         </div>
       )}
 
+      <div className="mb-6">
+        <form onSubmit={handleSearch} className="flex items-center gap-2">
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Buscar por nombre o documento..."
+            className="w-full max-w-md rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder-gray-500 outline-none transition focus:border-indigo-500/60"
+          />
+          <button
+            type="submit"
+            className="rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-500"
+          >
+            <Search size={16} />
+          </button>
+          <button
+            type="button"
+            onClick={handleClearSearch}
+            className="rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-500"
+          >
+            Limpiar
+          </button>
+        </form>
+      </div>
+
       <DataTable
         columns={columnsWithActions}
         data={usuarios}
@@ -115,7 +143,7 @@ export default function UsuariosListPage() {
       />
 
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Crear Nuevo Usuario" size="lg">
-        <UsuarioForm onSubmit={handleCreate} isLoading={isCreating} />
+        <UsuarioForm onSuccess={handleCreateSuccess} />
       </Modal>
     </div>
   );

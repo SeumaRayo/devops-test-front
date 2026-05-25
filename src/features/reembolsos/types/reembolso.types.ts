@@ -42,7 +42,6 @@ export interface SolicitudReembolsoResponse {
 }
 
 export interface AprobarReembolsoRequest {
-  montoAprobado: number;
   comentario?: string;
 }
 

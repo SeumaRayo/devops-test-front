@@ -19,7 +19,6 @@ export default function SolicitudesReembolsoPage() {
 
   const [actionDialog, setActionDialog] = useState<{ type: 'revisar' | 'aprobar' | 'rechazar'; solicitudId: number } | null>(null);
   const [comentario, setComentario] = useState('');
-  const [montoAprobado, setMontoAprobado] = useState('');
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; msg: string } | null>(null);
 
   const executeAction = () => {
@@ -34,8 +33,8 @@ export default function SolicitudesReembolsoPage() {
         });
         break;
       case 'aprobar':
-        aprobar({ eventoId, solicitudId, payload: { montoAprobado: Number(montoAprobado), comentario: comentario || undefined } }, {
-          onSuccess: () => { setFeedback({ type: 'success', msg: 'Solicitud aprobada.' }); setActionDialog(null); setMontoAprobado(''); setComentario(''); },
+        aprobar({ eventoId, solicitudId, payload: { comentario: comentario || undefined } }, {
+          onSuccess: () => { setFeedback({ type: 'success', msg: 'Solicitud aprobada.' }); setActionDialog(null); setComentario(''); },
           onError: (err: any) => { setFeedback({ type: 'error', msg: err.response?.data?.message || 'Error al aprobar.' }); },
         });
         break;
@@ -138,23 +137,11 @@ export default function SolicitudesReembolsoPage() {
         </div>
       )}
 
-      <Modal isOpen={actionDialog !== null} onClose={() => { setActionDialog(null); setComentario(''); setMontoAprobado(''); }} title={
+      <Modal isOpen={actionDialog !== null} onClose={() => { setActionDialog(null); setComentario(''); }} title={
         actionDialog?.type === 'revisar' ? 'Revisar Solicitud' :
         actionDialog?.type === 'aprobar' ? 'Aprobar Solicitud' : 'Rechazar Solicitud'
       } size="sm">
         <div className="space-y-4">
-          {actionDialog?.type === 'aprobar' && (
-            <div>
-              <label className="block text-xs font-medium text-gray-400 mb-1.5">Monto Aprobado</label>
-              <input
-                type="number"
-                value={montoAprobado}
-                onChange={(e) => setMontoAprobado(e.target.value)}
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white outline-none transition focus:border-indigo-500/60"
-                placeholder="0"
-              />
-            </div>
-          )}
           {(actionDialog?.type === 'aprobar' || actionDialog?.type === 'rechazar') && (
             <div>
               <label className="block text-xs font-medium text-gray-400 mb-1.5">
@@ -170,7 +157,7 @@ export default function SolicitudesReembolsoPage() {
             </div>
           )}
           <div className="flex justify-end gap-3">
-            <button onClick={() => { setActionDialog(null); setComentario(''); setMontoAprobado(''); }} className="rounded-xl bg-white/5 border border-white/10 px-4 py-2 text-sm text-gray-300 hover:bg-white/10 transition-colors">
+            <button onClick={() => { setActionDialog(null); setComentario(''); }} className="rounded-xl bg-white/5 border border-white/10 px-4 py-2 text-sm text-gray-300 hover:bg-white/10 transition-colors">
               Cancelar
             </button>
             <button
