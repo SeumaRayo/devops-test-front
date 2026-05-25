@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { User, Shield, Clock, Calendar } from 'lucide-react';
+import { User, Shield, Clock, Calendar, KeyRound, Mail, Phone, Hash } from 'lucide-react';
 import { PageHeader } from '../../../components/ui/PageHeader';
 import { LoadingSpinner } from '../../../components/ui/LoadingSpinner';
 import { ChangePasswordForm } from '../../auth/components/ChangePasswordForm';
@@ -8,11 +8,12 @@ import { sesionService } from '../../sesiones/services/sesion.service';
 import { UsuarioResponse } from '../../usuarios/types/usuario.types';
 import { SesionResponseDto } from '../../sesiones/types/sesion.types';
 
-const ProfilePage: React.FC = () => {
+export default function ProfilePage() {
   const [profile, setProfile] = useState<UsuarioResponse | null>(null);
   const [lastSession, setLastSession] = useState<SesionResponseDto | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showPasswordForm, setShowPasswordForm] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -54,69 +55,83 @@ const ProfilePage: React.FC = () => {
         <div className="lg:col-span-2 space-y-6">
           <div className="rounded-2xl border border-white/5 bg-gray-900/30 p-6 backdrop-blur-xl">
             <div className="flex items-center gap-4 mb-6">
-              <div className="w-14 h-14 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center">
-                <User size={24} className="text-indigo-400" />
+              <div className="w-16 h-16 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center">
+                <User size={28} className="text-indigo-400" />
               </div>
               <div>
                 <h2 className="text-xl font-bold text-white">
                   {profile.nombres} {profile.apellidos}
                 </h2>
-                <p className="text-sm text-gray-400">{profile.nombreRol}</p>
+                <p className="text-sm text-gray-400">ID: {profile.idUsuario}</p>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <Field label="Documento" value={profile.documento} />
-              <Field label="ID Usuario" value={String(profile.idUsuario)} />
-              {profile.genero && <Field label="Género" value={profile.genero} />}
-              {profile.telefono && <Field label="Teléfono" value={profile.telefono} />}
-              {profile.fechaNacimiento && <Field label="Fecha de Nacimiento" value={profile.fechaNacimiento} />}
+            <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+              <DetailField icon={<Hash size={14} />} label="ID Usuario" value={String(profile.idUsuario)} />
+              <DetailField icon={<Hash size={14} />} label="Documento" value={profile.documento} />
+              {profile.telefono && <DetailField icon={<Phone size={14} />} label="Teléfono" value={profile.telefono} />}
+              {profile.genero && <DetailField icon={<User size={14} />} label="Género" value={profile.genero} />}
+              {profile.fechaNacimiento && <DetailField icon={<Calendar size={14} />} label="Fecha de Nacimiento" value={profile.fechaNacimiento} />}
+              <DetailField icon={<Shield size={14} />} label="Estado" value={profile.estado || 'ACTIVO'} />
             </div>
-          </div>
-
-          <div className="rounded-2xl border border-white/5 bg-gray-900/30 p-6 backdrop-blur-xl">
-            <ChangePasswordForm />
           </div>
         </div>
 
         <div className="space-y-6">
           <div className="rounded-2xl border border-white/5 bg-gray-900/30 p-6 backdrop-blur-xl">
             <div className="flex items-center gap-3 mb-4">
-              <Shield size={20} className="text-indigo-400" />
-              <h3 className="text-sm font-semibold text-gray-300">Rol y Permisos</h3>
+              <Shield size={18} className="text-indigo-400" />
+              <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">Estado</h3>
             </div>
-            <span className="inline-block rounded-lg bg-indigo-500/10 border border-indigo-500/20 px-3 py-1 text-sm font-medium text-indigo-400">
-              {profile.nombreRol}
+            <span className={`inline-block rounded-lg px-3 py-1 text-sm font-medium ${profile.estado === 'ACTIVO' ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-400' : 'bg-gray-500/10 border border-gray-500/20 text-gray-400'}`}>
+              {profile.estado || 'ACTIVO'}
             </span>
-            <p className="text-xs text-gray-500 mt-3">Los permisos asociados a este rol determinan qué funcionalidades puedes ver y usar.</p>
           </div>
 
           {lastSession && (
             <div className="rounded-2xl border border-white/5 bg-gray-900/30 p-6 backdrop-blur-xl">
               <div className="flex items-center gap-3 mb-4">
-                <Clock size={20} className="text-indigo-400" />
-                <h3 className="text-sm font-semibold text-gray-300">Última Sesión</h3>
+                <Clock size={18} className="text-indigo-400" />
+                <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">Última Sesión</h3>
               </div>
               <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm text-gray-400">
-                  <Calendar size={14} />
-                  <span>{new Date(lastSession.fechaInicio).toLocaleString()}</span>
-                </div>
-                <p className="text-xs text-gray-500">Estado: {lastSession.activa ? 'Activa' : 'Cerrada'}</p>
+                <p className="text-sm text-gray-400">{new Date(lastSession.fechaInicio).toLocaleString('es-CO')}</p>
+                <span className={`text-xs px-2 py-0.5 rounded-full ${lastSession.activa ? 'bg-emerald-500/10 text-emerald-400' : 'bg-gray-500/10 text-gray-400'}`}>
+                  {lastSession.activa ? 'Activa' : 'Cerrada'}
+                </span>
               </div>
             </div>
           )}
+
+          <div className="rounded-2xl border border-white/5 bg-gray-900/30 p-6 backdrop-blur-xl">
+            <div className="flex items-center gap-3 mb-4">
+              <KeyRound size={18} className="text-indigo-400" />
+              <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">Seguridad</h3>
+            </div>
+            {showPasswordForm ? (
+              <ChangePasswordForm />
+            ) : (
+              <button
+                onClick={() => setShowPasswordForm(true)}
+                className="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-2.5 text-sm text-gray-300 hover:bg-white/10 transition-colors text-left flex items-center gap-2"
+              >
+                <KeyRound size={14} className="text-blue-400" />
+                Cambiar Contraseña
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>
   );
-};
+}
 
-const Field = ({ label, value }: { label: string; value: string }) => (
+const DetailField = ({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) => (
   <div>
-    <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">{label}</p>
+    <div className="flex items-center gap-1.5 mb-1">
+      <span className="text-gray-500">{icon}</span>
+      <span className="text-[11px] text-gray-500 uppercase tracking-wider">{label}</span>
+    </div>
     <p className="text-sm font-medium text-white">{value}</p>
   </div>
 );
-
-export default ProfilePage;

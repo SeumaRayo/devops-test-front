@@ -79,7 +79,7 @@ const NAV_MENU: NavItemType[] = [
     title: 'Perfil',
     icon: UserCircle,
     path: '/dashboard/profile',
-    roles: [ROLES.ADMIN, ROLES.ORGANIZER],
+    roles: [ROLES.ADMIN, ROLES.ORGANIZER, ROLES.USER],
   },
 ];
 
