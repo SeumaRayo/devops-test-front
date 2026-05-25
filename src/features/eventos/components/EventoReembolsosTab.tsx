@@ -4,6 +4,7 @@ import { useReembolsosPorEvento, useRevisarSolicitud, useAprobarSolicitud, useRe
 import { ReembolsoStatusBadge } from '../../reembolsos/components/ReembolsoStatusBadge';
 import { SolicitudReembolsoResponse } from '../../reembolsos/types/reembolso.types';
 import { Modal } from '../../../components/ui/Modal';
+import UsuarioCell from '../../../components/common/UsuarioCell';
 
 interface EventoReembolsosTabProps {
   idEvento: number;
@@ -64,7 +65,8 @@ export const EventoReembolsosTab: React.FC<EventoReembolsosTabProps> = ({ idEven
                 <div className="flex items-center gap-3 mb-2">
                   <span className="text-sm font-mono text-gray-400">#{s.idSolicitud}</span>
                   <ReembolsoStatusBadge estado={s.estado} />
-                  <span className="text-xs text-gray-500">Usuario #{s.idUsuarioSolicitante} · Ticket #{s.idTicket}</span>
+                  <span className="text-xs text-gray-500">Ticket #{s.idTicket} · </span>
+                  <UsuarioCell userId={s.idUsuarioSolicitante} />
                 </div>
 
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-6 gap-y-1 text-xs mb-2">
@@ -167,7 +169,8 @@ export const EventoReembolsosTab: React.FC<EventoReembolsosTabProps> = ({ idEven
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-white">Solicitud #{s.idSolicitud}</p>
-                  <p className="text-xs text-gray-500">Ticket #{s.idTicket} · Usuario #{s.idUsuarioSolicitante}</p>
+                  <p className="text-xs text-gray-500">Ticket #{s.idTicket} · </p>
+                  <UsuarioCell userId={s.idUsuarioSolicitante} />
                 </div>
               </div>
 
@@ -220,7 +223,8 @@ export const EventoReembolsosTab: React.FC<EventoReembolsosTabProps> = ({ idEven
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-white">Solicitud #{s.idSolicitud}</p>
-                  <p className="text-xs text-gray-500">Ticket #{s.idTicket} · Usuario #{s.idUsuarioSolicitante}</p>
+                  <p className="text-xs text-gray-500">Ticket #{s.idTicket} · </p>
+                  <UsuarioCell userId={s.idUsuarioSolicitante} />
                 </div>
               </div>
 

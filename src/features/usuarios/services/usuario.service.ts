@@ -6,6 +6,7 @@ import {
   UsuarioCreateRequest,
   UsuarioUpdateRequest,
   UsuarioFilterRequest,
+  UsuarioOrganizadorResponse,
   PageResponse,
 } from '../types/usuario.types';
 
@@ -68,6 +69,12 @@ export const usuarioService = {
   // GET /api/v1/usuarios/id
   getCurrentUser: async (): Promise<UsuarioResponse> => {
     const { data } = await axiosInstance.get<UsuarioResponse>('/api/v1/usuarios/id');
+    return data;
+  },
+
+  // GET /api/v1/usuarios/{id}/organizador
+  getByIdOrganizador: async (id: number): Promise<UsuarioOrganizadorResponse> => {
+    const { data } = await axiosInstance.get<UsuarioOrganizadorResponse>(`/api/v1/usuarios/${id}/organizador`);
     return data;
   },
 
