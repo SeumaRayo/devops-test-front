@@ -29,7 +29,7 @@ export const useSesiones = () => {
   }, [filters]);
 
   const changePage = useCallback((page: number) => {
-    const updated = { ...filters, page };
+    const updated = { ...filters, page: page - 1 };
     setFilters(updated);
     fetch(updated);
   }, [filters, fetch]);
