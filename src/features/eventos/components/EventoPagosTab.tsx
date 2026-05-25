@@ -2,6 +2,7 @@ import React from 'react';
 import { Loader2, CheckCircle, XCircle, Clock, Receipt } from 'lucide-react';
 import { usePagosPorEvento } from '../hooks/pago.queries';
 import { PagoResponse } from '../types/evento.types';
+import UsuarioCell from '../../../components/common/UsuarioCell';
 
 interface EventoPagosTabProps {
   idEvento: number;
@@ -57,7 +58,7 @@ export const EventoPagosTab: React.FC<EventoPagosTabProps> = ({ idEvento }) => {
                 </div>
                 <div>
                   <span className="text-gray-500">Usuario</span>
-                  <p className="text-gray-300 font-mono text-sm">#{pago.usuarioId}</p>
+                  <UsuarioCell userId={pago.usuarioId} />
                 </div>
                 <div>
                   <span className="text-gray-500">Fecha</span>

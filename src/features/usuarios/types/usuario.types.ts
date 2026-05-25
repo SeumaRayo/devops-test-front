@@ -5,11 +5,22 @@ export interface UsuarioResponse {
   nombres: string;
   apellidos: string;
   documento: string;
-  genero?: string;
-  fechaNacimiento?: string;
-  telefono?: string;
-  estado: string;
   nombreRol?: string;
+  genero?: string;
+  telefono?: string;
+  fechaNacimiento?: string;
+  estado?: string;
+}
+
+export interface UsuarioOrganizadorResponse {
+  idUsuario: number;
+  nombres: string;
+  apellidos: string;
+  documento: string;
+  username: string;
+  correo: string;
+  telefono: string;
+  nombreRol: string;
 }
 
 export interface UsuarioCreatedResponse {

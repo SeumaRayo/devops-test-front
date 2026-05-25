@@ -11,6 +11,7 @@ import { EventoForm } from '../components/EventoForm';
 import { EventoStaffTab } from '../components/EventoStaffTab';
 import { EventoReembolsosTab } from '../components/EventoReembolsosTab';
 import { EventoPagosTab } from '../components/EventoPagosTab';
+import UsuarioCell from '../../../components/common/UsuarioCell';
 import { eventoService } from '../services/evento.service';
 import { TicketResponseDTO } from '../types/ticket.types';
 
@@ -301,7 +302,7 @@ export default function EventoDetailPage() {
                 <thead>
                   <tr className="text-left text-xs text-gray-500 uppercase tracking-wider border-b border-white/5">
                     <th className="pb-3 pr-4 font-medium">Ticket ID</th>
-                    <th className="pb-3 pr-4 font-medium">Usuario ID</th>
+                    <th className="pb-3 pr-4 font-medium">Usuario</th>
                     <th className="pb-3 pr-4 font-medium">Estado</th>
                     <th className="pb-3 pr-4 font-medium">Monto</th>
                     <th className="pb-3 font-medium">Fecha</th>
@@ -311,7 +312,7 @@ export default function EventoDetailPage() {
                   {tickets.map((t) => (
                     <tr key={t.idTicket} className="hover:bg-white/3 transition-colors">
                       <td className="py-3 pr-4 font-mono text-gray-300">#{t.idTicket}</td>
-                      <td className="py-3 pr-4 text-gray-400">#{t.idUsuario}</td>
+                      <td className="py-3 pr-4"><UsuarioCell userId={t.idUsuario} /></td>
                       <td className="py-3 pr-4">
                         <span className={`inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full border font-medium ${ticketEstadoStyle(t.estadoTicket)}`}>
                           {ticketEstadoIcon(t.estadoTicket)}
