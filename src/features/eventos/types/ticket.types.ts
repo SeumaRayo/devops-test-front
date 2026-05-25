@@ -28,4 +28,6 @@ export interface TicketResponseDTO {
   codigoQr: string;
   fechaCompra: string;
   creadoEn: string;
+  checkinRealizado: boolean;
+  fechaCheckin: string | null;
 }

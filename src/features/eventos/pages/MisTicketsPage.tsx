@@ -5,7 +5,7 @@ import { ticketService } from '../services/ticket.service';
 import { TicketResponseDTO } from '../types/ticket.types';
 import { ticketEstadoIcon, ticketEstadoStyle } from '../utils/ticketDisplay';
 import {
-  Loader2, Ticket, XCircle, CreditCard,
+  Loader2, Ticket, XCircle, CreditCard, CheckCircle,
   Ban, CalendarDays, QrCode, X, Download, AlertTriangle, RefreshCcw,
 } from 'lucide-react';
 import { useAuthStore } from '../../../app/store/auth.store';
@@ -236,6 +236,11 @@ export default function MisTicketsPage() {
                     <span>Evento <span className="text-gray-400 font-mono">#{ticket.idEvento}</span></span>
                     {ticket.montoPagado > 0 && (
                       <span className="text-emerald-400 font-medium">Pagado: {ticket.montoPagado} {ticket.moneda}</span>
+                    )}
+                    {ticket.checkinRealizado && (
+                      <span className="text-blue-400 flex items-center gap-1">
+                        <CheckCircle size={12} /> Ingresó {ticket.fechaCheckin ? new Date(ticket.fechaCheckin).toLocaleDateString('es-CO') : ''}
+                      </span>
                     )}
                   </div>
                   <p className="text-xs text-gray-600">

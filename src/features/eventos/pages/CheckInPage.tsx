@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { eventoService } from '../services/evento.service';
-import { ResumenCheckInDTO, EventoResponse } from '../types/evento.types';
+import { CheckInEstadoDTO, ResumenCheckInDTO, EventoResponse } from '../types/evento.types';
 import { Loader2, QrCode, Users, CheckCircle, Clock, AlertCircle, ArrowLeft, Camera, X } from 'lucide-react';
 import { QRScanner } from '../components/QRScanner';
 
@@ -10,12 +10,14 @@ export default function CheckInPage() {
   const navigate = useNavigate();
   const [evento, setEvento] = useState<EventoResponse | null>(null);
   const [resumen, setResumen] = useState<ResumenCheckInDTO | null>(null);
+  const [estadoCheckIn, setEstadoCheckIn] = useState<CheckInEstadoDTO | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isCheckingIn, setIsCheckingIn] = useState(false);
   const [isScannerOpen, setIsScannerOpen] = useState(false);
   const [qrInput, setQrInput] = useState('');
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const pollRef = useRef<ReturnType<typeof setInterval>>(undefined);
 
   const fetchResumen = async () => {
     try {
@@ -49,6 +51,20 @@ export default function CheckInPage() {
       inputRef.current.focus();
     }
   }, [isLoading]);
+
+  useEffect(() => {
+    const checkEstado = async () => {
+      try {
+        const estado = await eventoService.getCheckInEstado(Number(id));
+        setEstadoCheckIn(estado);
+      } catch {
+        // ignore
+      }
+    };
+    checkEstado();
+    pollRef.current = setInterval(checkEstado, 30000);
+    return () => clearInterval(pollRef.current);
+  }, [id]);
 
   const executeCheckIn = async (code: string) => {
     if (!code.trim()) return;
@@ -139,6 +155,21 @@ export default function CheckInPage() {
               />
             </div>
           ) : null}
+
+          {estadoCheckIn && !estadoCheckIn.habilitado && (
+            <div className="mb-4 flex items-start gap-3 rounded-xl border border-amber-500/20 bg-amber-500/10 p-4 text-sm">
+              <AlertCircle size={20} className="text-amber-400 shrink-0 mt-0.5" />
+              <div>
+                <p className="text-amber-300 font-medium">Check-in no disponible</p>
+                <p className="text-amber-200/80 mt-1">{estadoCheckIn.motivo}</p>
+                {estadoCheckIn.aperturaCheckin && (
+                  <p className="text-xs text-amber-400/60 mt-2">
+                    Se habilitará: {new Date(estadoCheckIn.aperturaCheckin).toLocaleString('es-CO')}
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
 
           <form onSubmit={handleCheckInFormSubmit} className="space-y-4">
             <div>

@@ -53,6 +53,7 @@ export const API_ENDPOINTS = {
     CHECKIN: {
       BASE: (id: number) => `/api/v1/eventos/${id}/check-in`,
       RESUMEN: (id: number) => `/api/v1/eventos/${id}/check-in/resumen`,
+      ESTADO: (id: number) => `/api/v1/eventos/${id}/check-in/estado`,
     },
   },
   FUNCIONALIDADES: {

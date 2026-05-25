@@ -177,3 +177,16 @@ export interface ResumenCheckInDTO {
   totalPendientes: number;
   porcentajeIngreso: number;
 }
+
+export interface CheckInEstadoDTO {
+  habilitado: boolean;
+  motivo: string;
+  eventoId: number;
+  nombreEvento: string;
+  estadoEvento: string;
+  estado: string;
+  fechaEvento: string;
+  horaEvento: string;
+  aperturaCheckin: string | null;
+  ahora: string;
+}
