@@ -8,8 +8,8 @@ import {
 } from 'lucide-react';
 import { useAuthStore } from '../../../app/store/auth.store';
 
-const estadoIcon = (estado: PagoResponse['estado']) => {
-  switch (estado) {
+const estadoIcon = (estadoPago: PagoResponse['estadoPago']) => {
+  switch (estadoPago) {
     case 'EXITOSO': return <CheckCircle size={14} />;
     case 'FALLIDO': return <XCircle size={14} />;
     case 'PENDIENTE': return <Clock size={14} />;
@@ -17,8 +17,8 @@ const estadoIcon = (estado: PagoResponse['estado']) => {
   }
 };
 
-const estadoStyle = (estado: PagoResponse['estado']) => {
-  switch (estado) {
+const estadoStyle = (estadoPago: PagoResponse['estadoPago']) => {
+  switch (estadoPago) {
     case 'EXITOSO': return 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30';
     case 'FALLIDO': return 'text-red-400 bg-red-500/10 border-red-500/30';
     case 'PENDIENTE': return 'text-yellow-400 bg-yellow-500/10 border-yellow-500/30';
@@ -76,31 +76,31 @@ const MisPagosPage: React.FC = () => {
         ) : (
           <div className="space-y-4">
             {pagos.map((pago) => (
-              <div key={pago.id} className="rounded-2xl border border-white/5 bg-gray-900/30 backdrop-blur-xl p-5 hover:border-white/10 transition-all">
+              <div key={pago.idPago} className="rounded-2xl border border-white/5 bg-gray-900/30 backdrop-blur-xl p-5 hover:border-white/10 transition-all">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                   <div className="space-y-2">
                     <div className="flex items-center gap-2">
                       <span className={`inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full font-medium ${
-                        pago.tipoTransaccion === 'COBRO' 
+                        pago.tipoPago === 'COBRO' 
                           ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/30' 
                           : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
                       }`}>
-                        {pago.tipoTransaccion}
+                        {pago.tipoPago}
                       </span>
-                      <span className={`inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full border font-medium ${estadoStyle(pago.estado)}`}>
-                        {estadoIcon(pago.estado)}
-                        {pago.estado}
+                      <span className={`inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full border font-medium ${estadoStyle(pago.estadoPago)}`}>
+                        {estadoIcon(pago.estadoPago)}
+                        {pago.estadoPago}
                       </span>
                     </div>
                     
                     <div className="flex flex-col gap-1">
                       <span className="text-2xl font-bold text-white">
-                        {pago.tipoTransaccion === 'REEMBOLSO' ? '+' : ''}
+                        {pago.tipoPago === 'REEMBOLSO' ? '+' : ''}
                         {pago.monto.toLocaleString('en-US', { style: 'currency', currency: pago.moneda })}
                       </span>
                       <div className="flex flex-wrap gap-4 text-xs text-gray-500 mt-1">
-                        <span>Pago <span className="text-gray-400 font-mono">#{pago.id}</span></span>
-                        <span>Ticket <span className="text-gray-400 font-mono">#{pago.ticketId}</span></span>
+                        <span>Pago <span className="text-gray-400 font-mono">#{pago.idPago}</span></span>
+                        <span>Ticket <span className="text-gray-400 font-mono">#{pago.idTicket}</span></span>
                         <span>Evento <span className="text-gray-400 font-mono">#{pago.eventoId}</span></span>
                       </div>
                     </div>
@@ -108,16 +108,16 @@ const MisPagosPage: React.FC = () => {
 
                   <div className="text-left sm:text-right flex flex-col gap-2">
                     <div className="text-xs text-gray-400">
-                      {new Date(pago.fechaTransaccion).toLocaleString('es-CO', {
+                      {new Date(pago.creadoEn).toLocaleString('es-CO', {
                         day: '2-digit', month: 'long', year: 'numeric',
                         hour: '2-digit', minute: '2-digit'
                       })}
                     </div>
                     
-                    {pago.stripePaymentIntentId && (
+                    {pago.stripeChargeId && (
                       <div className="text-xs text-gray-600 bg-black/20 p-2 rounded-lg break-all">
                         <span className="text-gray-500 uppercase">Stripe ID: </span>
-                        {pago.stripePaymentIntentId}
+                        {pago.stripeChargeId}
                       </div>
                     )}
                     {pago.stripeRefundId && (

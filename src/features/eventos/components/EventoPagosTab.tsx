@@ -1,12 +1,13 @@
 import React from 'react';
 import { usePagosPorEvento } from '../../pagos/hooks/pago.queries';
 import { PagoResponse } from '../../pagos/types/pago.types';
+import { useUsuariosOrganizador } from '../../usuarios/hooks/useUsuariosOrganizador';
 import {
   Loader2, Receipt, CheckCircle, XCircle, Clock
 } from 'lucide-react';
 
-const estadoIcon = (estado: PagoResponse['estado']) => {
-  switch (estado) {
+const estadoIcon = (estadoPago: PagoResponse['estadoPago']) => {
+  switch (estadoPago) {
     case 'EXITOSO': return <CheckCircle size={12} />;
     case 'FALLIDO': return <XCircle size={12} />;
     case 'PENDIENTE': return <Clock size={12} />;
@@ -14,8 +15,8 @@ const estadoIcon = (estado: PagoResponse['estado']) => {
   }
 };
 
-const estadoStyle = (estado: PagoResponse['estado']) => {
-  switch (estado) {
+const estadoStyle = (estadoPago: PagoResponse['estadoPago']) => {
+  switch (estadoPago) {
     case 'EXITOSO': return 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30';
     case 'FALLIDO': return 'text-red-400 bg-red-500/10 border-red-500/30';
     case 'PENDIENTE': return 'text-yellow-400 bg-yellow-500/10 border-yellow-500/30';
@@ -29,6 +30,13 @@ interface EventoPagosTabProps {
 
 export const EventoPagosTab: React.FC<EventoPagosTabProps> = ({ idEvento }) => {
   const { data: pagos, isLoading, error } = usePagosPorEvento(idEvento);
+  const { data: usuarios = new Map() } = useUsuariosOrganizador();
+
+  const getUsuarioNombre = (idUsuario: number): string => {
+    const u = usuarios.get(idUsuario);
+    if (!u) return `#${idUsuario}`;
+    return `${u.nombres} ${u.apellidos}`;
+  };
 
   if (isLoading) {
     return (
@@ -66,32 +74,32 @@ export const EventoPagosTab: React.FC<EventoPagosTabProps> = ({ idEvento }) => {
         </thead>
         <tbody className="divide-y divide-white/5">
           {pagos.map((p) => (
-            <tr key={p.id} className="hover:bg-white/3 transition-colors">
-              <td className="py-3 pr-4 font-mono text-gray-300">#{p.id}</td>
+            <tr key={p.idPago} className="hover:bg-white/3 transition-colors">
+              <td className="py-3 pr-4 font-mono text-gray-300">#{p.idPago}</td>
               <td className="py-3 pr-4">
                 <span className={`inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full font-medium ${
-                  p.tipoTransaccion === 'COBRO' 
+                  p.tipoPago === 'COBRO' 
                     ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/30' 
                     : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
                 }`}>
-                  {p.tipoTransaccion}
+                  {p.tipoPago}
                 </span>
               </td>
               <td className="py-3 pr-4">
-                <span className={`inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full border font-medium ${estadoStyle(p.estado)}`}>
-                  {estadoIcon(p.estado)}
-                  {p.estado}
+                <span className={`inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full border font-medium ${estadoStyle(p.estadoPago)}`}>
+                  {estadoIcon(p.estadoPago)}
+                  {p.estadoPago}
                 </span>
               </td>
               <td className="py-3 pr-4 text-gray-300 font-medium">
-                {p.tipoTransaccion === 'REEMBOLSO' ? '-' : ''}{p.monto} {p.moneda}
+                {p.tipoPago === 'REEMBOLSO' ? '-' : ''}{p.monto} {p.moneda}
               </td>
               <td className="py-3 pr-4 text-xs text-gray-500">
-                T: <span className="font-mono text-gray-400">#{p.ticketId}</span><br/>
-                U: <span className="font-mono text-gray-400">#{p.usuarioId}</span>
+                T: <span className="font-mono text-gray-400">#{p.idTicket}</span><br/>
+                U: <span className="text-gray-300">{getUsuarioNombre(p.usuarioId)}</span>
               </td>
               <td className="py-3 text-gray-500 text-xs">
-                {new Date(p.fechaTransaccion).toLocaleDateString('es-CO', {
+                {new Date(p.creadoEn).toLocaleDateString('es-CO', {
                   day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
                 })}
               </td>

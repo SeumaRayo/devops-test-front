@@ -1,4 +1,4 @@
-export type TipoTransaccion = 'COBRO' | 'REEMBOLSO';
+export type TipoPago = 'COBRO' | 'REEMBOLSO';
 
 export type EstadoPago = 
   | 'EXITOSO'
@@ -6,15 +6,15 @@ export type EstadoPago =
   | 'PENDIENTE';
 
 export interface PagoResponse {
-  id: number;
-  ticketId: number;
+  idPago: number;
+  idTicket: number;
   usuarioId: number;
   eventoId: number;
   monto: number;
   moneda: string;
-  tipoTransaccion: TipoTransaccion;
-  estado: EstadoPago;
-  stripePaymentIntentId: string | null;
+  tipoPago: TipoPago;
+  estadoPago: EstadoPago;
+  stripeChargeId: string | null;
   stripeRefundId: string | null;
-  fechaTransaccion: string;
+  creadoEn: string;
 }
