@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { User, Clock, KeyRound } from 'lucide-react';
+import { User, Shield, Clock, Calendar, KeyRound, Mail, Phone, Hash } from 'lucide-react';
 import { PageHeader } from '../../../components/ui/PageHeader';
 import { LoadingSpinner } from '../../../components/ui/LoadingSpinner';
 import { ChangePasswordForm } from '../../auth/components/ChangePasswordForm';
@@ -45,73 +45,93 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="animate-in slide-in-from-bottom-4 fade-in duration-500 max-w-2xl">
-      <div className="flex flex-col items-center py-10">
-        <div className="w-24 h-24 rounded-full bg-gradient-to-br from-indigo-500/20 to-blue-500/20 border-2 border-indigo-500/30 flex items-center justify-center mb-4">
-          <User size={40} className="text-indigo-400" />
-        </div>
-        <h1 className="text-2xl font-bold text-white mb-1">{profile.nombres} {profile.apellidos}</h1>
-        <p className="text-sm text-gray-400">{profile.documento}</p>
-        <span className={`mt-2 inline-block text-xs px-3 py-1 rounded-full font-medium ${profile.estado === 'ACTIVO' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-gray-500/10 text-gray-400 border border-gray-500/20'}`}>
-          {profile.estado || 'ACTIVO'}
-        </span>
-      </div>
+    <div className="animate-in slide-in-from-bottom-4 fade-in duration-500">
+      <PageHeader
+        title="Mi Perfil"
+        subtitle={`${profile.nombres} ${profile.apellidos}`}
+      />
 
-      <div className="rounded-2xl border border-white/5 bg-gray-900/30 backdrop-blur-xl divide-y divide-white/5 mb-6">
-        <Row label="ID Usuario" value={String(profile.idUsuario)} />
-        <Row label="Documento" value={profile.documento} />
-        {profile.telefono && <Row label="Teléfono" value={profile.telefono} />}
-        {profile.genero && <Row label="Género" value={profile.genero.charAt(0).toUpperCase() + profile.genero.slice(1)} />}
-        {profile.fechaNacimiento && <Row label="Fecha de Nacimiento" value={new Date(profile.fechaNacimiento + 'T00:00:00').toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric' })} />}
-      </div>
-
-      <div className="rounded-2xl border border-white/5 bg-gray-900/30 backdrop-blur-xl divide-y divide-white/5 mb-6">
-        {lastSession ? (
-          <div className="px-6 py-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Clock size={18} className="text-gray-500" />
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 space-y-6">
+          <div className="rounded-2xl border border-white/5 bg-gray-900/30 p-6 backdrop-blur-xl">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="w-16 h-16 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center">
+                <User size={28} className="text-indigo-400" />
+              </div>
               <div>
-                <p className="text-sm text-white">Última Sesión</p>
-                <p className="text-xs text-gray-500 mt-0.5">{new Date(lastSession.fechaInicio).toLocaleString('es-CO', { dateStyle: 'medium', timeStyle: 'short' })}</p>
+                <h2 className="text-xl font-bold text-white">
+                  {profile.nombres} {profile.apellidos}
+                </h2>
+                <p className="text-sm text-gray-400">ID: {profile.idUsuario}</p>
               </div>
             </div>
-            <span className={`text-xs px-2 py-0.5 rounded-full ${lastSession.activa ? 'bg-emerald-500/10 text-emerald-400' : 'bg-gray-500/10 text-gray-400'}`}>
-              {lastSession.activa ? 'Activa' : 'Cerrada'}
+
+            <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+              <DetailField icon={<Hash size={14} />} label="ID Usuario" value={String(profile.idUsuario)} />
+              <DetailField icon={<Hash size={14} />} label="Documento" value={profile.documento} />
+              {profile.telefono && <DetailField icon={<Phone size={14} />} label="Teléfono" value={profile.telefono} />}
+              {profile.genero && <DetailField icon={<User size={14} />} label="Género" value={profile.genero} />}
+              {profile.fechaNacimiento && <DetailField icon={<Calendar size={14} />} label="Fecha de Nacimiento" value={profile.fechaNacimiento} />}
+              <DetailField icon={<Shield size={14} />} label="Estado" value={profile.estado || 'ACTIVO'} />
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          <div className="rounded-2xl border border-white/5 bg-gray-900/30 p-6 backdrop-blur-xl">
+            <div className="flex items-center gap-3 mb-4">
+              <Shield size={18} className="text-indigo-400" />
+              <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">Estado</h3>
+            </div>
+            <span className={`inline-block rounded-lg px-3 py-1 text-sm font-medium ${profile.estado === 'ACTIVO' ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-400' : 'bg-gray-500/10 border border-gray-500/20 text-gray-400'}`}>
+              {profile.estado || 'ACTIVO'}
             </span>
           </div>
-        ) : (
-          <div className="px-6 py-4 flex items-center gap-3 text-sm text-gray-500">
-            <Clock size={18} />
-            Sin sesiones registradas
-          </div>
-        )}
-      </div>
 
-      <div className="rounded-2xl border border-white/5 bg-gray-900/30 backdrop-blur-xl mb-6">
-        {showPasswordForm ? (
-          <div className="p-6">
-            <ChangePasswordForm />
-          </div>
-        ) : (
-          <button
-            onClick={() => setShowPasswordForm(true)}
-            className="w-full px-6 py-4 flex items-center justify-between text-sm text-white hover:bg-white/5 transition-colors rounded-2xl"
-          >
-            <div className="flex items-center gap-3">
-              <KeyRound size={18} className="text-gray-500" />
-              <span>Cambiar Contraseña</span>
+          {lastSession && (
+            <div className="rounded-2xl border border-white/5 bg-gray-900/30 p-6 backdrop-blur-xl">
+              <div className="flex items-center gap-3 mb-4">
+                <Clock size={18} className="text-indigo-400" />
+                <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">Última Sesión</h3>
+              </div>
+              <div className="space-y-2">
+                <p className="text-sm text-gray-400">{new Date(lastSession.fechaInicio).toLocaleString('es-CO')}</p>
+                <span className={`text-xs px-2 py-0.5 rounded-full ${lastSession.activa ? 'bg-emerald-500/10 text-emerald-400' : 'bg-gray-500/10 text-gray-400'}`}>
+                  {lastSession.activa ? 'Activa' : 'Cerrada'}
+                </span>
+              </div>
             </div>
-            <span className="text-gray-500">›</span>
-          </button>
-        )}
+          )}
+
+          <div className="rounded-2xl border border-white/5 bg-gray-900/30 p-6 backdrop-blur-xl">
+            <div className="flex items-center gap-3 mb-4">
+              <KeyRound size={18} className="text-indigo-400" />
+              <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">Seguridad</h3>
+            </div>
+            {showPasswordForm ? (
+              <ChangePasswordForm />
+            ) : (
+              <button
+                onClick={() => setShowPasswordForm(true)}
+                className="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-2.5 text-sm text-gray-300 hover:bg-white/10 transition-colors text-left flex items-center gap-2"
+              >
+                <KeyRound size={14} className="text-blue-400" />
+                Cambiar Contraseña
+              </button>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
 }
 
-const Row = ({ label, value }: { label: string; value: string }) => (
-  <div className="px-6 py-4 flex items-center justify-between">
-    <span className="text-sm text-gray-400">{label}</span>
-    <span className="text-sm font-medium text-white">{value}</span>
+const DetailField = ({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) => (
+  <div>
+    <div className="flex items-center gap-1.5 mb-1">
+      <span className="text-gray-500">{icon}</span>
+      <span className="text-[11px] text-gray-500 uppercase tracking-wider">{label}</span>
+    </div>
+    <p className="text-sm font-medium text-white">{value}</p>
   </div>
 );
