@@ -16,6 +16,7 @@ import {
   CheckInRequest,
   CheckInResponseDTO,
   ResumenCheckInDTO,
+  CheckInEstadoDTO,
 } from '../types/evento.types';
 import { TicketResponseDTO } from '../types/ticket.types';
 
@@ -198,6 +199,12 @@ export const eventoService = {
   // GET /api/v1/eventos/{id}/check-in/resumen
   getCheckInResumen: async (id: number): Promise<ResumenCheckInDTO> => {
     const { data } = await axiosInstance.get<ResumenCheckInDTO>(API_ENDPOINTS.EVENTOS.CHECKIN.RESUMEN(id));
+    return data;
+  },
+
+  // GET /api/v1/eventos/{id}/check-in/estado
+  getCheckInEstado: async (id: number): Promise<CheckInEstadoDTO> => {
+    const { data } = await axiosInstance.get<CheckInEstadoDTO>(API_ENDPOINTS.EVENTOS.CHECKIN.ESTADO(id));
     return data;
   },
 };
