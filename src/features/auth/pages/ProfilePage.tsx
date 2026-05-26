@@ -100,16 +100,6 @@ export default function ProfilePage() {
       <PageHeader
         title="Mi Perfil"
         subtitle={`${profile.nombres} ${profile.apellidos}`}
-        action={
-          !isEditing && (
-            <button
-              onClick={startEditing}
-              className="flex items-center gap-2 rounded-xl bg-white/5 border border-white/10 px-4 py-2.5 text-sm text-gray-300 transition hover:bg-white/10"
-            >
-              <Pencil size={16} className="text-indigo-400" /> Editar Perfil
-            </button>
-          )
-        }
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -214,19 +204,30 @@ export default function ProfilePage() {
           <div className="rounded-2xl border border-white/5 bg-gray-900/30 p-6 backdrop-blur-xl">
             <div className="flex items-center gap-3 mb-4">
               <KeyRound size={18} className="text-indigo-400" />
-              <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">Seguridad</h3>
+              <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">Acciones</h3>
             </div>
-            {showPasswordForm ? (
-              <ChangePasswordForm />
-            ) : (
-              <button
-                onClick={() => setShowPasswordForm(true)}
-                className="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-2.5 text-sm text-gray-300 hover:bg-white/10 transition-colors text-left flex items-center gap-2"
-              >
-                <KeyRound size={14} className="text-blue-400" />
-                Cambiar Contraseña
-              </button>
-            )}
+            <div className="space-y-3">
+              {!isEditing && (
+                <button
+                  onClick={startEditing}
+                  className="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-2.5 text-sm text-gray-300 hover:bg-white/10 transition-colors text-left flex items-center gap-2"
+                >
+                  <Pencil size={14} className="text-indigo-400" />
+                  Editar Perfil
+                </button>
+              )}
+              {showPasswordForm ? (
+                <ChangePasswordForm />
+              ) : (
+                <button
+                  onClick={() => setShowPasswordForm(true)}
+                  className="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-2.5 text-sm text-gray-300 hover:bg-white/10 transition-colors text-left flex items-center gap-2"
+                >
+                  <KeyRound size={14} className="text-blue-400" />
+                  Cambiar Contraseña
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>
