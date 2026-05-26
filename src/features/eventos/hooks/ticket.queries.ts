@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ticketService } from '../services/ticket.service';
-import { InscripcionResponse, TicketResponseDTO } from '../types/ticket.types';
+import { InscripcionResponse, TicketResponseDTO, MisEventosCanceladosResponse } from '../types/ticket.types';
 
 // POST /api/v1/tickets/evento/{eventoId}
 export const useInscribirEvento = () => {
@@ -35,5 +35,12 @@ export const useCancelarTicket = () => {
       // Invalidar la lista de tickets del usuario al cancelar
       queryClient.invalidateQueries({ queryKey: ['mis-tickets'] });
     },
+  });
+};
+
+export const useMisEventosCancelados = () => {
+  return useQuery<MisEventosCanceladosResponse, Error>({
+    queryKey: ['mis-eventos-cancelados'],
+    queryFn: () => ticketService.getMisEventosCancelados(),
   });
 };
