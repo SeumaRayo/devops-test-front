@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { eventoService } from '../services/evento.service';
 import { usuarioService } from '../../usuarios/services/usuario.service';
+import { UsuarioOrganizadorResponse } from '../../usuarios/types/usuario.types';
+import { usePermissions } from '../../../hooks/usePermissions';
 import { StaffResponseDTO } from '../types/evento.types';
-import { UsuarioResponse } from '../../usuarios/types/usuario.types';
 import { Loader2, UserPlus, Check, X, Search } from 'lucide-react';
 
 interface EventoStaffTabProps {
@@ -10,6 +11,7 @@ interface EventoStaffTabProps {
 }
 
 export const EventoStaffTab: React.FC<EventoStaffTabProps> = ({ idEvento }) => {
+  const { isAdmin } = usePermissions();
   const [staff, setStaff] = useState<StaffResponseDTO[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -18,7 +20,7 @@ export const EventoStaffTab: React.FC<EventoStaffTabProps> = ({ idEvento }) => {
   const [isAssigning, setIsAssigning] = useState(false);
 
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<UsuarioResponse[]>([]);
+  const [searchResults, setSearchResults] = useState<UsuarioOrganizadorResponse[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
 
@@ -60,11 +62,10 @@ export const EventoStaffTab: React.FC<EventoStaffTabProps> = ({ idEvento }) => {
     setIsSearching(true);
     setHasSearched(true);
     try {
-      const data = await usuarioService.getAll({ 
-        nombres: searchQuery, 
-        size: 5
-      });
-      setSearchResults(data.content);
+      const data = isAdmin
+        ? await usuarioService.getAll({ nombres: searchQuery, size: 5 })
+        : await usuarioService.searchOrganizador({ nombres: searchQuery, size: 5 });
+      setSearchResults(data.content as any);
     } catch (err) {
       setSearchResults([]);
     } finally {
