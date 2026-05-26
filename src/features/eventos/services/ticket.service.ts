@@ -1,6 +1,6 @@
 import axiosInstance from '../../../lib/axios';
 import { API_ENDPOINTS } from '../../../config/apiEndpoints';
-import { InscripcionResponse, TicketResponseDTO } from '../types/ticket.types';
+import { InscripcionResponse, TicketResponseDTO, MisEventosCanceladosResponse } from '../types/ticket.types';
 
 export const ticketService = {
   // POST /api/v1/tickets/evento/{eventoId}  — Any authenticated user
@@ -35,5 +35,10 @@ export const ticketService = {
       responseType: 'blob',
     });
     return URL.createObjectURL(data);
+  },
+
+  getMisEventosCancelados: async (): Promise<MisEventosCanceladosResponse> => {
+    const { data } = await axiosInstance.get<MisEventosCanceladosResponse>('/api/v1/tickets/mis-eventos-cancelados');
+    return data;
   },
 };

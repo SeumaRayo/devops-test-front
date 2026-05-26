@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useMisTickets, useCancelarTicket } from '../hooks/ticket.queries';
+import { useMisTickets, useCancelarTicket, useMisEventosCancelados } from '../hooks/ticket.queries';
 import { ticketService } from '../services/ticket.service';
 import { TicketResponseDTO } from '../types/ticket.types';
 import { ticketEstadoIcon, ticketEstadoStyle } from '../utils/ticketDisplay';
@@ -132,6 +132,7 @@ export default function MisTicketsPage() {
   const { user } = useAuthStore();
 
   const { data: tickets, isLoading, error } = useMisTickets();
+  const { data: cancelados } = useMisEventosCancelados();
   const { mutate: cancelar, isPending: isCancelling } = useCancelarTicket();
 
   const [cancelling, setCancelling] = useState<number | null>(null);
@@ -189,6 +190,50 @@ export default function MisTicketsPage() {
             }`}
           >
             {feedback.type === 'success' ? '✅' : '❌'} {feedback.msg}
+          </div>
+        )}
+
+        {cancelados && cancelados.tickets && cancelados.tickets.length > 0 && (
+          <div className="mb-6 rounded-2xl border border-amber-500/20 bg-amber-500/5 p-5">
+            <div className="flex items-center gap-2 mb-3">
+              <AlertTriangle size={18} className="text-amber-400" />
+              <h3 className="text-sm font-semibold text-amber-300">
+                {cancelados.total} evento{cancelados.total !== 1 ? 's' : ''} cancelado{cancelados.total !== 1 ? 's' : ''}
+              </h3>
+            </div>
+            <div className="space-y-2">
+              {cancelados.tickets.map((ct) => (
+                <div key={ct.idTicket} className="flex items-center justify-between rounded-xl bg-gray-900/40 border border-white/5 p-3">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm text-gray-200 truncate">{ct.evento.nombreEvento}</p>
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      {ct.evento.fechaEvento}
+                    </p>
+                    {ct.mensaje && (
+                      <span className={`inline-block mt-1.5 text-xs px-2.5 py-1 rounded-full font-medium ${ct.reembolsoDisponible ? 'bg-amber-500/15 text-amber-300 border border-amber-500/30' : 'bg-blue-500/15 text-blue-300 border border-blue-500/30'}`}>
+                        {ct.mensaje}
+                      </span>
+                    )}
+                  </div>
+                  {ct.reembolsoDisponible && (
+                    <button
+                      onClick={() => {
+                        const match = tickets?.find((t) => t.idTicket === ct.idTicket);
+                        setRefundTicket(match || {
+                          idTicket: ct.idTicket,
+                          nombreEvento: ct.evento.nombreEvento,
+                          montoPagado: 0,
+                          moneda: 'COP',
+                        } as TicketResponseDTO);
+                      }}
+                      className="ml-3 shrink-0 flex items-center gap-1.5 text-xs bg-amber-500/10 text-amber-400 border border-amber-500/20 px-3 py-1.5 rounded-lg hover:bg-amber-500/20 transition-colors"
+                    >
+                      <RefreshCcw size={12} /> Solicitar Reembolso
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
