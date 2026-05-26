@@ -1,9 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
 import { User, Shield, Clock, Calendar, KeyRound, Mail, Phone, Hash, Pencil, X, Save, Loader2, AlertTriangle } from 'lucide-react';
 import { PageHeader } from '../../../components/ui/PageHeader';
 import { LoadingSpinner } from '../../../components/ui/LoadingSpinner';
-import { Modal } from '../../../components/ui/Modal';
 import { ChangePasswordForm } from '../../auth/components/ChangePasswordForm';
 import { usuarioService } from '../../usuarios/services/usuario.service';
 import { sesionService } from '../../sesiones/services/sesion.service';
@@ -14,7 +12,6 @@ const inputClass = 'w-full rounded-xl border border-white/10 bg-white/5 px-4 py-
 const labelClass = 'block text-xs font-medium text-gray-400 mb-1.5';
 
 export default function ProfilePage() {
-  const location = useLocation();
   const [profile, setProfile] = useState<UsuarioResponse | null>(null);
   const [lastSession, setLastSession] = useState<SesionResponseDto | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -23,9 +20,6 @@ export default function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
-  const [showCompletionAlert, setShowCompletionAlert] = useState(false);
-  const [pageReady, setPageReady] = useState(false);
-  const alertClosed = useRef(false);
 
   const [formDoc, setFormDoc] = useState('');
   const [formNombres, setFormNombres] = useState('');
@@ -50,26 +44,7 @@ export default function ProfilePage() {
     }
   };
 
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    if (params.get('incomplete') === 'true') {
-      setShowCompletionAlert(true);
-    }
-  }, [location.search]);
-
   useEffect(() => { fetchProfile(); }, []);
-
-  useEffect(() => {
-    if (!isLoading && !showCompletionAlert && !pageReady) {
-      setPageReady(true);
-    }
-  }, [isLoading, showCompletionAlert, pageReady]);
-
-  const handleCloseAlert = () => {
-    alertClosed.current = true;
-    setShowCompletionAlert(false);
-    setPageReady(true);
-  };
 
   const startEditing = () => {
     if (!profile) return;
@@ -110,7 +85,7 @@ export default function ProfilePage() {
     }
   };
 
-  if (!pageReady) return <LoadingSpinner size="lg" />;
+  if (isLoading) return <LoadingSpinner size="lg" />;
 
   if (error || !profile) {
     return (
@@ -256,34 +231,6 @@ export default function ProfilePage() {
           </div>
         </div>
       </div>
-
-      <Modal isOpen={showCompletionAlert} onClose={handleCloseAlert} title="Perfil Incompleto" size="md">
-        <div className="space-y-5">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
-              <AlertTriangle size={22} className="text-amber-400" />
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-white">Completa tu información</p>
-              <p className="text-xs text-gray-400">Tu perfil tiene campos obligatorios sin completar.</p>
-            </div>
-          </div>
-          <p className="text-sm text-gray-300">
-            Para poder inscribirte a eventos, necesitas completar tu documento, género, fecha de nacimiento y teléfono. Haz clic en <strong>Editar Perfil</strong> para actualizar tus datos.
-          </p>
-          <div className="flex justify-end gap-3">
-            <button onClick={handleCloseAlert} className="rounded-xl bg-white/5 border border-white/10 px-4 py-2 text-sm text-gray-300 hover:bg-white/10 transition-colors">
-              Después
-            </button>
-            <button
-              onClick={() => { handleCloseAlert(); startEditing(); }}
-              className="rounded-xl bg-indigo-600 px-5 py-2 text-sm font-semibold text-white hover:bg-indigo-500 transition-colors"
-            >
-              Editar Perfil
-            </button>
-          </div>
-        </div>
-      </Modal>
     </div>
   );
 }
