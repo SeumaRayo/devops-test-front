@@ -16,9 +16,13 @@ export const API_ENDPOINTS = {
     BY_ID: (id: number) => `/api/v1/usuarios/${id}`,
     BY_DOCUMENT: (doc: string) => `/api/v1/usuarios/document/${doc}`,
     UPDATE_ADMIN: (id: number) => `/api/v1/usuarios/${id}/admin`,
+    UPDATE_SELF: '/api/v1/usuarios/me',
     ACTIVAR: (id: number) => `/api/v1/usuarios/${id}/activar`,
     DESACTIVAR: (id: number) => `/api/v1/usuarios/${id}/desactivar`,
     BLOQUEAR: (id: number) => `/api/v1/usuarios/${id}/bloquear`,
+    CURRENT_USER: '/api/v1/usuarios/id',
+    ORGANIZADOR: (id: number) => `/api/v1/usuarios/${id}/organizador`,
+    COMPLETE_STATUS: '/api/v1/usuarios/complete-status',
   },
   ACCESOS: {
     BASE: '/api/v1/accesos',

@@ -3,10 +3,13 @@ import { useParams, Link, useLocation } from 'react-router-dom';
 import { eventoService } from '../services/evento.service';
 import { EventoResponse } from '../types/evento.types';
 import { useInscribirEvento } from '../hooks/ticket.queries';
+import { useMisTickets } from '../hooks/ticket.queries';
 import { StripeCheckoutDialog } from '../components/StripeCheckoutDialog';
-import { Loader2, ArrowLeft, Calendar, Clock, MapPin, Users, Ticket, CheckCircle, AlertCircle } from 'lucide-react';
+import { Loader2, ArrowLeft, Calendar, Clock, MapPin, Users, Ticket, CheckCircle, AlertCircle, AlertTriangle } from 'lucide-react';
 import { PageHeader } from '../../../components/ui/PageHeader';
 import { LoadingSpinner } from '../../../components/ui/LoadingSpinner';
+import { Modal } from '../../../components/ui/Modal';
+import { usuarioService } from '../../usuarios/services/usuario.service';
 
 export default function PortalEventoDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -18,8 +21,11 @@ export default function PortalEventoDetailPage() {
   const [error, setError] = useState<string | null>(null);
 
   const { mutate: inscribirse, isPending: isInscribiendo } = useInscribirEvento();
+  const { data: misTickets } = useMisTickets();
+  const alreadyInscrito = misTickets?.some((t) => t.idEvento === Number(id)) ?? false;
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [showProfileAlert, setShowProfileAlert] = useState(false);
   const [stripeConfig, setStripeConfig] = useState<{ isOpen: boolean; clientSecret: string }>({
     isOpen: false,
     clientSecret: '',
@@ -45,10 +51,21 @@ export default function PortalEventoDetailPage() {
     if (id) fetchEvento();
   }, [id]);
 
-  const handleInscripcion = () => {
+  const handleInscripcion = async () => {
     if (!evento) return;
     setSuccessMessage(null);
     setErrorMessage(null);
+
+    try {
+      const status = await usuarioService.getCompleteStatus();
+      if (status.requiresCompletion) {
+        setShowProfileAlert(true);
+        return;
+      }
+    } catch {
+      // continue even if check fails
+    }
+
     inscribirse(evento.idEvento, {
       onSuccess: (data) => {
         if (data.clientSecret) {
@@ -154,9 +171,9 @@ export default function PortalEventoDetailPage() {
 
           <button
             onClick={handleInscripcion}
-            disabled={isInscribiendo || evento.capacidadDisponible === 0}
+            disabled={isInscribiendo || evento.capacidadDisponible === 0 || alreadyInscrito}
             className={`w-full flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm transition-colors ${
-              evento.capacidadDisponible === 0
+              evento.capacidadDisponible === 0 || alreadyInscrito
                 ? 'bg-gray-800 text-gray-500 cursor-not-allowed'
                 : 'bg-indigo-600 hover:bg-indigo-500 text-white'
             }`}
@@ -166,7 +183,7 @@ export default function PortalEventoDetailPage() {
             ) : (
               <Ticket size={18} />
             )}
-            {evento.capacidadDisponible === 0 ? 'Cupos Agotados' : 'Inscribirse'}
+            {alreadyInscrito ? 'Ya Inscrito' : evento.capacidadDisponible === 0 ? 'Cupos Agotados' : 'Inscribirse'}
           </button>
         </div>
       </div>
@@ -177,6 +194,30 @@ export default function PortalEventoDetailPage() {
         onClose={() => setStripeConfig({ isOpen: false, clientSecret: '' })}
         onSuccess={handlePaymentSuccess}
       />
+      <Modal isOpen={showProfileAlert} onClose={() => setShowProfileAlert(false)} title="Perfil Incompleto" size="sm">
+        <div className="space-y-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
+              <AlertTriangle size={22} className="text-amber-400" />
+            </div>
+            <p className="text-sm font-semibold text-white">Debes completar tu perfil</p>
+          </div>
+          <p className="text-sm text-gray-300">
+            Para inscribirte a eventos necesitas tener tus datos completos. Ve a tu perfil para actualizar documento, género, fecha de nacimiento y teléfono.
+          </p>
+          <div className="flex justify-end gap-3">
+            <button onClick={() => setShowProfileAlert(false)} className="rounded-xl bg-white/5 border border-white/10 px-4 py-2 text-sm text-gray-300 hover:bg-white/10 transition-colors">
+              Después
+            </button>
+            <Link
+              to="/dashboard/profile?incomplete=true"
+              className="rounded-xl bg-indigo-600 px-5 py-2 text-sm font-semibold text-white hover:bg-indigo-500 transition-colors"
+            >
+              Ir a Mi Perfil
+            </Link>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }

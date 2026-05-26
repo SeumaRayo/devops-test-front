@@ -6,6 +6,7 @@ import { EventoPublicoCard } from '../components/EventoPublicoCard';
 import { Search, SlidersHorizontal, X } from 'lucide-react';
 import { LoadingSpinner } from '../../../components/ui/LoadingSpinner';
 import { PageHeader } from '../../../components/ui/PageHeader';
+import { useMisTickets } from '../hooks/ticket.queries';
 
 export default function PortalPage() {
   const { user } = useAuthStore();
@@ -17,6 +18,9 @@ export default function PortalPage() {
     applyFilters,
     error: errorEventos,
   } = useEventos('disponibles');
+
+  const { data: misTickets } = useMisTickets();
+  const inscritoEventos = new Set(misTickets?.map((t) => t.idEvento) ?? []);
 
   const [searchNombre, setSearchNombre] = useState('');
   const [searchLugar, setSearchLugar] = useState('');
@@ -155,6 +159,7 @@ export default function PortalPage() {
               <EventoPublicoCard
                 key={ev.idEvento}
                 evento={ev}
+                inscrito={inscritoEventos.has(ev.idEvento)}
               />
             ))}
           </div>
