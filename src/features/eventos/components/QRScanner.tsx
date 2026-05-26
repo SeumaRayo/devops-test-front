@@ -28,9 +28,11 @@ export const QRScanner: React.FC<QRScannerProps> = ({ onScanSuccess }) => {
 
     let scanner: Html5Qrcode | null = null;
     let started = false;
+    let cancelled = false;
 
-    const start = async () => {
+    const timeout = setTimeout(async () => {
       try {
+        if (cancelled) return;
         scanner = new Html5Qrcode(divId, { verbose: false });
         scannerRef.current = scanner;
 
@@ -45,9 +47,12 @@ export const QRScanner: React.FC<QRScannerProps> = ({ onScanSuccess }) => {
           },
           () => {}
         );
-        started = true;
-        setStatus('running');
+        if (!cancelled) {
+          started = true;
+          setStatus('running');
+        }
       } catch (err: any) {
+        if (cancelled) return;
         const msg = err?.message || '';
         setErrorMsg(
           msg.toLowerCase().includes('permission')
@@ -56,11 +61,11 @@ export const QRScanner: React.FC<QRScannerProps> = ({ onScanSuccess }) => {
         );
         setStatus('error');
       }
-    };
-
-    start();
+    }, 100);
 
     return () => {
+      cancelled = true;
+      clearTimeout(timeout);
       if (scanner) {
         const stopPromise = started ? scanner.stop() : Promise.resolve();
         stopPromise.finally(() => { scanner?.clear(); });
