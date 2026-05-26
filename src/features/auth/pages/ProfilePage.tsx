@@ -1,40 +1,116 @@
-import React, { useEffect, useState } from 'react';
-import { User, Shield, Clock, Calendar, KeyRound, Mail, Phone, Hash } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { useLocation } from 'react-router-dom';
+import { User, Shield, Clock, Calendar, KeyRound, Mail, Phone, Hash, Pencil, X, Save, Loader2, AlertTriangle } from 'lucide-react';
 import { PageHeader } from '../../../components/ui/PageHeader';
 import { LoadingSpinner } from '../../../components/ui/LoadingSpinner';
+import { Modal } from '../../../components/ui/Modal';
 import { ChangePasswordForm } from '../../auth/components/ChangePasswordForm';
 import { usuarioService } from '../../usuarios/services/usuario.service';
 import { sesionService } from '../../sesiones/services/sesion.service';
 import { UsuarioResponse } from '../../usuarios/types/usuario.types';
 import { SesionResponseDto } from '../../sesiones/types/sesion.types';
 
+const inputClass = 'w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder-gray-500 outline-none transition focus:border-indigo-500/60';
+const labelClass = 'block text-xs font-medium text-gray-400 mb-1.5';
+
 export default function ProfilePage() {
+  const location = useLocation();
   const [profile, setProfile] = useState<UsuarioResponse | null>(null);
   const [lastSession, setLastSession] = useState<SesionResponseDto | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showPasswordForm, setShowPasswordForm] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [showCompletionAlert, setShowCompletionAlert] = useState(false);
+  const [pageReady, setPageReady] = useState(false);
+  const alertClosed = useRef(false);
+
+  const [formDoc, setFormDoc] = useState('');
+  const [formNombres, setFormNombres] = useState('');
+  const [formApellidos, setFormApellidos] = useState('');
+  const [formTelefono, setFormTelefono] = useState('');
+  const [formGenero, setFormGenero] = useState('');
+  const [formFechaNac, setFormFechaNac] = useState('');
+
+  const fetchProfile = async () => {
+    setIsLoading(true);
+    try {
+      const [userData, sessionData] = await Promise.all([
+        usuarioService.getCurrentUser(),
+        sesionService.getUltima().catch(() => null),
+      ]);
+      setProfile(userData);
+      setLastSession(sessionData);
+    } catch {
+      setError('No se pudo cargar el perfil.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchProfile = async () => {
-      setIsLoading(true);
-      try {
-        const [userData, sessionData] = await Promise.all([
-          usuarioService.getCurrentUser(),
-          sesionService.getUltima().catch(() => null),
-        ]);
-        setProfile(userData);
-        setLastSession(sessionData);
-      } catch {
-        setError('No se pudo cargar el perfil.');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchProfile();
-  }, []);
+    const params = new URLSearchParams(location.search);
+    if (params.get('incomplete') === 'true') {
+      setShowCompletionAlert(true);
+    }
+  }, [location.search]);
 
-  if (isLoading) return <LoadingSpinner size="lg" />;
+  useEffect(() => { fetchProfile(); }, []);
+
+  useEffect(() => {
+    if (!isLoading && !showCompletionAlert && !pageReady) {
+      setPageReady(true);
+    }
+  }, [isLoading, showCompletionAlert, pageReady]);
+
+  const handleCloseAlert = () => {
+    alertClosed.current = true;
+    setShowCompletionAlert(false);
+    setPageReady(true);
+  };
+
+  const startEditing = () => {
+    if (!profile) return;
+    setFormDoc(profile.documento || '');
+    setFormNombres(profile.nombres || '');
+    setFormApellidos(profile.apellidos || '');
+    setFormTelefono(profile.telefono || '');
+    setFormGenero(profile.genero || '');
+    setFormFechaNac(profile.fechaNacimiento || '');
+    setSaveError(null);
+    setIsEditing(true);
+  };
+
+  const cancelEditing = () => {
+    setIsEditing(false);
+    setSaveError(null);
+  };
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSaving(true);
+    setSaveError(null);
+    try {
+      await usuarioService.updateSelf({
+        documento: formDoc || undefined,
+        nombres: formNombres || undefined,
+        apellidos: formApellidos || undefined,
+        telefono: formTelefono || undefined,
+        genero: (formGenero as 'masculino' | 'femenino') || undefined,
+        fechaNacimiento: formFechaNac || undefined,
+      });
+      setIsEditing(false);
+      await fetchProfile();
+    } catch (err: any) {
+      setSaveError(err.response?.data?.message || 'Error al actualizar el perfil.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  if (!pageReady) return <LoadingSpinner size="lg" />;
 
   if (error || !profile) {
     return (
@@ -66,14 +142,61 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-x-6 gap-y-4">
-              <DetailField icon={<Hash size={14} />} label="ID Usuario" value={String(profile.idUsuario)} />
-              <DetailField icon={<Hash size={14} />} label="Documento" value={profile.documento} />
-              {profile.telefono && <DetailField icon={<Phone size={14} />} label="Teléfono" value={profile.telefono} />}
-              {profile.genero && <DetailField icon={<User size={14} />} label="Género" value={profile.genero} />}
-              {profile.fechaNacimiento && <DetailField icon={<Calendar size={14} />} label="Fecha de Nacimiento" value={profile.fechaNacimiento} />}
-              <DetailField icon={<Shield size={14} />} label="Estado" value={profile.estado || 'ACTIVO'} />
-            </div>
+            {isEditing ? (
+              <form onSubmit={handleSave} className="space-y-4">
+                {saveError && (
+                  <div className="rounded-xl border border-red-500/20 bg-red-500/10 p-3 text-sm text-red-400">{saveError}</div>
+                )}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className={labelClass}>Documento</label>
+                    <input value={formDoc} onChange={(e) => setFormDoc(e.target.value)} className={inputClass} />
+                  </div>
+                  <div>
+                    <label className={labelClass}>Teléfono</label>
+                    <input value={formTelefono} onChange={(e) => setFormTelefono(e.target.value)} className={inputClass} />
+                  </div>
+                  <div>
+                    <label className={labelClass}>Nombres</label>
+                    <input value={formNombres} onChange={(e) => setFormNombres(e.target.value)} className={inputClass} />
+                  </div>
+                  <div>
+                    <label className={labelClass}>Apellidos</label>
+                    <input value={formApellidos} onChange={(e) => setFormApellidos(e.target.value)} className={inputClass} />
+                  </div>
+                  <div>
+                    <label className={labelClass}>Género</label>
+                    <select value={formGenero} onChange={(e) => setFormGenero(e.target.value)} className={inputClass}>
+                      <option value="">Seleccionar...</option>
+                      <option value="masculino">Masculino</option>
+                      <option value="femenino">Femenino</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className={labelClass}>Fecha de Nacimiento</label>
+                    <input type="date" value={formFechaNac} onChange={(e) => setFormFechaNac(e.target.value)} className={inputClass} />
+                  </div>
+                </div>
+                <div className="flex justify-end gap-3 pt-2">
+                  <button type="button" onClick={cancelEditing} className="rounded-xl bg-white/5 border border-white/10 px-4 py-2.5 text-sm text-gray-300 hover:bg-white/10 transition-colors">
+                    Cancelar
+                  </button>
+                  <button type="submit" disabled={isSaving} className="rounded-xl bg-indigo-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500 disabled:opacity-50 transition-colors">
+                    {isSaving ? <Loader2 size={16} className="animate-spin inline mr-2" /> : <Save size={16} className="inline mr-2" />}
+                    {isSaving ? 'Guardando...' : 'Guardar Cambios'}
+                  </button>
+                </div>
+              </form>
+            ) : (
+              <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+                <DetailField icon={<Hash size={14} />} label="ID Usuario" value={String(profile.idUsuario)} />
+                <DetailField icon={<Hash size={14} />} label="Documento" value={profile.documento} />
+                {profile.telefono && <DetailField icon={<Phone size={14} />} label="Teléfono" value={profile.telefono} />}
+                {profile.genero && <DetailField icon={<User size={14} />} label="Género" value={profile.genero} />}
+                {profile.fechaNacimiento && <DetailField icon={<Calendar size={14} />} label="Fecha de Nacimiento" value={profile.fechaNacimiento} />}
+                <DetailField icon={<Shield size={14} />} label="Estado" value={profile.estado || 'ACTIVO'} />
+              </div>
+            )}
           </div>
         </div>
 
@@ -106,22 +229,61 @@ export default function ProfilePage() {
           <div className="rounded-2xl border border-white/5 bg-gray-900/30 p-6 backdrop-blur-xl">
             <div className="flex items-center gap-3 mb-4">
               <KeyRound size={18} className="text-indigo-400" />
-              <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">Seguridad</h3>
+              <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">Acciones</h3>
             </div>
-            {showPasswordForm ? (
-              <ChangePasswordForm />
-            ) : (
-              <button
-                onClick={() => setShowPasswordForm(true)}
-                className="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-2.5 text-sm text-gray-300 hover:bg-white/10 transition-colors text-left flex items-center gap-2"
-              >
-                <KeyRound size={14} className="text-blue-400" />
-                Cambiar Contraseña
-              </button>
-            )}
+            <div className="space-y-3">
+              {!isEditing && (
+                <button
+                  onClick={startEditing}
+                  className="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-2.5 text-sm text-gray-300 hover:bg-white/10 transition-colors text-left flex items-center gap-2"
+                >
+                  <Pencil size={14} className="text-indigo-400" />
+                  Editar Perfil
+                </button>
+              )}
+              {showPasswordForm ? (
+                <ChangePasswordForm />
+              ) : (
+                <button
+                  onClick={() => setShowPasswordForm(true)}
+                  className="w-full rounded-xl bg-white/5 border border-white/10 px-4 py-2.5 text-sm text-gray-300 hover:bg-white/10 transition-colors text-left flex items-center gap-2"
+                >
+                  <KeyRound size={14} className="text-blue-400" />
+                  Cambiar Contraseña
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>
+
+      <Modal isOpen={showCompletionAlert} onClose={handleCloseAlert} title="Perfil Incompleto" size="md">
+        <div className="space-y-5">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
+              <AlertTriangle size={22} className="text-amber-400" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-white">Completa tu información</p>
+              <p className="text-xs text-gray-400">Tu perfil tiene campos obligatorios sin completar.</p>
+            </div>
+          </div>
+          <p className="text-sm text-gray-300">
+            Para poder inscribirte a eventos, necesitas completar tu documento, género, fecha de nacimiento y teléfono. Haz clic en <strong>Editar Perfil</strong> para actualizar tus datos.
+          </p>
+          <div className="flex justify-end gap-3">
+            <button onClick={handleCloseAlert} className="rounded-xl bg-white/5 border border-white/10 px-4 py-2 text-sm text-gray-300 hover:bg-white/10 transition-colors">
+              Después
+            </button>
+            <button
+              onClick={() => { handleCloseAlert(); startEditing(); }}
+              className="rounded-xl bg-indigo-600 px-5 py-2 text-sm font-semibold text-white hover:bg-indigo-500 transition-colors"
+            >
+              Editar Perfil
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }

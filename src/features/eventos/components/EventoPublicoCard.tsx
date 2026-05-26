@@ -1,19 +1,25 @@
 import React from 'react';
 import { EventoResponse } from '../types/evento.types';
-import { MapPin, Calendar, Clock, Loader2 } from 'lucide-react';
+import { MapPin, Calendar, Clock, CheckCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 interface Props {
   evento: EventoResponse;
+  inscrito?: boolean;
 }
 
-export const EventoPublicoCard: React.FC<Props> = ({ evento }) => {
+export const EventoPublicoCard: React.FC<Props> = ({ evento, inscrito }) => {
   const isFree = !evento.esDePago || evento.precio === 0;
 
   return (
-    <div className="w-full min-w-0 bg-gray-900/30 backdrop-blur-xl border border-white/10 rounded-2xl p-6 flex flex-col justify-between hover:border-indigo-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-indigo-500/25 hover:-translate-y-1 overflow-hidden">
+    <div className="w-full min-w-0 bg-gray-900/30 backdrop-blur-xl border border-white/10 rounded-2xl p-6 flex flex-col justify-between hover:border-indigo-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-indigo-500/25 hover:-translate-y-1 overflow-hidden relative">
+      {inscrito && (
+        <span className="absolute top-3 right-3 inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+          <CheckCircle size={12} /> Inscrito
+        </span>
+      )}
       <div className="min-w-0">
-        <h3 className="text-xl font-bold text-white mb-2 break-words">{evento.nombreEvento}</h3>
+        <h3 className="text-xl font-bold text-white mb-2 break-words pr-16">{evento.nombreEvento}</h3>
         <p className="text-gray-400 text-sm mb-4 line-clamp-2">{evento.descripcionEvento}</p>
 
         <div className="space-y-2 mb-6">
