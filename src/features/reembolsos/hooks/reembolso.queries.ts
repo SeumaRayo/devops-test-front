@@ -72,3 +72,13 @@ export const useRechazarSolicitud = () => {
     },
   });
 };
+
+export const useMarcarReembolsada = () => {
+  const queryClient = useQueryClient();
+  return useMutation<SolicitudReembolsoResponse, Error, { eventoId: number; solicitudId: number }>({
+    mutationFn: ({ eventoId, solicitudId }) => reembolsoService.marcarReembolsada(eventoId, solicitudId),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['reembolsos', 'evento', variables.eventoId] });
+    },
+  });
+};
