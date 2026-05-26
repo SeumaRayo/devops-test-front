@@ -12,22 +12,23 @@ export const QRScanner: React.FC<QRScannerProps> = ({ onScanSuccess }) => {
   const [status, setStatus] = useState<'idle' | 'starting' | 'running' | 'scanned' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
   const hasScanned = useRef(false);
-  const startAttempted = useRef(false);
+  const [startTrigger, setStartTrigger] = useState(0);
 
   const onScanSuccessRef = useRef(onScanSuccess);
   useEffect(() => { onScanSuccessRef.current = onScanSuccess; }, [onScanSuccess]);
 
   const startScanning = () => {
-    if (startAttempted.current) return;
-    startAttempted.current = true;
+    setStartTrigger((prev) => prev + 1);
     setStatus('starting');
+    setErrorMsg('');
   };
 
   useEffect(() => {
-    if (status !== 'starting') return;
+    if (startTrigger === 0) return;
 
     let scanner: Html5Qrcode | null = null;
     let started = false;
+    let cancelled = false;
 
     const start = async () => {
       try {
@@ -42,12 +43,19 @@ export const QRScanner: React.FC<QRScannerProps> = ({ onScanSuccess }) => {
             hasScanned.current = true;
             setStatus('scanned');
             onScanSuccessRef.current(decodedText);
+            setTimeout(() => {
+              hasScanned.current = false;
+              setStatus('running');
+            }, 2000);
           },
           () => {}
         );
-        started = true;
-        setStatus('running');
+        if (!cancelled) {
+          started = true;
+          setStatus('running');
+        }
       } catch (err: any) {
+        if (cancelled) return;
         const msg = err?.message || '';
         setErrorMsg(
           msg.toLowerCase().includes('permission')
@@ -61,119 +69,99 @@ export const QRScanner: React.FC<QRScannerProps> = ({ onScanSuccess }) => {
     start();
 
     return () => {
+      cancelled = true;
       if (scanner) {
         const stopPromise = started ? scanner.stop() : Promise.resolve();
         stopPromise.finally(() => { scanner?.clear(); });
       }
     };
-  }, [status]);
+  }, [startTrigger]);
 
   return (
     <div className="w-full">
-      {status === 'idle' && (
-        <button
-          onClick={startScanning}
-          className="w-full flex items-center justify-center gap-3 rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors py-12 text-gray-300"
-        >
-          <Camera size={28} className="text-indigo-400" />
-          <span className="text-sm font-medium">Toca para escanear QR</span>
-        </button>
-      )}
-
-      {(status === 'starting' || status === 'running' || status === 'scanned') && (
+      <div className="relative rounded-2xl overflow-hidden bg-black border border-white/10 w-full" style={{ aspectRatio: '1 / 1' }}>
         <div
-          className="relative rounded-2xl overflow-hidden bg-black border border-white/10 w-full"
-          style={{ aspectRatio: '1 / 1' }}
-        >
-          <div
-            id={divId}
-            style={{
-              width: '100%',
-              height: '100%',
-              position: 'absolute',
-              inset: 0,
-            }}
-          />
+          id={divId}
+          style={{ width: '100%', height: '100%', position: 'absolute', inset: 0 }}
+        />
 
-        {/* ── Corner bracket overlay ── */}
-        {status === 'running' && (
+        {status === 'idle' && (
+          <button
+            onClick={startScanning}
+            className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-gray-950 hover:bg-gray-900 transition-colors"
+          >
+            <Camera size={28} className="text-indigo-400" />
+            <span className="text-sm font-medium text-gray-300">Toca para escanear QR</span>
+          </button>
+        )}
+
+        {(status === 'starting' || status === 'running' || status === 'scanned') && (
           <>
-            {/* Dark vignette around the scan zone */}
-            <div
-              className="absolute inset-0 pointer-events-none"
-              style={{
-                background: `
-                  linear-gradient(to right, rgba(0,0,0,0.55) 0%, transparent 25%, transparent 75%, rgba(0,0,0,0.55) 100%),
-                  linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, transparent 25%, transparent 75%, rgba(0,0,0,0.55) 100%)
-                `,
-              }}
-            />
-            {/* Animated scan line */}
-            <div
-              className="absolute left-1/2 -translate-x-1/2 pointer-events-none"
-              style={{
-                top: 'calc(50% - 120px)',
-                width: '240px',
-                height: '2px',
-                background: 'linear-gradient(to right, transparent, #6366f1, transparent)',
-                animation: 'scanLine 2s linear infinite',
-              }}
-            />
-            {/* Corner brackets */}
-            {[
-              'top-[calc(50%-120px)] left-[calc(50%-120px)] border-t-2 border-l-2 rounded-tl-lg',
-              'top-[calc(50%-120px)] left-[calc(50%+88px)]  border-t-2 border-r-2 rounded-tr-lg',
-              'top-[calc(50%+88px)]  left-[calc(50%-120px)] border-b-2 border-l-2 rounded-bl-lg',
-              'top-[calc(50%+88px)]  left-[calc(50%+88px)]  border-b-2 border-r-2 rounded-br-lg',
-            ].map((cls, i) => (
-              <div
-                key={i}
-                className={`absolute pointer-events-none w-8 h-8 border-indigo-400 ${cls}`}
-              />
-            ))}
-            {/* Label */}
-            <div className="absolute bottom-4 left-0 right-0 flex justify-center pointer-events-none">
-              <span className="bg-black/60 text-indigo-300 text-xs px-3 py-1 rounded-full backdrop-blur-sm">
-                Apunta al código QR
-              </span>
-            </div>
+            {status === 'running' && (
+              <>
+                <div
+                  className="absolute inset-0 pointer-events-none"
+                  style={{
+                    background: `
+                      linear-gradient(to right, rgba(0,0,0,0.55) 0%, transparent 25%, transparent 75%, rgba(0,0,0,0.55) 100%),
+                      linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, transparent 25%, transparent 75%, rgba(0,0,0,0.55) 100%)
+                    `,
+                  }}
+                />
+                <div
+                  className="absolute left-1/2 -translate-x-1/2 pointer-events-none"
+                  style={{
+                    top: 'calc(50% - 120px)',
+                    width: '240px',
+                    height: '2px',
+                    background: 'linear-gradient(to right, transparent, #6366f1, transparent)',
+                    animation: 'scanLine 2s linear infinite',
+                  }}
+                />
+                {[
+                  'top-[calc(50%-120px)] left-[calc(50%-120px)] border-t-2 border-l-2 rounded-tl-lg',
+                  'top-[calc(50%-120px)] left-[calc(50%+88px)]  border-t-2 border-r-2 rounded-tr-lg',
+                  'top-[calc(50%+88px)]  left-[calc(50%-120px)] border-b-2 border-l-2 rounded-bl-lg',
+                  'top-[calc(50%+88px)]  left-[calc(50%+88px)]  border-b-2 border-r-2 rounded-br-lg',
+                ].map((cls, i) => (
+                  <div key={i} className={`absolute pointer-events-none w-8 h-8 border-indigo-400 ${cls}`} />
+                ))}
+                <div className="absolute bottom-4 left-0 right-0 flex justify-center pointer-events-none">
+                  <span className="bg-black/60 text-indigo-300 text-xs px-3 py-1 rounded-full backdrop-blur-sm">
+                    Apunta al código QR
+                  </span>
+                </div>
+              </>
+            )}
+
+            {status === 'starting' && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-950 gap-3 z-10">
+                <Loader2 className="w-10 h-10 animate-spin text-indigo-400" />
+                <p className="text-gray-400 text-sm">Iniciando cámara...</p>
+              </div>
+            )}
+
+            {status === 'scanned' && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-green-500/20 backdrop-blur-sm gap-3 z-10">
+                <CheckCircle className="w-16 h-16 text-green-400" />
+                <p className="text-green-300 font-semibold text-lg">¡Código detectado!</p>
+              </div>
+            )}
+
+            {status === 'starting' && (
+              <svg className="absolute inset-0 w-full h-full opacity-10 z-0" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+                    <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#6366f1" strokeWidth="0.5" />
+                  </pattern>
+                </defs>
+                <rect width="100%" height="100%" fill="url(#grid)" />
+              </svg>
+            )}
           </>
         )}
-
-        {/* ── Starting overlay ── */}
-        {status === 'starting' && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-950 gap-3 z-10">
-            <Loader2 className="w-10 h-10 animate-spin text-indigo-400" />
-            <p className="text-gray-400 text-sm">Iniciando cámara...</p>
-          </div>
-        )}
-
-        {/* ── Scanned overlay ── */}
-        {status === 'scanned' && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center bg-green-500/20 backdrop-blur-sm gap-3 z-10">
-            <CheckCircle className="w-16 h-16 text-green-400" />
-            <p className="text-green-300 font-semibold text-lg">¡Código detectado!</p>
-          </div>
-        )}
-
-        {/* ── Grid pattern background (visible before camera activates) ── */}
-        {status === 'starting' && (
-          <svg
-            className="absolute inset-0 w-full h-full opacity-10 z-0"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <defs>
-              <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
-                <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#6366f1" strokeWidth="0.5" />
-              </pattern>
-            </defs>
-            <rect width="100%" height="100%" fill="url(#grid)" />
-          </svg>
-        )}
       </div>
-      )}
 
-      {/* ── Error ── */}
       {status === 'error' && (
         <div className="mt-3 flex items-start gap-3 bg-red-500/10 border border-red-500/20 rounded-xl p-4">
           <CameraOff className="text-red-400 shrink-0 mt-0.5" size={20} />
@@ -181,7 +169,6 @@ export const QRScanner: React.FC<QRScannerProps> = ({ onScanSuccess }) => {
         </div>
       )}
 
-      {/* ── Keyframe style ── */}
       <style>{`
         @keyframes scanLine {
           0%   { transform: translateX(-50%) translateY(0); }
