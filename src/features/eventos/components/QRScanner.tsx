@@ -43,6 +43,10 @@ export const QRScanner: React.FC<QRScannerProps> = ({ onScanSuccess }) => {
             hasScanned.current = true;
             setStatus('scanned');
             onScanSuccessRef.current(decodedText);
+            setTimeout(() => {
+              hasScanned.current = false;
+              setStatus('running');
+            }, 2000);
           },
           () => {}
         );
