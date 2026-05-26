@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { User, Shield, Clock, Calendar, KeyRound, Mail, Phone, Hash, Pencil, X, Save, Loader2, AlertTriangle } from 'lucide-react';
 import { PageHeader } from '../../../components/ui/PageHeader';
@@ -24,6 +24,8 @@ export default function ProfilePage() {
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [showCompletionAlert, setShowCompletionAlert] = useState(false);
+  const [pageReady, setPageReady] = useState(false);
+  const alertClosed = useRef(false);
 
   const [formDoc, setFormDoc] = useState('');
   const [formNombres, setFormNombres] = useState('');
@@ -56,6 +58,18 @@ export default function ProfilePage() {
   }, [location.search]);
 
   useEffect(() => { fetchProfile(); }, []);
+
+  useEffect(() => {
+    if (!isLoading && !showCompletionAlert && !pageReady) {
+      setPageReady(true);
+    }
+  }, [isLoading, showCompletionAlert, pageReady]);
+
+  const handleCloseAlert = () => {
+    alertClosed.current = true;
+    setShowCompletionAlert(false);
+    setPageReady(true);
+  };
 
   const startEditing = () => {
     if (!profile) return;
@@ -96,7 +110,7 @@ export default function ProfilePage() {
     }
   };
 
-  if (isLoading) return <LoadingSpinner size="lg" />;
+  if (!pageReady) return <LoadingSpinner size="lg" />;
 
   if (error || !profile) {
     return (
@@ -243,7 +257,7 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      <Modal isOpen={showCompletionAlert} onClose={() => setShowCompletionAlert(false)} title="Perfil Incompleto" size="md">
+      <Modal isOpen={showCompletionAlert} onClose={handleCloseAlert} title="Perfil Incompleto" size="md">
         <div className="space-y-5">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
@@ -258,11 +272,11 @@ export default function ProfilePage() {
             Para poder inscribirte a eventos, necesitas completar tu documento, género, fecha de nacimiento y teléfono. Haz clic en <strong>Editar Perfil</strong> para actualizar tus datos.
           </p>
           <div className="flex justify-end gap-3">
-            <button onClick={() => setShowCompletionAlert(false)} className="rounded-xl bg-white/5 border border-white/10 px-4 py-2 text-sm text-gray-300 hover:bg-white/10 transition-colors">
+            <button onClick={handleCloseAlert} className="rounded-xl bg-white/5 border border-white/10 px-4 py-2 text-sm text-gray-300 hover:bg-white/10 transition-colors">
               Después
             </button>
             <button
-              onClick={() => { setShowCompletionAlert(false); startEditing(); }}
+              onClick={() => { handleCloseAlert(); startEditing(); }}
               className="rounded-xl bg-indigo-600 px-5 py-2 text-sm font-semibold text-white hover:bg-indigo-500 transition-colors"
             >
               Editar Perfil
