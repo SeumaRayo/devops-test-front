@@ -75,30 +75,24 @@ export const QRScanner: React.FC<QRScannerProps> = ({ onScanSuccess }) => {
 
   return (
     <div className="w-full">
-      {status === 'idle' && (
-        <button
-          onClick={startScanning}
-          className="w-full flex items-center justify-center gap-3 rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors py-12 text-gray-300"
-        >
-          <Camera size={28} className="text-indigo-400" />
-          <span className="text-sm font-medium">Toca para escanear QR</span>
-        </button>
-      )}
-
-      {(status === 'starting' || status === 'running' || status === 'scanned') && (
+      <div className="relative rounded-2xl overflow-hidden bg-black border border-white/10 w-full" style={{ aspectRatio: '1 / 1' }}>
         <div
-          className="relative rounded-2xl overflow-hidden bg-black border border-white/10 w-full"
-          style={{ aspectRatio: '1 / 1' }}
-        >
-          <div
-            id={divId}
-            style={{
-              width: '100%',
-              height: '100%',
-              position: 'absolute',
-              inset: 0,
-            }}
-          />
+          id={divId}
+          style={{ width: '100%', height: '100%', position: 'absolute', inset: 0 }}
+        />
+
+        {status === 'idle' && (
+          <button
+            onClick={startScanning}
+            className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-gray-950 hover:bg-gray-900 transition-colors"
+          >
+            <Camera size={28} className="text-indigo-400" />
+            <span className="text-sm font-medium text-gray-300">Toca para escanear QR</span>
+          </button>
+        )}
+
+        {(status === 'starting' || status === 'running' || status === 'scanned') && (
+          <>
 
         {/* ── Corner bracket overlay ── */}
         {status === 'running' && (
@@ -175,8 +169,9 @@ export const QRScanner: React.FC<QRScannerProps> = ({ onScanSuccess }) => {
             <rect width="100%" height="100%" fill="url(#grid)" />
           </svg>
         )}
+          </>
+        )}
       </div>
-      )}
 
       {/* ── Error ── */}
       {status === 'error' && (
