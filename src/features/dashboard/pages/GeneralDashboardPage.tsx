@@ -34,7 +34,7 @@ export default function GeneralDashboardPage() {
         <p className="text-gray-400 mt-1 text-sm">Panel de administración — vista general del sistema.</p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
         <StatCard to="/dashboard/usuarios" icon={Users} label="Usuarios" value={stats?.totalUsuarios?.toLocaleString()} sub={`${stats?.usuariosActivos} activos`} color="indigo" />
         <StatCard to="/dashboard/eventos" icon={CalendarDays} label="Eventos" value={stats?.totalEventos?.toLocaleString()} sub={`${stats?.eventosPublicados} publicados`} color="emerald" />
         <StatCard to="/dashboard/mis-tickets" icon={Ticket} label="Tickets" value={stats?.totalTickets?.toLocaleString()} sub={`${stats?.ticketsVendidosHoy} hoy`} color="blue" />
@@ -43,8 +43,8 @@ export default function GeneralDashboardPage() {
         <StatCard to="/dashboard/sesiones" icon={MonitorDot} label="Sesiones" value={String(stats?.sesionesActivas ?? 0)} sub="activas" color="purple" />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
-        <div className="lg:col-span-3">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div>
           <div className="rounded-2xl border border-white/5 bg-gray-900/30 backdrop-blur-xl overflow-hidden">
             <div className="flex items-center justify-between px-6 py-4 border-b border-white/5">
               <div className="flex items-center gap-3">
@@ -83,7 +83,7 @@ export default function GeneralDashboardPage() {
           </div>
         </div>
 
-        <div className="lg:col-span-2">
+        <div>
           <div className="rounded-2xl border border-white/5 bg-gray-900/30 backdrop-blur-xl p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
@@ -96,12 +96,12 @@ export default function GeneralDashboardPage() {
                 Ver todos <ArrowRight size={12} />
               </Link>
             </div>
-            <div className="flex gap-3 overflow-x-auto pb-1 -mx-1 px-1">
+            <div className="grid grid-cols-2 gap-3">
               {stats?.proximosEventos?.map((e) => (
                 <Link
                   key={e.idEvento}
                   to={`/dashboard/eventos/${e.idEvento}`}
-                  className="shrink-0 w-36 h-36 rounded-2xl bg-emerald-600/10 border border-emerald-600/20 hover:bg-emerald-600/20 transition-colors flex flex-col items-center justify-center text-center p-3 gap-2 group"
+                  className="rounded-2xl bg-emerald-600/10 border border-emerald-600/20 hover:bg-emerald-600/20 transition-colors flex flex-col items-center justify-center text-center p-4 gap-2 group h-32"
                 >
                   <div className="w-10 h-10 rounded-xl bg-emerald-600/20 flex items-center justify-center">
                     <CalendarDays size={22} className="text-emerald-400" />
@@ -113,7 +113,7 @@ export default function GeneralDashboardPage() {
                 </Link>
               ))}
               {(!stats?.proximosEventos || stats.proximosEventos.length === 0) && (
-                <div className="w-full py-8 text-center text-sm text-gray-500">No hay eventos programados.</div>
+                <div className="col-span-2 py-8 text-center text-sm text-gray-500">No hay eventos programados.</div>
               )}
             </div>
           </div>
