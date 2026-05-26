@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Html5Qrcode } from 'html5-qrcode';
-import { Loader2, CameraOff, CheckCircle } from 'lucide-react';
+import { Loader2, CameraOff, CheckCircle, Camera } from 'lucide-react';
 
 interface QRScannerProps {
   onScanSuccess: (decodedText: string) => void;
@@ -9,18 +9,27 @@ interface QRScannerProps {
 export const QRScanner: React.FC<QRScannerProps> = ({ onScanSuccess }) => {
   const divId = 'qr-reader-camera';
   const scannerRef = useRef<Html5Qrcode | null>(null);
-  const [status, setStatus] = useState<'starting' | 'running' | 'scanned' | 'error'>('starting');
+  const [status, setStatus] = useState<'idle' | 'starting' | 'running' | 'scanned' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
   const hasScanned = useRef(false);
+  const startAttempted = useRef(false);
 
   const onScanSuccessRef = useRef(onScanSuccess);
   useEffect(() => { onScanSuccessRef.current = onScanSuccess; }, [onScanSuccess]);
 
+  const startScanning = () => {
+    if (startAttempted.current) return;
+    startAttempted.current = true;
+    setStatus('starting');
+  };
+
   useEffect(() => {
+    if (status !== 'starting') return;
+
     let scanner: Html5Qrcode | null = null;
     let started = false;
 
-    const startScanner = async () => {
+    const start = async () => {
       try {
         scanner = new Html5Qrcode(divId, { verbose: false });
         scannerRef.current = scanner;
@@ -49,7 +58,7 @@ export const QRScanner: React.FC<QRScannerProps> = ({ onScanSuccess }) => {
       }
     };
 
-    startScanner();
+    start();
 
     return () => {
       if (scanner) {
@@ -57,25 +66,34 @@ export const QRScanner: React.FC<QRScannerProps> = ({ onScanSuccess }) => {
         stopPromise.finally(() => { scanner?.clear(); });
       }
     };
-  }, []);
+  }, [status]);
 
   return (
     <div className="w-full">
-      {/* ── Viewfinder ── */}
-      <div
-        className="relative rounded-2xl overflow-hidden bg-black border border-white/10"
-        style={{ width: '100%', aspectRatio: '1 / 1', maxWidth: '400px', margin: '0 auto' }}
-      >
-        {/* html5-qrcode injects <video> here */}
+      {status === 'idle' && (
+        <button
+          onClick={startScanning}
+          className="w-full flex items-center justify-center gap-3 rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors py-12 text-gray-300"
+        >
+          <Camera size={28} className="text-indigo-400" />
+          <span className="text-sm font-medium">Toca para escanear QR</span>
+        </button>
+      )}
+
+      {(status === 'starting' || status === 'running' || status === 'scanned') && (
         <div
-          id={divId}
-          style={{
-            width: '100%',
-            height: '100%',
-            position: 'absolute',
-            inset: 0,
-          }}
-        />
+          className="relative rounded-2xl overflow-hidden bg-black border border-white/10 w-full"
+          style={{ aspectRatio: '1 / 1' }}
+        >
+          <div
+            id={divId}
+            style={{
+              width: '100%',
+              height: '100%',
+              position: 'absolute',
+              inset: 0,
+            }}
+          />
 
         {/* ── Corner bracket overlay ── */}
         {status === 'running' && (
@@ -153,6 +171,7 @@ export const QRScanner: React.FC<QRScannerProps> = ({ onScanSuccess }) => {
           </svg>
         )}
       </div>
+      )}
 
       {/* ── Error ── */}
       {status === 'error' && (
