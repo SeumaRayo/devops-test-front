@@ -68,19 +68,19 @@ export const usuarioService = {
 
   // GET /api/v1/usuarios/id
   getCurrentUser: async (): Promise<UsuarioResponse> => {
-    const { data } = await axiosInstance.get<UsuarioResponse>('/api/v1/usuarios/id');
+    const { data } = await axiosInstance.get<UsuarioResponse>(API_ENDPOINTS.USUARIOS.CURRENT_USER);
     return data;
   },
 
   // GET /api/v1/usuarios/{id}/organizador
   getByIdOrganizador: async (id: number): Promise<UsuarioOrganizadorResponse> => {
-    const { data } = await axiosInstance.get<UsuarioOrganizadorResponse>(`/api/v1/usuarios/${id}/organizador`);
+    const { data } = await axiosInstance.get<UsuarioOrganizadorResponse>(API_ENDPOINTS.USUARIOS.ORGANIZADOR(id));
     return data;
   },
 
   // PATCH /api/v1/usuarios/me
   updateSelf: async (payload: Partial<UsuarioUpdateRequest>): Promise<UsuarioResponse> => {
-    const { data } = await axiosInstance.patch<UsuarioResponse>('/api/v1/usuarios/me', payload);
+    const { data } = await axiosInstance.patch<UsuarioResponse>(API_ENDPOINTS.USUARIOS.UPDATE_SELF, payload);
     return data;
   },
 

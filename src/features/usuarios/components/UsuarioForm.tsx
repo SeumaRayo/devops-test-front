@@ -54,7 +54,7 @@ export const UsuarioForm: React.FC<UsuarioFormProps> = ({ onSuccess }) => {
   useEffect(() => {
     const fetchRoles = async () => {
       try {
-        const { data } = await axiosInstance.get<RolOption[]>('/api/v1/roles/all');
+        const { data } = await axiosInstance.get<RolOption[]>(API_ENDPOINTS.ROLES.ALL);
         setRoles(data.filter((r) => r.estado === 'ACTIVO'));
       } catch {
         // fallback
