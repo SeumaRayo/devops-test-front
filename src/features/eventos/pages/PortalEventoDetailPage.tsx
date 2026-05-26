@@ -5,9 +5,10 @@ import { EventoResponse } from '../types/evento.types';
 import { useInscribirEvento } from '../hooks/ticket.queries';
 import { useMisTickets } from '../hooks/ticket.queries';
 import { StripeCheckoutDialog } from '../components/StripeCheckoutDialog';
-import { Loader2, ArrowLeft, Calendar, Clock, MapPin, Users, Ticket, CheckCircle, AlertCircle } from 'lucide-react';
+import { Loader2, ArrowLeft, Calendar, Clock, MapPin, Users, Ticket, CheckCircle, AlertCircle, AlertTriangle } from 'lucide-react';
 import { PageHeader } from '../../../components/ui/PageHeader';
 import { LoadingSpinner } from '../../../components/ui/LoadingSpinner';
+import { Modal } from '../../../components/ui/Modal';
 import { usuarioService } from '../../usuarios/services/usuario.service';
 
 export default function PortalEventoDetailPage() {
@@ -24,6 +25,7 @@ export default function PortalEventoDetailPage() {
   const alreadyInscrito = misTickets?.some((t) => t.idEvento === Number(id)) ?? false;
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [showProfileAlert, setShowProfileAlert] = useState(false);
   const [stripeConfig, setStripeConfig] = useState<{ isOpen: boolean; clientSecret: string }>({
     isOpen: false,
     clientSecret: '',
@@ -57,7 +59,7 @@ export default function PortalEventoDetailPage() {
     try {
       const status = await usuarioService.getCompleteStatus();
       if (status.requiresCompletion) {
-        setErrorMessage('Debes completar tu perfil antes de inscribirte. Ve a Mi Perfil para actualizar tus datos.');
+        setShowProfileAlert(true);
         return;
       }
     } catch {
@@ -134,16 +136,9 @@ export default function PortalEventoDetailPage() {
         </div>
       )}
       {errorMessage && (
-        <div className="mb-6 rounded-xl border px-4 py-3 text-sm flex items-start gap-3 border-red-500/20 bg-red-500/10 text-red-400">
-          <AlertCircle size={18} className="shrink-0 mt-0.5" />
-          <div>
-            <span>{errorMessage}</span>
-            {errorMessage.includes('perfil') && (
-              <Link to="/dashboard/profile" className="block mt-1 text-indigo-400 hover:text-indigo-300 text-xs">
-                Ir a Mi Perfil →
-              </Link>
-            )}
-          </div>
+        <div className="mb-6 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-400 flex items-center gap-3">
+          <AlertCircle size={18} className="shrink-0" />
+          <span>{errorMessage}</span>
         </div>
       )}
 
@@ -199,6 +194,30 @@ export default function PortalEventoDetailPage() {
         onClose={() => setStripeConfig({ isOpen: false, clientSecret: '' })}
         onSuccess={handlePaymentSuccess}
       />
+      <Modal isOpen={showProfileAlert} onClose={() => setShowProfileAlert(false)} title="Perfil Incompleto" size="sm">
+        <div className="space-y-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
+              <AlertTriangle size={22} className="text-amber-400" />
+            </div>
+            <p className="text-sm font-semibold text-white">Debes completar tu perfil</p>
+          </div>
+          <p className="text-sm text-gray-300">
+            Para inscribirte a eventos necesitas tener tus datos completos. Ve a tu perfil para actualizar documento, género, fecha de nacimiento y teléfono.
+          </p>
+          <div className="flex justify-end gap-3">
+            <button onClick={() => setShowProfileAlert(false)} className="rounded-xl bg-white/5 border border-white/10 px-4 py-2 text-sm text-gray-300 hover:bg-white/10 transition-colors">
+              Después
+            </button>
+            <Link
+              to="/dashboard/profile?incomplete=true"
+              className="rounded-xl bg-indigo-600 px-5 py-2 text-sm font-semibold text-white hover:bg-indigo-500 transition-colors"
+            >
+              Ir a Mi Perfil
+            </Link>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }

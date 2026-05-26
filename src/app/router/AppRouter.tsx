@@ -1,4 +1,5 @@
-import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { useEffect, useRef } from 'react';
+import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import LoginPage from '../../features/auth/pages/LoginPage';
 import RegisterPage from '../../features/auth/pages/RegisterPage';
 import { ForgotPasswordPage } from '../../features/auth/pages/ForgotPasswordPage';
@@ -30,11 +31,25 @@ import UnauthorizedPage from '../../pages/UnauthorizedPage';
 import NotFoundPage from '../../pages/NotFoundPage';
 import { RoleGuard } from '../../components/common/RoleGuard';
 import { useAuthStore } from '../store/auth.store';
+import { usuarioService } from '../../features/usuarios/services/usuario.service';
 import { ROLES } from '../../config/roles';
 
 const RootRedirect = () => {
   const { isAuthenticated, user } = useAuthStore();
   const location = useLocation();
+  const navigate = useNavigate();
+  const checkedRef = useRef(false);
+
+  useEffect(() => {
+    if (isAuthenticated && !checkedRef.current) {
+      checkedRef.current = true;
+      usuarioService.getCompleteStatus().then((status) => {
+        if (status.requiresCompletion) {
+          navigate('/dashboard/profile?incomplete=true', { replace: true });
+        }
+      }).catch(() => {});
+    }
+  }, [isAuthenticated, navigate]);
 
   if (location.search.includes('authenticated=true')) {
     return <Navigate to={`/oauth2/redirect${location.search}`} replace />;
