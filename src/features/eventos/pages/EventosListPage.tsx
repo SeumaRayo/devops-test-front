@@ -22,6 +22,8 @@ export default function EventosListPage() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
+  const [reasonDialog, setReasonDialog] = useState<{ type: string; eventId: number } | null>(null);
+  const [reason, setReason] = useState('');
 
   useEffect(() => {
     fetch();
@@ -92,10 +94,7 @@ export default function EventosListPage() {
             )}
             {(estado === 'BORRADOR' || estado === 'PUBLICADO') && (
               <button
-                onClick={() => {
-                  const motivo = prompt('Motivo de cancelación:');
-                  if (motivo) actionTransition(row.idEvento, 'cancelar', { comentario: motivo });
-                }}
+                onClick={() => { setReasonDialog({ type: 'cancelar', eventId: row.idEvento }); setReason(''); }}
                 className="text-xs bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2 py-1 rounded-md hover:bg-amber-500/20 transition-colors"
               >
                 Cancelar
@@ -113,10 +112,7 @@ export default function EventosListPage() {
            <StatusToggle
              status={row.estado}
              onActivate={() => actionTransition(row.idEvento, 'activar')}
-             onDeactivate={() => {
-               const motivo = prompt('Motivo de desactivación:');
-               if (motivo) actionTransition(row.idEvento, 'desactivar', { comentario: motivo });
-             }}
+              onDeactivate={() => { setReasonDialog({ type: 'desactivar', eventId: row.idEvento }); setReason(''); }}
            />
            <Link to={`/dashboard/eventos/${row.idEvento}`} className="text-gray-400 hover:text-indigo-400 transition-colors" title="Ver / Editar Logística">
              <Eye size={18} />
@@ -182,6 +178,40 @@ export default function EventosListPage() {
 
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Crear Nuevo Evento" size="lg">
         <EventoForm onSubmit={handleCreate} isLoading={isCreating} />
+      </Modal>
+      <Modal isOpen={reasonDialog !== null} onClose={() => setReasonDialog(null)} title={reasonDialog?.type === 'cancelar' ? 'Cancelar Evento' : 'Desactivar Evento'} size="sm">
+        <div className="space-y-4">
+          <p className="text-sm text-gray-400">
+            {reasonDialog?.type === 'cancelar'
+              ? 'La cancelación es irreversible. Explica el motivo:'
+              : 'Explica el motivo de la desactivación:'}
+          </p>
+          <textarea
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder-gray-500 outline-none focus:border-indigo-500/60"
+            rows={3}
+            placeholder={reasonDialog?.type === 'cancelar' ? 'Motivo de cancelación...' : 'Motivo de desactivación...'}
+          />
+          <div className="flex justify-end gap-3">
+            <button onClick={() => setReasonDialog(null)} className="rounded-xl bg-white/5 border border-white/10 px-4 py-2 text-sm text-gray-300 hover:bg-white/10 transition-colors">
+              Cancelar
+            </button>
+            <button
+              onClick={() => {
+                if (reasonDialog && reason.trim()) {
+                  actionTransition(reasonDialog.eventId, reasonDialog.type as any, { comentario: reason.trim() });
+                  setReasonDialog(null);
+                  setReason('');
+                }
+              }}
+              disabled={!reason.trim()}
+              className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500 disabled:opacity-50 transition-colors"
+            >
+              Confirmar
+            </button>
+          </div>
+        </div>
       </Modal>
     </div>
   );
