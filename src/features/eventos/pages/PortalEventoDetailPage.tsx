@@ -210,7 +210,7 @@ export default function PortalEventoDetailPage() {
               Después
             </button>
             <Link
-              to="/dashboard/profile?incomplete=true"
+              to="/dashboard/profile"
               className="rounded-xl bg-indigo-600 px-5 py-2 text-sm font-semibold text-white hover:bg-indigo-500 transition-colors"
             >
               Ir a Mi Perfil

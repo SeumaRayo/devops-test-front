@@ -2,10 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   ArrowLeft, CalendarDays, MapPin, Pencil, X, Ticket,
-  Loader2, CheckCircle, CreditCard, Clock, Ban, XCircle, Users, RefreshCcw, DollarSign,
+  Loader2, CheckCircle, CreditCard, Clock, Ban, XCircle, Users, RefreshCcw, DollarSign, Bell,
 } from 'lucide-react';
 import { PageHeader } from '../../../components/ui/PageHeader';
 import { Badge } from '../../../components/ui/Badge';
+import { usePermissions } from '../../../hooks/usePermissions';
 import { useEvento } from '../hooks/useEvento';
 import { EventoForm } from '../components/EventoForm';
 import { EventoStaffTab } from '../components/EventoStaffTab';
@@ -43,8 +44,11 @@ export default function EventoDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { evento, historial, isLoading, error, fetchById } = useEvento();
+  const { isAdmin } = usePermissions();
   const [isEditing, setIsEditing] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [sendingReminder, setSendingReminder] = useState(false);
+  const [reminderMsg, setReminderMsg] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<Tab>('info');
 
   // Tickets del evento
@@ -108,12 +112,40 @@ export default function EventoDetailPage() {
                 <X size={16} /> Cancelar Edición
               </button>
             )}
+            {isAdmin && (
+              <button
+                onClick={async () => {
+                  setSendingReminder(true);
+                  setReminderMsg(null);
+                  try {
+                    const axios = (await import('../../../lib/axios')).default;
+                    const { data } = await axios.post('/api/v1/notificaciones/recordatorios/ejecutar');
+                    setReminderMsg('Recordatorios enviados con éxito');
+                  } catch {
+                    setReminderMsg('Error al enviar recordatorios');
+                  } finally {
+                    setSendingReminder(false);
+                  }
+                }}
+                disabled={sendingReminder}
+                className="flex items-center gap-2 rounded-xl border border-amber-500/20 bg-amber-500/10 px-4 py-2.5 text-sm text-amber-400 transition hover:bg-amber-500/20 disabled:opacity-50"
+              >
+                <Bell size={16} />
+                {sendingReminder ? 'Enviando...' : 'Enviar Recordatorios'}
+              </button>
+            )}
             <button onClick={() => navigate(-1)} className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-gray-300 transition hover:bg-white/10">
               <ArrowLeft size={16} /> Volver
             </button>
           </div>
         }
       />
+
+      {reminderMsg && (
+        <div className="mb-4 rounded-xl border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-400">
+          {reminderMsg}
+        </div>
+      )}
 
       {/* ── TAB BAR ── */}
       <div className="flex items-center gap-2 border-b border-white/5 pb-4">
