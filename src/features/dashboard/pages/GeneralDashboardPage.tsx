@@ -44,7 +44,7 @@ export default function GeneralDashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
-        <div className="lg:col-span-3 space-y-4">
+        <div className="lg:col-span-3">
           <div className="rounded-2xl border border-white/5 bg-gray-900/30 backdrop-blur-xl overflow-hidden">
             <div className="flex items-center justify-between px-6 py-4 border-b border-white/5">
               <div className="flex items-center gap-3">
@@ -83,9 +83,9 @@ export default function GeneralDashboardPage() {
           </div>
         </div>
 
-        <div className="lg:col-span-2 space-y-4">
-          <div className="rounded-2xl border border-white/5 bg-gray-900/30 backdrop-blur-xl overflow-hidden">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-white/5">
+        <div className="lg:col-span-2">
+          <div className="rounded-2xl border border-white/5 bg-gray-900/30 backdrop-blur-xl p-6">
+            <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-lg bg-emerald-600/20 flex items-center justify-center">
                   <TrendingUp size={15} className="text-emerald-400" />
@@ -96,26 +96,24 @@ export default function GeneralDashboardPage() {
                 Ver todos <ArrowRight size={12} />
               </Link>
             </div>
-            <div className="divide-y divide-white/5">
+            <div className="flex gap-3 overflow-x-auto pb-1 -mx-1 px-1">
               {stats?.proximosEventos?.map((e) => (
                 <Link
                   key={e.idEvento}
                   to={`/dashboard/eventos/${e.idEvento}`}
-                  className="flex items-center justify-between px-6 py-3 hover:bg-white/3 transition-colors"
+                  className="shrink-0 w-36 h-36 rounded-2xl bg-emerald-600/10 border border-emerald-600/20 hover:bg-emerald-600/20 transition-colors flex flex-col items-center justify-center text-center p-3 gap-2 group"
                 >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-8 h-8 rounded-lg bg-emerald-600/20 border border-emerald-500/20 flex items-center justify-center shrink-0">
-                      <CalendarDays size={14} className="text-emerald-400" />
-                    </div>
-                    <p className="text-sm text-gray-200 truncate">{e.nombreEvento}</p>
+                  <div className="w-10 h-10 rounded-xl bg-emerald-600/20 flex items-center justify-center">
+                    <CalendarDays size={22} className="text-emerald-400" />
                   </div>
-                  <span className="text-xs text-emerald-400 font-medium shrink-0 ml-3">
+                  <p className="text-xs text-gray-200 line-clamp-2 leading-tight">{e.nombreEvento}</p>
+                  <span className="text-[11px] text-emerald-400 font-medium">
                     {new Date(e.fechaEvento + 'T00:00:00').toLocaleDateString('es-CO', { day: 'numeric', month: 'short' })}
                   </span>
                 </Link>
               ))}
               {(!stats?.proximosEventos || stats.proximosEventos.length === 0) && (
-                <div className="px-6 py-8 text-center text-sm text-gray-500">No hay eventos programados.</div>
+                <div className="w-full py-8 text-center text-sm text-gray-500">No hay eventos programados.</div>
               )}
             </div>
           </div>
