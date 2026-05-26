@@ -78,6 +78,12 @@ export const usuarioService = {
     return data;
   },
 
+  // PATCH /api/v1/usuarios/me
+  updateSelf: async (payload: Partial<UsuarioUpdateRequest>): Promise<UsuarioResponse> => {
+    const { data } = await axiosInstance.patch<UsuarioResponse>('/api/v1/usuarios/me', payload);
+    return data;
+  },
+
   // PATCH /api/v1/usuarios/{id}/activar
   activar: async (id: number): Promise<UsuarioResponse> => {
     const { data } = await axiosInstance.patch<UsuarioResponse>(API_ENDPOINTS.USUARIOS.ACTIVAR(id));
