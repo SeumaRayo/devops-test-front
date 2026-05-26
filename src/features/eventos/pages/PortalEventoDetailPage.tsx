@@ -8,6 +8,7 @@ import { StripeCheckoutDialog } from '../components/StripeCheckoutDialog';
 import { Loader2, ArrowLeft, Calendar, Clock, MapPin, Users, Ticket, CheckCircle, AlertCircle } from 'lucide-react';
 import { PageHeader } from '../../../components/ui/PageHeader';
 import { LoadingSpinner } from '../../../components/ui/LoadingSpinner';
+import { usuarioService } from '../../usuarios/services/usuario.service';
 
 export default function PortalEventoDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -48,10 +49,21 @@ export default function PortalEventoDetailPage() {
     if (id) fetchEvento();
   }, [id]);
 
-  const handleInscripcion = () => {
+  const handleInscripcion = async () => {
     if (!evento) return;
     setSuccessMessage(null);
     setErrorMessage(null);
+
+    try {
+      const status = await usuarioService.getCompleteStatus();
+      if (status.requiresCompletion) {
+        setErrorMessage('Debes completar tu perfil antes de inscribirte. Ve a Mi Perfil para actualizar tus datos.');
+        return;
+      }
+    } catch {
+      // continue even if check fails
+    }
+
     inscribirse(evento.idEvento, {
       onSuccess: (data) => {
         if (data.clientSecret) {
@@ -122,9 +134,16 @@ export default function PortalEventoDetailPage() {
         </div>
       )}
       {errorMessage && (
-        <div className="mb-6 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-400 flex items-center gap-3">
-          <AlertCircle size={18} className="shrink-0" />
-          <span>{errorMessage}</span>
+        <div className="mb-6 rounded-xl border px-4 py-3 text-sm flex items-start gap-3 border-red-500/20 bg-red-500/10 text-red-400">
+          <AlertCircle size={18} className="shrink-0 mt-0.5" />
+          <div>
+            <span>{errorMessage}</span>
+            {errorMessage.includes('perfil') && (
+              <Link to="/dashboard/profile" className="block mt-1 text-indigo-400 hover:text-indigo-300 text-xs">
+                Ir a Mi Perfil →
+              </Link>
+            )}
+          </div>
         </div>
       )}
 

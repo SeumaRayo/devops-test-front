@@ -7,6 +7,7 @@ import {
   UsuarioUpdateRequest,
   UsuarioFilterRequest,
   UsuarioOrganizadorResponse,
+  CompleteStatusResponse,
   PageResponse,
 } from '../types/usuario.types';
 
@@ -99,6 +100,12 @@ export const usuarioService = {
   // PATCH /api/v1/usuarios/{id}/bloquear
   bloquear: async (id: number): Promise<UsuarioResponse> => {
     const { data } = await axiosInstance.patch<UsuarioResponse>(API_ENDPOINTS.USUARIOS.BLOQUEAR(id));
+    return data;
+  },
+
+  // GET /api/v1/usuarios/complete-status
+  getCompleteStatus: async (): Promise<CompleteStatusResponse> => {
+    const { data } = await axiosInstance.get<CompleteStatusResponse>(API_ENDPOINTS.USUARIOS.COMPLETE_STATUS);
     return data;
   },
 };

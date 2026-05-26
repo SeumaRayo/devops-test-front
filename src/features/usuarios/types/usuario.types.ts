@@ -23,6 +23,11 @@ export interface UsuarioOrganizadorResponse {
   nombreRol: string;
 }
 
+export interface CompleteStatusResponse {
+  requiresCompletion: boolean;
+  missingFields: string[];
+}
+
 export interface UsuarioCreatedResponse {
   idUsuario: number;
   nombres: string;
