@@ -31,3 +31,26 @@ export interface TicketResponseDTO {
   checkinRealizado: boolean;
   fechaCheckin: string | null;
 }
+
+export interface EventoCanceladoInfo {
+  idEvento: number;
+  nombreEvento: string;
+  estadoEvento: string;
+  fechaEvento: string;
+  horaEvento: string;
+  lugarEvento: string;
+}
+
+export interface TicketEventoCanceladoResponse {
+  idTicket: number;
+  estadoTicket: EstadoTicket;
+  evento: EventoCanceladoInfo;
+  reembolsoDisponible: boolean;
+  estadoReembolso: string;
+  mensaje: string;
+}
+
+export interface MisEventosCanceladosResponse {
+  total: number;
+  tickets: TicketEventoCanceladoResponse[];
+}

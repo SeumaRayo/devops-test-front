@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Loader2, CheckCircle, XCircle, RefreshCcw, ChevronDown, ChevronUp, CreditCard, User, Hash, Calendar, Mail, Phone, AlertTriangle } from 'lucide-react';
-import { useReembolsosPorEvento, useRevisarSolicitud, useAprobarSolicitud, useRechazarSolicitud } from '../../reembolsos/hooks/reembolso.queries';
+import { Loader2, CheckCircle, XCircle, RefreshCcw, ChevronDown, ChevronUp, CreditCard, User, Hash, Calendar, Mail, Phone, AlertTriangle, DollarSign } from 'lucide-react';
+import { useReembolsosPorEvento, useRevisarSolicitud, useAprobarSolicitud, useRechazarSolicitud, useMarcarReembolsada } from '../../reembolsos/hooks/reembolso.queries';
 import { ReembolsoStatusBadge } from '../../reembolsos/components/ReembolsoStatusBadge';
 import { SolicitudReembolsoResponse } from '../../reembolsos/types/reembolso.types';
 import { Modal } from '../../../components/ui/Modal';
@@ -15,9 +15,10 @@ export const EventoReembolsosTab: React.FC<EventoReembolsosTabProps> = ({ idEven
   const { mutate: revisar } = useRevisarSolicitud();
   const { mutate: aprobar } = useAprobarSolicitud();
   const { mutate: rechazar } = useRechazarSolicitud();
+  const { mutate: marcar } = useMarcarReembolsada();
 
   const [expanded, setExpanded] = useState<Set<number>>(new Set());
-  const [actionDialog, setActionDialog] = useState<{ type: 'revisar' | 'aprobar' | 'rechazar'; solicitudId: number } | null>(null);
+  const [actionDialog, setActionDialog] = useState<{ type: 'revisar' | 'aprobar' | 'rechazar' | 'marcar'; solicitudId: number } | null>(null);
   const [comentario, setComentario] = useState('');
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; msg: string } | null>(null);
 
@@ -41,6 +42,7 @@ export const EventoReembolsosTab: React.FC<EventoReembolsosTabProps> = ({ idEven
       aprobar({ eventoId: idEvento, solicitudId, payload: { comentario: comentario || undefined } }, { ...callbacks, onSuccess: () => { callbacks.onSuccess(); setComentario(''); } });
     }
     if (type === 'rechazar') rechazar({ eventoId: idEvento, solicitudId, payload: { comentario } }, { ...callbacks, onSuccess: () => { callbacks.onSuccess(); setComentario(''); } });
+    if (type === 'marcar') marcar({ eventoId: idEvento, solicitudId }, callbacks);
   };
 
   if (isLoading) return <div className="flex justify-center items-center h-40 text-gray-400"><Loader2 className="w-6 h-6 animate-spin" /></div>;
@@ -118,6 +120,11 @@ export const EventoReembolsosTab: React.FC<EventoReembolsosTabProps> = ({ idEven
                     </button>
                   </>
                 )}
+                {s.estado === 'APROBADA' && (
+                  <button onClick={() => setActionDialog({ type: 'marcar', solicitudId: s.idSolicitud })} className="flex items-center gap-1 text-xs bg-green-500/10 text-green-400 border border-green-500/20 px-2 py-1 rounded-md hover:bg-green-500/20 transition-colors">
+                    <DollarSign size={12} /> Marcar Reembolsado
+                  </button>
+                )}
               </div>
             </div>
 
@@ -158,6 +165,16 @@ export const EventoReembolsosTab: React.FC<EventoReembolsosTabProps> = ({ idEven
           <div className="flex justify-end gap-3">
             <button onClick={() => setActionDialog(null)} className="rounded-xl bg-white/5 border border-white/10 px-4 py-2 text-sm text-gray-300 hover:bg-white/10">Cancelar</button>
             <button onClick={executeAction} className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">Confirmar</button>
+          </div>
+        </div>
+      </Modal>
+
+      <Modal isOpen={actionDialog !== null && actionDialog.type === 'marcar'} onClose={() => setActionDialog(null)} title="Marcar Reembolsado" size="sm">
+        <div className="space-y-4">
+          <p className="text-sm text-gray-400">¿Confirmas que el reembolso ya fue realizado externamente? Esto marcará la solicitud como completada.</p>
+          <div className="flex justify-end gap-3">
+            <button onClick={() => setActionDialog(null)} className="rounded-xl bg-white/5 border border-white/10 px-4 py-2 text-sm text-gray-300 hover:bg-white/10">Cancelar</button>
+            <button onClick={executeAction} className="rounded-xl bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-500">Confirmar</button>
           </div>
         </div>
       </Modal>

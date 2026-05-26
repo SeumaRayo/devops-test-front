@@ -57,4 +57,9 @@ export const reembolsoService = {
     const { data } = await axiosInstance.patch<SolicitudReembolsoResponse>(`/api/v1/eventos/${eventoId}/reembolsos/${solicitudId}/rechazar`, payload);
     return data;
   },
+
+  marcarReembolsada: async (eventoId: number, solicitudId: number): Promise<SolicitudReembolsoResponse> => {
+    const { data } = await axiosInstance.patch<SolicitudReembolsoResponse>(`/api/v1/eventos/${eventoId}/reembolsos/${solicitudId}/marcar-reembolsado`);
+    return data;
+  },
 };
