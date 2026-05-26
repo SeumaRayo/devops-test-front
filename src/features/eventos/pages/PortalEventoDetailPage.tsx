@@ -3,6 +3,7 @@ import { useParams, Link, useLocation } from 'react-router-dom';
 import { eventoService } from '../services/evento.service';
 import { EventoResponse } from '../types/evento.types';
 import { useInscribirEvento } from '../hooks/ticket.queries';
+import { useMisTickets } from '../hooks/ticket.queries';
 import { StripeCheckoutDialog } from '../components/StripeCheckoutDialog';
 import { Loader2, ArrowLeft, Calendar, Clock, MapPin, Users, Ticket, CheckCircle, AlertCircle } from 'lucide-react';
 import { PageHeader } from '../../../components/ui/PageHeader';
@@ -18,6 +19,8 @@ export default function PortalEventoDetailPage() {
   const [error, setError] = useState<string | null>(null);
 
   const { mutate: inscribirse, isPending: isInscribiendo } = useInscribirEvento();
+  const { data: misTickets } = useMisTickets();
+  const alreadyInscrito = misTickets?.some((t) => t.idEvento === Number(id)) ?? false;
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [stripeConfig, setStripeConfig] = useState<{ isOpen: boolean; clientSecret: string }>({
@@ -154,9 +157,9 @@ export default function PortalEventoDetailPage() {
 
           <button
             onClick={handleInscripcion}
-            disabled={isInscribiendo || evento.capacidadDisponible === 0}
+            disabled={isInscribiendo || evento.capacidadDisponible === 0 || alreadyInscrito}
             className={`w-full flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm transition-colors ${
-              evento.capacidadDisponible === 0
+              evento.capacidadDisponible === 0 || alreadyInscrito
                 ? 'bg-gray-800 text-gray-500 cursor-not-allowed'
                 : 'bg-indigo-600 hover:bg-indigo-500 text-white'
             }`}
@@ -166,7 +169,7 @@ export default function PortalEventoDetailPage() {
             ) : (
               <Ticket size={18} />
             )}
-            {evento.capacidadDisponible === 0 ? 'Cupos Agotados' : 'Inscribirse'}
+            {alreadyInscrito ? 'Ya Inscrito' : evento.capacidadDisponible === 0 ? 'Cupos Agotados' : 'Inscribirse'}
           </button>
         </div>
       </div>
